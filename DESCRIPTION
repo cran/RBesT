@@ -1,0 +1,42 @@
+Package: RBesT
+Type: Package
+Title: R Bayesian Evidence Synthesis Tools
+Description: Tool-set to support Bayesian evidence synthesis.
+    This includes meta-analysis, (robust) prior derivation
+    from historical data, operating characteristics
+    and analysis (1 and 2 sample cases).
+Version: 1.2-2
+Date: 2017-07-12
+Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
+            ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
+            ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
+            ,person("Heinz", "Schmidli", email="heinz.schmidli@novartis.com", role="ctb")
+            ,person("Baldur", "Magnusson", email="baldur.magnusson@novartis.com", role="ctb")
+            ,person("Yue", "Li", email="yue-1.li@novartis.com", role="ctb")
+            ,person("Satrajit", "Roychoudhury", email="satrajit.roychoudhury@novartis.com", role="ctb")
+	    )
+Depends: R (>= 3.2.0), Rcpp (>= 0.12.0), methods
+Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.16.1),
+        bayesplot, ggplot2, dplyr, stats, utils, lme4
+LinkingTo: StanHeaders (>= 2.16.0), rstan (>= 2.16.1), BH (>= 1.62.0),
+        Rcpp (>= 0.12.0), RcppEigen
+License: GPL (>= 3) | file LICENSE
+LazyData: true
+NeedsCompilation: yes
+Suggests: rmarkdown, knitr, testthat (>= 0.11.0), foreach, tidyverse,
+        rstanarm (>= 2.15.3)
+VignetteBuilder: knitr
+SystemRequirements: pandoc
+RoxygenNote: 6.0.1
+RcppModules: stan_fit4gMAP_mod
+Packaged: 2017-07-12 14:50:36 UTC; weberse2
+Author: Novartis Pharma AG [cph],
+  Sebastian Weber [aut, cre],
+  Beat Neuenschwander [ctb],
+  Heinz Schmidli [ctb],
+  Baldur Magnusson [ctb],
+  Yue Li [ctb],
+  Satrajit Roychoudhury [ctb]
+Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
+Repository: CRAN
+Date/Publication: 2017-07-12 16:12:50 UTC

@@ -1,0 +1,44 @@
+#' @rdname likelihood
+#' @name likelihood
+#' 
+#' @title Read and Set Likelihood to the Corresponding Conjugate Prior 
+#'
+#' @description Read and set the likelihood distribution corresponding to the conjugate prior distribution.
+#'
+#' @param mix Prior mixture distribution.
+#' @param value New likelihood. \strong{Should} only be changed for Gamma priors as these are supported
+#' with either Poisson (\code{value="poisson"}) or Exponential (\code{value="exp"}) likelihoods. 
+#'
+#' @details
+#' If the prior and posterior distributions are in the same family, then the prior distribution 
+#' is called a conjugate prior for the likelihood function.   
+#'
+#' @template conjugate_pairs
+#'
+#' @examples
+#'
+#' # Gamma mixture
+#' gmix <- mixgamma(c(0.3, 20, 4), c(0.7, 50, 10))
+#'
+#' # read out conjugate partner
+#' likelihood(gmix)
+#'
+#' ess(gmix)
+#'
+#' # set conjugate partner
+#' likelihood(gmix) <- "exp"
+#'
+#' # ... which changes the interpretation of the mixture
+#' ess(gmix)
+#' @export
+#' @rdname likelihood
+likelihood <- function(mix) {
+    attr(mix, "likelihood")
+}
+
+#' @export
+#' @rdname likelihood
+'likelihood<-' <- function(mix, value) {
+    attr(mix, "likelihood") <- value
+    mix
+}

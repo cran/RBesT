@@ -1,0 +1,55 @@
+#' R Bayesian Evidence Synthesis Tools
+#'
+#' The RBesT tools are designed to support in the derivation of
+#' parametric informative priors, asses design characeristics and
+#' perform analyses. Supported endpoints include normal, binary and
+#' Poisson.
+#' 
+#' For introductory material, please refer to the vignettes which include
+#'
+#' \itemize{
+#' \item Introduction (binary)
+#' \item Introduction (normal)
+#' \item Customizing RBesT Plots
+#' \item Robust MAP, advanced usage
+#' }
+#' 
+#' The main function of the package is \code{\link{gMAP}}. See it's
+#' help page for a detailed description of the statistical model.
+#'
+#'
+#' @section Global Options:
+#'
+#' \tabular{lcl}{
+#' Option \tab Default \tab Description \cr
+#' \code{RBesT.MC.warmup} \tab 2000 \tab MCMC warmup iterations \cr
+#' \code{RBesT.MC.iter} \tab 6000 \tab total MCMC iterations \cr
+#' \code{RBesT.MC.chains} \tab 4 \tab MCMC chains\cr
+#' \code{RBesT.MC.thin} \tab 4 \tab MCMC thinning \cr
+#' \code{RBesT.MC.control} \tab \code{list(adapt_delta=0.99,} \tab sets \code{control} argument for Stan call\cr
+#'  \tab \code{stepsize=0.01,} \tab \cr
+#'  \tab \code{max_treedepth=20)} \tab \cr
+#' \code{RBesT.MC.ncp} \tab 1 \tab parametrization: 0=CP, 1=NCP, 2=Automatic  \cr
+#' \code{RBesT.MC.init} \tab 1 \tab range of initial uniform [-1,1] is the default  \cr
+#' \code{RBesT.MC.rescale} \tab \code{TRUE} \tab Automatic rescaling of raw parameters  \cr
+#' \code{RBesT.verbose} \tab \code{FALSE} \tab requests outputs to be more verbose\cr
+#' }
+#'
+#' @section Version History:
+#'
+#' See \code{NEWS} file.
+#' 
+#' @name RBesT-package
+#' @docType package
+#' @useDynLib RBesT, .registration = TRUE 
+#' @import methods
+#' @importFrom rstan sampling extract get_sampler_params summary stanc_builder
+#' @import stats
+#' @importFrom utils capture.output modifyList
+#' @import assertthat
+#' @import mvtnorm
+#' @import ggplot2
+#' @import Formula
+#' @import Rcpp
+#' @import checkmate
+NULL

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Sebastian Weber" />
+
+<meta name="date" content="2017-07-12" />
+
+<title>RBesT for a Binary Endpoint</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">RBesT for a Binary Endpoint</h1>
+<h4 class="author"><em>Sebastian Weber</em></h4>
+<h4 class="date"><em>2017-07-12</em></h4>
+
+
+
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{Getting started with RBesT (binary)}
+-->
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The R Bayesian evidence synthesis Tools (RBesT) have been created to facilitate the use of historical information in clinical trials. Once relevant historical information has been identified, RBesT supports the derivation of informative priors via the Meta-Analytic-Predictive (MAP) approach [1] and the evaluation of the trial’s operating characteristics. The MAP approach performs a standard meta-analysis followed by a prediction for the control group parameter of a future study while accounting for the uncertainty in the population mean (the standard result from a meta-analysis) and the between-trial heterogeneity. Therefore, RBesT can also be used as a meta-analysis tool if one simply neglects the prediction part.</p>
+<p>Let’s consider a Novartis Phase II study in ankylosing spondylitis comparing the Novartis test treatment secukinumab with placebo [2]. The primary efficacy endpoint was percentage of patients with a 20% response according to the Assessment of SpondyloArthritis international Society criteria for improvement (ASAS20) at week 6. For the control group, the following historical data were used to derive the MAP prior:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">study</th>
+<th align="right">n</th>
+<th align="right">r</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Study 1</td>
+<td align="right">107</td>
+<td align="right">23</td>
+</tr>
+<tr class="even">
+<td align="left">Study 2</td>
+<td align="right">44</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">Study 3</td>
+<td align="right">51</td>
+<td align="right">19</td>
+</tr>
+<tr class="even">
+<td align="left">Study 4</td>
+<td align="right">39</td>
+<td align="right">9</td>
+</tr>
+<tr class="odd">
+<td align="left">Study 5</td>
+<td align="right">139</td>
+<td align="right">39</td>
+</tr>
+<tr class="even">
+<td align="left">Study 6</td>
+<td align="right">20</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td align="left">Study 7</td>
+<td align="right">78</td>
+<td align="right">9</td>
+</tr>
+<tr class="even">
+<td align="left">Study 8</td>
+<td align="right">35</td>
+<td align="right">10</td>
+</tr>
+</tbody>
+</table>
+<p>This dataset is part of RBesT and available after loading the package in the data frame <code>AS</code>.</p>
+<p>RBesT supports all required steps to design a clinical trial with historical information using the MAP approach.</p>
+</div>
+<div id="prior-derivation" class="section level1">
+<h1>Prior Derivation</h1>
+<div id="meta-analytic-predictive-analysis" class="section level2">
+<h2>Meta-Analytic-Predictive Analysis</h2>
+<p>The <strong><code>gMAP</code></strong> function performs the meta-analysis and the prediction, which yields the MAP prior. The analysis is run using stochastic Markov-Chain-Monte-Carlo with Stan. In order to make results exactly reproducible, the <code>set.seed</code> function must be called prior to calling <strong><code>gMAP</code></strong> .</p>
+<p>A key parameter in a meta-analysis is the between-trial heterogeneity parameter <span class="math inline">\(\tau\)</span> which controls the amount of borrowing from historical information for the estimation of the population mean will occur. As we often have only few historical trials, the prior is important. For binary endpoints with an expected response rate of 20%-80% we recommend a conservative <code>HalfNormal(0,1)</code> prior as a default. Please refer to the help-page of <strong><code>gMAP</code></strong> for more information.</p>
+<p>The <strong><code>gMAP</code></strong> function returns an analysis object from which we can extract information using the functions from RBesT. We do recommend to look at the graphical model checks provided by RBesT as demonstrated below. The most important one is the forest plot, with solid lines for the MAP model predictions and dashed lines for the stratified estimates. For a standard forest plot without the shrinkage estimates please refer to the <code>forest_plot</code> function in RBesT.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RBesT)
+<span class="kw">set.seed</span>(<span class="dv">34563</span>)
+map_mcmc &lt;-<span class="st"> </span><span class="kw">gMAP</span>(<span class="kw">cbind</span>(r, n-r) ~<span class="st"> </span><span class="dv">1</span> |<span class="st"> </span>study,
+                 <span class="dt">data=</span>AS,
+                 <span class="dt">tau.dist=</span><span class="st">&quot;HalfNormal&quot;</span>,
+                 <span class="dt">tau.prior=</span><span class="dv">1</span>,
+                 <span class="dt">beta.prior=</span><span class="dv">2</span>,
+                 <span class="dt">family=</span>binomial)</code></pre></div>
+<pre><code>## Assuming default prior location   for beta: 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(map_mcmc)</code></pre></div>
+<pre><code>## Generalized Meta Analytic Predictive Prior Analysis
+## 
+## Call:  gMAP(formula = cbind(r, n - r) ~ 1 | study, family = binomial, 
+##     data = AS, tau.dist = &quot;HalfNormal&quot;, tau.prior = 1, beta.prior = 2)
+## 
+## Exchangeability tau strata: 1 
+## Prediction tau stratum    : 1 
+## Maximal Rhat              : 1 
+## 
+## Between-trial heterogeneity of tau prediction stratum
+##   mean     sd   2.5%    50%  97.5% 
+## 0.3860 0.2150 0.0526 0.3550 0.8860 
+## 
+## MAP Prior MCMC sample
+##   mean     sd   2.5%    50%  97.5% 
+## 0.2600 0.0871 0.1140 0.2490 0.4670</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## a graphical representation of model checks is available
+pl &lt;-<span class="st"> </span><span class="kw">plot</span>(map_mcmc)
+
+## a number of plots are immediately defined
+<span class="kw">names</span>(pl)</code></pre></div>
+<pre><code>## [1] &quot;densityThetaStar&quot;     &quot;densityThetaStarLink&quot; &quot;forest_model&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## forest plot with model estimates
+<span class="kw">print</span>(pl$forest_model)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>An often raised concern with a Bayesian analysis is the choice of the prior. Hence sensitivity analyses may sometimes be necessary. They can be quickly performed with the <strong><code>update</code></strong> function. Suppose we want to evaluate a more optimistic scenario (with less between-trial heterogeneity), expressed by a <code>HalfNormal(0,1/2)</code> prior on <span class="math inline">\(\tau\)</span>. Then we can rerun the original analysis, but with modified arguments of <strong><code>gMAP</code></strong>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">36546</span>)
+map_mcmc_sens &lt;-<span class="st"> </span><span class="kw">update</span>(map_mcmc, <span class="dt">tau.prior=</span><span class="dv">1</span>/<span class="dv">2</span>)</code></pre></div>
+<pre><code>## Assuming default prior location   for beta: 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(map_mcmc_sens)</code></pre></div>
+<pre><code>## Generalized Meta Analytic Predictive Prior Analysis
+## 
+## Call:  gMAP(formula = cbind(r, n - r) ~ 1 | study, family = binomial, 
+##     data = AS, tau.dist = &quot;HalfNormal&quot;, tau.prior = 1/2, beta.prior = 2)
+## 
+## Exchangeability tau strata: 1 
+## Prediction tau stratum    : 1 
+## Maximal Rhat              : 1 
+## 
+## Between-trial heterogeneity of tau prediction stratum
+##   mean     sd   2.5%    50%  97.5% 
+## 0.3280 0.1740 0.0349 0.3140 0.7190 
+## 
+## MAP Prior MCMC sample
+##   mean     sd   2.5%    50%  97.5% 
+## 0.2560 0.0747 0.1220 0.2480 0.4300</code></pre>
+</div>
+<div id="parametric-approximation" class="section level2">
+<h2>Parametric Approximation</h2>
+<p>As a next step, the MAP prior, represented numerically using a large MCMC simulation sample, is converted to a parametric representation with the <strong><code>automixfit</code></strong> function. This function fits a parametric mixture representation using expectation-maximization (EM). The number of mixture components to best describe the MAP is chosen automatically. Again, the <code>plot</code> function produces a graphical diagnostic which allows the user to assess whether the marginal mixture density (shown in black) matches well with the histogram of the MAP MCMC sample.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">map &lt;-<span class="st"> </span><span class="kw">automixfit</span>(map_mcmc)
+<span class="kw">print</span>(map)</code></pre></div>
+<pre><code>## EM for Beta Mixture Model
+## Log-Likelihood = 4396.116
+## 
+## Univariate beta mixture
+## Mixture Components:
+##   comp1      comp2     
+## w  0.6524875  0.3475125
+## a 15.9192678  3.3087026
+## b 48.2357364  8.4348603</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(map)$mix</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="effective-sample-size" class="section level2">
+<h2>Effective Sample Size</h2>
+<p>The (usual) intended use of a (MAP) prior is to reduce the number of control patients in the trial. The prior can be considered equivalent to a number of experimental observations, which is called the effective sample size (ESS) of the prior. It can be calculated in RBesT with the <strong><code>ess</code></strong> function. It should be noted, however, that the concept of ESS is somewhat elusive. In particular, the definition of the ESS is not unique and multiple methods have therefore been implemented in RBesT. The default moment-based approach yields conservative (small) ESS in comparison to the Morita [3] approach, which yields liberal (large) ESS:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ess</span>(map)</code></pre></div>
+<pre><code>## [1] 24</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ess</span>(map, <span class="dt">method=</span><span class="st">&quot;morita&quot;</span>)</code></pre></div>
+<pre><code>## [1] 53</code></pre>
+<p>The Morita approach uses the curvature of the prior at the mode and has been found to be sensitive to a large number of mixture components. From experience, a realistic ESS estimate can be obtained by using few mixture components for the MAP MCMC sample:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">map_2 &lt;-<span class="st"> </span><span class="kw">mixfit</span>(map_mcmc, <span class="dt">Nc=</span><span class="dv">2</span>)
+<span class="kw">ess</span>(map_2, <span class="dt">method=</span><span class="st">&quot;morita&quot;</span>)</code></pre></div>
+<pre><code>## [1] 53</code></pre>
+</div>
+<div id="robustification-of-the-map-prior" class="section level2">
+<h2>Robustification of the MAP Prior</h2>
+<p>Finally, we recommend to <strong><code>robustify</code></strong> [4] the prior which protects against type-I error inflation in presence of prior-data conflict, i.e. if the future trial data strongly deviate from the historical control information.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## add a 20% non-informative mixture component
+map_robust &lt;-<span class="st"> </span><span class="kw">robustify</span>(map, <span class="dt">weight=</span><span class="fl">0.2</span>, <span class="dt">mean=</span><span class="dv">1</span>/<span class="dv">2</span>)
+<span class="kw">print</span>(map_robust)</code></pre></div>
+<pre><code>## Univariate beta mixture
+## Mixture Components:
+##   comp1     comp2     robust   
+## w  0.521990  0.278010  0.200000
+## a 15.919268  3.308703  1.000000
+## b 48.235736  8.434860  1.000000</code></pre>
+<p>Note that robustification does reduce the ESS (numbers not shown).</p>
+</div>
+</div>
+<div id="design-evaluation" class="section level1">
+<h1>Design Evaluation</h1>
+<p>Now we have a prior which can be specified in the protocol. The advantage of using historical information is the possible reduction of the placebo patient group. The sample size of the control group is supplemented by the historical information. The reduction in placebo patients can be about as large as the ESS of the MAP prior.</p>
+<p>In the following, we compare designs with different sample sizes and priors for the control group. The comparisons are carried out by evaluating standard Frequentist operating characteristics (type-I error, power). The scenarios are not exhaustive, but rather specific ones to demonstrate the use of RBesT for design evaluation.</p>
+<div id="operating-characteristics" class="section level2">
+<h2>Operating Characteristics</h2>
+<p>We consider the 2-arm design of the actual Novartis trial in ankylosing spondylitis [2]. This trial tested 6 patients on placebo against 24 patients on experimental treatment. Success was declared whenever the condition</p>
+<p><span class="math display">\[\Pr(p_{placebo} - p_{treat} \leq 0) &gt; 0.95\]</span></p>
+<p>was met. A MAP prior was used for the placebo response rate parameter. Here we evaluate a few design options as an example.</p>
+<p>The operating characteristics are setup in RBesT in a stepwise manner:</p>
+<ol style="list-style-type: decimal">
+<li>Definition of priors for each arm.</li>
+<li>Definition of the decision criterion using the <strong><code>oc2Sdecision</code></strong> function.</li>
+<li>Specification of design options with the <strong><code>oc2S</code></strong> function. This includes the overall decision function and per arm the prior and the sample size to use.</li>
+<li>The object from step 3 is then used to calculate the operating characteristics.</li>
+</ol>
+<p>Note that for a 1-sample situation the respective <code>oc1Sdecision</code> and <code>oc1S</code> function are used instead.</p>
+<div id="type-i-error" class="section level3">
+<h3>Type I Error</h3>
+<p>The type I can be increased compared to the nominal <span class="math inline">\(\alpha\)</span> level in case of a conflict between the trial data and the prior. Note, that in this example the MAP prior has a 95% interval of about 0.1 to 0.5.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">p_truth       &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="fl">0.1</span>,<span class="fl">0.95</span>,<span class="dt">by=</span><span class="fl">0.01</span>)
+uniform_prior &lt;-<span class="st"> </span><span class="kw">mixbeta</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>))
+treat_prior   &lt;-<span class="st"> </span><span class="kw">mixbeta</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="fl">0.5</span>,<span class="dv">1</span>)) <span class="co"># prior for treatment used in trial</span>
+lancet_prior  &lt;-<span class="st"> </span><span class="kw">mixbeta</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">11</span>,<span class="dv">32</span>)) <span class="co"># prior for control   used in trial</span>
+decision      &lt;-<span class="st"> </span><span class="kw">oc2Sdecision</span>(<span class="fl">0.95</span>, <span class="dv">0</span>, <span class="dt">lower.tail=</span><span class="ot">TRUE</span>)
+
+design_uniform   &lt;-<span class="st"> </span><span class="kw">oc2S</span>(uniform_prior, uniform_prior, <span class="dv">6</span>, <span class="dv">24</span>, decision)
+design_nonrobust &lt;-<span class="st"> </span><span class="kw">oc2S</span>(map          , treat_prior,   <span class="dv">6</span>, <span class="dv">24</span>, decision)
+design_robust    &lt;-<span class="st"> </span><span class="kw">oc2S</span>(map_robust   , treat_prior,   <span class="dv">6</span>, <span class="dv">24</span>, decision)
+
+typeI_uniform   &lt;-<span class="st"> </span><span class="kw">design_uniform</span>(  p_truth, p_truth)
+typeI_nonrobust &lt;-<span class="st"> </span><span class="kw">design_nonrobust</span>(p_truth, p_truth)
+typeI_robust    &lt;-<span class="st"> </span><span class="kw">design_robust</span>(   p_truth, p_truth)
+
+ocI &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">data.frame</span>(<span class="dt">p_truth=</span>p_truth, <span class="dt">typeI=</span>typeI_robust,    <span class="dt">prior=</span><span class="st">&quot;robust&quot;</span>),
+             <span class="kw">data.frame</span>(<span class="dt">p_truth=</span>p_truth, <span class="dt">typeI=</span>typeI_nonrobust, <span class="dt">prior=</span><span class="st">&quot;non-robust&quot;</span>),
+             <span class="kw">data.frame</span>(<span class="dt">p_truth=</span>p_truth, <span class="dt">typeI=</span>typeI_uniform,   <span class="dt">prior=</span><span class="st">&quot;uniform&quot;</span>)
+             )
+
+<span class="kw">library</span>(ggplot2)
+<span class="kw">theme_set</span>(<span class="kw">theme_bw</span>()) <span class="co"># nice plotting theme</span>
+<span class="kw">qplot</span>(p_truth, typeI, <span class="dt">data=</span>ocI, <span class="dt">colour=</span>prior, <span class="dt">geom=</span><span class="st">&quot;line&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Type I Error&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="power" class="section level3">
+<h3>Power</h3>
+<p>The power demonstrates the gain of using an informative prior; i.e. 80% power is reached for smaller <span class="math inline">\(\delta\)</span> values in comparison to a design with non-informative priors for both arms.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delta &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="fl">0.7</span>,<span class="dt">by=</span><span class="fl">0.01</span>)
+m &lt;-<span class="st"> </span><span class="kw">summary</span>(map)[<span class="st">&quot;mean&quot;</span>]
+p_truth1 &lt;-<span class="st"> </span>m +<span class="st"> </span><span class="dv">0</span>*delta
+p_truth2 &lt;-<span class="st"> </span>m +<span class="st">   </span>delta
+
+power_uniform   &lt;-<span class="st"> </span><span class="kw">design_uniform</span>(p_truth1, p_truth2)
+power_nonrobust &lt;-<span class="st"> </span><span class="kw">design_nonrobust</span>(p_truth1, p_truth2)
+power_robust    &lt;-<span class="st"> </span><span class="kw">design_robust</span>(p_truth1, p_truth2)
+
+ocP &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">data.frame</span>(<span class="dt">p_truth1=</span>p_truth1, <span class="dt">p_truth2=</span>p_truth2, <span class="dt">delta=</span>delta, <span class="dt">power=</span>power_robust,    <span class="dt">prior=</span><span class="st">&quot;robust&quot;</span>),
+             <span class="kw">data.frame</span>(<span class="dt">p_truth1=</span>p_truth1, <span class="dt">p_truth2=</span>p_truth2, <span class="dt">delta=</span>delta, <span class="dt">power=</span>power_nonrobust, <span class="dt">prior=</span><span class="st">&quot;non-robust&quot;</span>),
+             <span class="kw">data.frame</span>(<span class="dt">p_truth1=</span>p_truth1, <span class="dt">p_truth2=</span>p_truth2, <span class="dt">delta=</span>delta, <span class="dt">power=</span>power_uniform,   <span class="dt">prior=</span><span class="st">&quot;uniform&quot;</span>)
+             )
+
+<span class="kw">qplot</span>(delta, power, <span class="dt">data=</span>ocP, <span class="dt">colour=</span>prior, <span class="dt">geom=</span><span class="st">&quot;line&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Power&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="data-scenarios" class="section level3">
+<h3>Data Scenarios</h3>
+<p>An alternative approach to visualize the study design to non-statisticians is by considering data scenarios. They show the decisions based on potential trial outcomes. The information needed are the critical values at which the decision criterion flips. In the 2-sample case this means to calculate the decision boundary, see the <strong><code>oc2S</code></strong> help for more information.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## Critical values at which the decision are given conditional on the
+## outcome of the second read-out
+treat_y2 &lt;-<span class="st"> </span><span class="dv">0</span>:<span class="dv">24</span>
+## Note that -1 is returned to indicated that the decision is never 1
+ocC &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">data.frame</span>(<span class="dt">y2=</span>treat_y2, <span class="dt">y1_crit=</span><span class="kw">design_robust</span>(<span class="dt">y2=</span>treat_y2),    <span class="dt">prior=</span><span class="st">&quot;robust&quot;</span>),
+             <span class="kw">data.frame</span>(<span class="dt">y2=</span>treat_y2, <span class="dt">y1_crit=</span><span class="kw">design_nonrobust</span>(<span class="dt">y2=</span>treat_y2), <span class="dt">prior=</span><span class="st">&quot;non-robust&quot;</span>),
+             <span class="kw">data.frame</span>(<span class="dt">y2=</span>treat_y2, <span class="dt">y1_crit=</span><span class="kw">design_uniform</span>(<span class="dt">y2=</span>treat_y2),   <span class="dt">prior=</span><span class="st">&quot;uniform&quot;</span>)
+             )
+
+<span class="kw">qplot</span>(y2, y1_crit, <span class="dt">data=</span>ocC, <span class="dt">colour=</span>prior, <span class="dt">geom=</span><span class="st">&quot;step&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Critical values y1(y2)&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The graph shows that the decision will always be negative if there are less than 10 events in the treatment group. On the other hand, under a non-robust prior and assuming 15 events in the treatment group, three (or less) placebo events would be needed for success. To check this result, we can directly evaluate the decision function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## just positive
+<span class="kw">decision</span>(<span class="kw">postmix</span>(map, <span class="dt">n=</span><span class="dv">6</span>, <span class="dt">r=</span><span class="dv">3</span>), <span class="kw">postmix</span>(treat_prior, <span class="dt">n=</span><span class="dv">24</span>, <span class="dt">r=</span><span class="dv">15</span>))</code></pre></div>
+<pre><code>## [1] 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## negative
+<span class="kw">decision</span>(<span class="kw">postmix</span>(map, <span class="dt">n=</span><span class="dv">6</span>, <span class="dt">r=</span><span class="dv">4</span>), <span class="kw">postmix</span>(treat_prior, <span class="dt">n=</span><span class="dv">24</span>, <span class="dt">r=</span><span class="dv">14</span>))</code></pre></div>
+<pre><code>## [1] 0</code></pre>
+</div>
+</div>
+</div>
+<div id="trial-analysis" class="section level1">
+<h1>Trial Analysis</h1>
+<p>Once the trial has completed and data is collected, the final analysis can be run with RBesT using the <strong><code>postmix</code></strong> function. Calculations are performed analytically as we are in the conjugate mixture setting.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">r_placebo &lt;-<span class="st"> </span><span class="dv">1</span>
+r_treat   &lt;-<span class="st"> </span><span class="dv">14</span>
+
+## first obtain posterior distributions...
+post_placebo &lt;-<span class="st"> </span><span class="kw">postmix</span>(map_robust,  <span class="dt">r=</span>r_placebo, <span class="dt">n=</span><span class="dv">6</span>)
+post_treat   &lt;-<span class="st"> </span><span class="kw">postmix</span>(treat_prior, <span class="dt">r=</span>r_treat  , <span class="dt">n=</span><span class="dv">24</span>)
+
+## ...then calculate probability that the difference is smaller than
+## zero
+prob_smaller &lt;-<span class="st"> </span><span class="kw">pmixdiff</span>(post_placebo, post_treat, <span class="dv">0</span>)
+
+prob_smaller</code></pre></div>
+<pre><code>## [1] 0.990978</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">prob_smaller &gt;<span class="st"> </span><span class="fl">0.95</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## alternativley we can use the decision object
+<span class="kw">decision</span>(post_placebo, post_treat)</code></pre></div>
+<pre><code>## [1] 1</code></pre>
+<div id="references" class="section level3">
+<h3>References</h3>
+<p>[1] Neuenschwander B et. al, <em>Clin Trials</em>. 2010; 7(1):5-18<br />
+[2] Beaten D. et. al, <em>The Lancet</em>, 2013, (382), 9906, p 1705<br />
+[3] Morita S. et. al, <em>Biometrics</em> 2008;64(2):595-602<br />
+[4] Schmidli H. et. al, <em>Biometrics</em> 2014;70(4):1023-1032</p>
+</div>
+<div id="r-session-info" class="section level3">
+<h3>R Session Info</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sessionInfo</span>()</code></pre></div>
+<pre><code>## R version 3.3.3 (2017-03-06)
+## Platform: i386-w64-mingw32/i386 (32-bit)
+## Running under: Windows 7 (build 7601) Service Pack 1
+## 
+## locale:
+## [1] LC_COLLATE=C                        LC_CTYPE=German_Switzerland.1252   
+## [3] LC_MONETARY=German_Switzerland.1252 LC_NUMERIC=C                       
+## [5] LC_TIME=German_Switzerland.1252    
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] bayesplot_1.2.0 RBesT_1.2-2     Rcpp_0.12.11    knitr_1.16     
+##  [5] dplyr_0.7.1     purrr_0.2.2.2   readr_1.1.1     tidyr_0.6.3    
+##  [9] tibble_1.3.3    ggplot2_2.2.1   tidyverse_1.1.1
+## 
+## loaded via a namespace (and not attached):
+##  [1] checkmate_1.8.3      jsonlite_1.5         reshape2_1.4.2      
+##  [4] magrittr_1.5         gtable_0.2.0         rmarkdown_1.6       
+##  [7] hms_0.3              xml2_1.1.1           htmltools_0.3.6     
+## [10] forcats_0.2.0        stringr_1.2.0        haven_1.1.0         
+## [13] broom_0.4.2          cellranger_1.1.0     Formula_1.2-1       
+## [16] lattice_0.20-34      StanHeaders_2.16.0-1 plyr_1.8.4          
+## [19] lubridate_1.6.0      gridExtra_2.2.1      pkgconfig_2.0.1     
+## [22] R6_2.2.2             digest_0.6.12        stats4_3.3.3        
+## [25] colorspace_1.3-2     bindrcpp_0.2         rprojroot_1.2       
+## [28] rstan_2.16.2         stringi_1.1.5        yaml_2.1.14         
+## [31] lazyeval_0.2.0       codetools_0.2-15     evaluate_0.10.1     
+## [34] labeling_0.3         httr_1.2.1           bindr_0.1           
+## [37] backports_1.1.0      inline_0.3.14        munsell_0.4.3       
+## [40] psych_1.7.5          modelr_0.1.0         readxl_1.0.0        
+## [43] highr_0.6            parallel_3.3.3       assertthat_0.2.0    
+## [46] tools_3.3.3          foreign_0.8-67       mvtnorm_1.0-6       
+## [49] scales_0.4.1         glue_1.1.1           rlang_0.1.1         
+## [52] mnormt_1.5-5         nlme_3.1-131         rvest_0.3.2         
+## [55] grid_3.3.3</code></pre>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+
+July 12th, 2017 (1.2-2)
+
+* Further speedup example runtimes.
+
+July 12th, 2017 (1.2-1)
+
+* Compactify reference PDF manual.
+* Introduce sampling argumets to gMAP.
+* Shorten runtime of examples.
+
+July 3rd, 2017 (1.2-0)
+
+* First CRAN release.
+* Update of documentation.
+
+May 15th, 2017 (1.1-0)
+
+* Redesign of reference scale handling for normal case.
+* Enable standard error as sufficient statistic in \code{postmix} function.
+* Introduced plotting options.
+* Incraesed adapt_delta default and set stepsize+max_treedepth default.
+* Added RBesT.MC.\{ncp, init, rescale\} option.
+* Corrections for Poisson OC.
+* pmixdiff function now integrates over full support.
+* Added \code{link} argument to \code{oc2Sdecision} which enables designs based on log-odds decisions or relative risks.
+* New graphical vignette and new forest plot function.
+* Use \pkg{bayesplot} as standard plotting package.
+
+March 10th, 2016 (1.0-0)
+
+* Stabilize integration in pmixdiff for beta mixtures by logit transform.
+* Set default adapt_delta to 0.975.
+* Made RBesT compatible with ggplot2 2.0.
+* Allowed n2=0 in \code{oc2S} function.
+
+Oct 28th 2015 (0.9-2)
+
+* Corrected Poisson stratified estimates.
+* Added warning on divergent transitions.
+* Added the crohn dataset.
+
+Sept 3rd 2015 (0.9-1)
+
+* Minor typo fixes.
+
+Sept 1st 2015 (0.9-0)
+
+* First release.
