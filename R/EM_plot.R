@@ -1,7 +1,7 @@
 #' Diagnostic plots for EM fits
 #'
 #' Produce diagnostic plots of EM fits returned from \code{\link{mixfit}}.
-#' 
+#'
 #' @param x EM fit
 #' @param size Optional argument passed to \code{ggplot2} routines
 #' which control line thickness.
@@ -16,7 +16,7 @@
 #' \code{\link{gMAP}} analysis.
 #'
 #' @template plot-help
-#' 
+#'
 #' @return A list of \code{\link[ggplot2]{ggplot}} plots for
 #' diagnostics of the EM run. Detailled EM diagnostic plots are
 #' included only if the global option \code{RBesT.verbose} is set to
@@ -40,18 +40,17 @@
 #' # a number of additional plots are generated in verbose mode
 #' options(RBesT.verbose=TRUE)
 #' pl_all <- plot(bfit)
-#' 
+#'
 #' names(pl_all)
 #' # [1] "a"   "b"   "w"   "m"   "N"   "Lm"  "lN"  "Lw"  "lli" "mixdens" "mix"
 #' }
-#' 
+#'
 #' @method plot EM
 #' @export
 plot.EM <- function(x, size=1.25, link=c("identity", "logit", "log"), ...) {
     pl <- list()
     ## in verbose mode we output EM fit diagnostics
     if(getOption("RBesT.verbose", FALSE)) {
-        thm <- bayesplot::theme_default()
         ## these NULL assignments make R check happy
         a <- b <- w <- s <- comp <- iteration <- NULL
         Nc <- ncol(x)
@@ -63,7 +62,7 @@ plot.EM <- function(x, size=1.25, link=c("identity", "logit", "log"), ...) {
                            m
                        })
         names(pseq) <- 1:length(pseq) - 1
-        Mw <- dplyr::rbind_all(pseq, id="iteration")
+        Mw <- dplyr::bind_rows(pseq, .id="iteration")
         Mw <- Mw[c(1,5,2,3,4)]
         Mw$iteration <- as.numeric(Mw$iteration)
         if("EMbmm" %in% class(x)) {
@@ -92,9 +91,9 @@ plot.EM <- function(x, size=1.25, link=c("identity", "logit", "log"), ...) {
         LL <- data.frame(iteration=0:max(Mw$iteration), lli=attr(x, "traceLli"))
         basePl <- ggplot(Mw, aes_string(x="iteration", colour="Comp")) + geom_line(size=size)
         for(p in pars) {
-            pl[[p]] <- basePl + aes_string(y=p) + thm
+            pl[[p]] <- basePl + aes_string(y=p)
         }
-        pl$lli <- ggplot(subset(LL, iteration>0), aes_string(x="iteration", y="lli")) + geom_line(size=size) + ylab("log-likelihood") + thm
+        pl$lli <- ggplot(subset(LL, iteration>0), aes_string(x="iteration", y="lli")) + geom_line(size=size) + ylab("log-likelihood")
     }
     ##pl$mix <- plot.mix(x, comp=TRUE, samp=attr(x, "x"), ...)
     link <- match.arg(link)
@@ -112,11 +111,11 @@ plot.EM <- function(x, size=1.25, link=c("identity", "logit", "log"), ...) {
         subtitle <- paste("Link:", dlink(x)$name)
     else
         subtitle <- NULL
-    
+
     pl$mixdens <- bayesplot::mcmc_dens(samp) + bayesplot::facet_text(FALSE) +
         stat_function(inherit.aes=FALSE, fun=dmix, args=list(mix=x), size=size, n=n_fun) +
             ggtitle("Parametric Mixture (black line) and Kernel Estimate of Sample Density", subtitle=subtitle)
-    pl$mix <- bayesplot::mcmc_hist(samp, binwidth=diff(interval)/50) + bayesplot::facet_text(FALSE) +
+    pl$mix <- bayesplot::mcmc_hist(samp, binwidth=diff(interval)/50, freq=FALSE) + bayesplot::facet_text(FALSE) +
         stat_function(inherit.aes=FALSE, fun=dmix, args=list(mix=x), size=size, n=n_fun) +
             ggtitle("Parametric Mixture Density (black line) and Histogram of Sample", subtitle=subtitle)
     pl

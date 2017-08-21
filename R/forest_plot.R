@@ -22,15 +22,15 @@
 #' to give commands affecting the y-axis (see examples).
 #'
 #' @template plot-help
-#' 
+#'
 #' @return The function returns a \pkg{ggplot2} plot object.
-#' 
+#'
 #' @seealso \code{\link{gMAP}}
-#' 
+#'
 #' @examples
 #' # we consider the example AS MAP analysis
 #' example(AS)
-#' 
+#'
 #' # default forest plot for a gMAP analysis
 #' forest_plot(map_AS)
 #'
@@ -40,11 +40,11 @@
 #' # to further customize these plots, first load bayesplot and ggplot2
 #' library(bayesplot)
 #' library(ggplot2)
-#' 
+#'
 #' # to make plots with red colors, big fonts for presentations, suppress
 #' # the x axis label and add another title (with a subtitle)
 #' color_scheme_set("red")
-#' options(bayesplot.base_size=15)
+#' theme_set(theme_default(base_size=16))
 #' forest_plot(map_AS, size=2) +
 #'    yaxis_title(FALSE) +
 #'      ggtitle("Ankylosing Spondylitis Forest Plot",
@@ -52,8 +52,8 @@
 #'
 #' # the defaults are set with
 #' color_scheme_set("blue")
-#' options(bayesplot.base_size=12)
-#' 
+#' theme_set(theme_default(base_size=12))
+#'
 #' @export
 forest_plot <- function(x,
                         prob=0.95,
@@ -80,11 +80,11 @@ forest_plot <- function(x,
 
     if(est   == "both") est   <- c("MAP", "Mean")
     if(model == "both") model <- c("stratified", "meta")
-    
+
     pred_est <- as.data.frame(do.call(rbind, summary(x, probs=c(0.5, low, up), type="response")[c("theta.pred", "theta")]))
     pred_est <- transform(pred_est,  study=c("MAP", "Mean") , model="meta")
     pred_est <- pred_est[c("MAP", "Mean") %in% est,]
-    
+
     names(pred_est)[1:5] <- names(strat) <- names(fit) <- c("mean", "sem", "median", "low", "up")
     comb <- rbind(if("stratified" %in% model) transform(strat, study=rownames(strat), model="stratified"),
                   if("meta"       %in% model) transform(fit,   study=rownames(strat), model="meta"),
@@ -99,9 +99,9 @@ forest_plot <- function(x,
                        gaussian="Response",
                        binomial="Response Rate",
                        poisson="Counting Rate")
-    
+
     graph <- ggplot(comb, aes_string(x="study", y=point_est, ymin="low", ymax="up", linetype="model", color="model"))
-    
+
     if(any(c("MAP", "Mean") %in% est)) {
         ref_line <- est[est %in% c("Mean", "MAP")][1]
         ref_data <- subset(pred_est, study == ref_line)
@@ -114,18 +114,16 @@ forest_plot <- function(x,
                        alpha=alpha,
                        size=size)
     }
-    
+
     graph <- graph +
         scale_color_manual("Model", values=get_color(c("mh", "m"))) +
         do.call(geom_pointrange, opts) +
-            ylab(xlab_str) +
-                scale_linetype_discrete("Model") +
-                    bayesplot::theme_default() +
-                        theme(axis.line.y=element_blank(), axis.ticks.y=element_blank()) +
-                            bayesplot::xaxis_title(FALSE) +
-                                coord_flip() +
-                                    bayesplot::legend_none()
-
+        ylab(xlab_str) +
+        scale_linetype_discrete("Model") +
+        theme(axis.line.y=element_blank(), axis.ticks.y=element_blank()) +
+        bayesplot::xaxis_title(FALSE) +
+        coord_flip() +
+        bayesplot::legend_none()
 
     graph
 }

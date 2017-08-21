@@ -9,7 +9,7 @@
 #' density in addition to the density.
 #' @param size controls the linesize in plots.
 #' @param ... extra arguments passed on to the \code{\link[ggplot2]{qplot}} call.
-#' 
+#'
 #' @details Plot function for mixture distribution objects. It shows
 #' the density/quantile/cumulative distribution (corresponds to
 #' \code{d/q/pmix} function) for some specific central probability
@@ -20,7 +20,7 @@
 #'
 #' @return
 #' A \code{\link[ggplot2]{ggplot}} object is returned.
-#' 
+#'
 #' @family mixdist
 #' @examples
 #' # beta with two informative components
@@ -30,7 +30,7 @@
 #'
 #' # for customizations of the plot we need to load ggplot2 first
 #' library(ggplot2)
-#' 
+#'
 #' # show a histogram along with the density
 #' plot(bm) + geom_histogram(data=data.frame(x=rmix(bm, 1000)),
 #'                           aes(y=..density..), bins=50, alpha=0.4)
@@ -38,7 +38,7 @@
 #' \dontrun{
 #' # note: we can also use bayesplot for histogram plots with a density ...
 #' library(bayesplot)
-#' mh <- mcmc_hist(data.frame(x=rmix(bm, 1000))) +
+#' mh <- mcmc_hist(data.frame(x=rmix(bm, 1000)), freq=FALSE) +
 #'          overlay_function(fun=dmix, args=list(mix=bm))
 #' # ...and even add each component
 #' for(k in 1:ncol(bm))
@@ -50,7 +50,7 @@
 #' nm <- mixnorm(rob=c(0.2, 0, 2), inf=c(0.8, 6, 2), sigma=5)
 #' plot(nm)
 #' plot(nm, fun=qmix)
-#' 
+#'
 #' # obtain ggplot2 object and change title
 #' pl <- plot(nm)
 #' pl + ggtitle("Normal 2-Component Mixture")
@@ -59,7 +59,6 @@
 #' @export
 plot.mix <- function(x, prob=0.99, fun=dmix, log=FALSE, comp=TRUE, size=1.25, ...) {
     funStr <- deparse(substitute(fun))
-    thm <- bayesplot::theme_default()
     if(length(prob) == 1) {
         plow <- (1-prob)/2
         pup <- 1-plow
@@ -100,5 +99,5 @@ plot.mix <- function(x, prob=0.99, fun=dmix, log=FALSE, comp=TRUE, size=1.25, ..
         }
         pl <- pl + scale_colour_discrete("Comp. [%]", labels=paste(colnames(x), " ", format(100*x[1,],digits=1,nsmall=1), sep=""))
     }
-    pl + thm
+    pl
 }

@@ -74,7 +74,7 @@ library(ggplot2)
 # to make plots with red colors, big fonts for presentations, suppress
 # the x axis label and add another title (with a subtitle)
 color_scheme_set("red")
-options(bayesplot.base_size=15)
+theme_set(theme_default(base_size=16))
 forest_plot(map_AS, size=2) +
    yaxis_title(FALSE) +
      ggtitle("Ankylosing Spondylitis Forest Plot",
@@ -82,7 +82,7 @@ forest_plot(map_AS, size=2) +
 
 # the defaults are set with
 color_scheme_set("blue")
-options(bayesplot.base_size=12)
+theme_set(theme_default(base_size=12))
 
 }
 \seealso{

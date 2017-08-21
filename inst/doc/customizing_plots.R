@@ -8,11 +8,12 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 1.6
 # Load required libraries
 library(RBesT)
 library(tidyverse)
+library(ggplot2)
 library(bayesplot)
 
 # Default settings for bayesplot
 color_scheme_set("blue")
-options(bayesplot.base_size=12)
+theme_set(theme_default(base_size=12))
 
 # Load example gMAP object
 example(crohn)
@@ -39,7 +40,7 @@ forest_plot(map_crohn, size=0.5, alpha=0)
 
 ## ---- fig.width=10, fig.height=6-----------------------------------------
 # adjust the base font size
-options(bayesplot.base_size = 16)
+theme_set(theme_default(base_size=16))
 forest_plot(map_crohn, model="both", est="MAP", size=1) + legend_move("right") +
   labs(title="Forest plot", subtitle="Results of Meta-Analytic-Predictive (MAP) analysis", 
        caption="Plot shows point estimates (posterior medians) with 95% intervals")
@@ -49,7 +50,7 @@ forest_plot(map_crohn, model="both", est="MAP", size=1) + legend_move("right") +
 #  ggsave("plot2.png", last_plot(), width=1.62*5.56, height=5.56, unit="in") # fits a single ppt slide quite well
 
 ## ---- echo=FALSE---------------------------------------------------------
-options(bayesplot.base_size = 12)
+theme_set(theme_default(base_size=12))
 forest_plot(map_crohn) + labs(title="Original forest plot")
 
 ## ------------------------------------------------------------------------

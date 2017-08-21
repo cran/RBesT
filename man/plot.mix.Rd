@@ -69,7 +69,7 @@ plot(bm) + geom_histogram(data=data.frame(x=rmix(bm, 1000)),
 \dontrun{
 # note: we can also use bayesplot for histogram plots with a density ...
 library(bayesplot)
-mh <- mcmc_hist(data.frame(x=rmix(bm, 1000))) +
+mh <- mcmc_hist(data.frame(x=rmix(bm, 1000)), freq=FALSE) +
          overlay_function(fun=dmix, args=list(mix=bm))
 # ...and even add each component
 for(k in 1:ncol(bm))
