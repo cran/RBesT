@@ -5,6 +5,10 @@
 #'
 #' @keywords internal
 log_colSum_exp <- function(X) {
+    ## in case non-finite values are part of the matrix, pass the
+    ## operation to the vector operation which is more safe
+    if(any(is.infinite(X)))
+        return(apply(X,2,log_sum_exp))
     nr <- nrow(X)
     if(nr==1) return(drop(X))
     nc <- ncol(X)

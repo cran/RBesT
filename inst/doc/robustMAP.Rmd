@@ -107,7 +107,7 @@ Ntarget <- 40
 M <- 40
 
 ## decision function: P(x1 - x2 > 0) > 0.975
-dec <- oc2Sdecision(0.975, 0, lower.tail=FALSE)
+dec <- decision2S(0.975, 0, lower.tail=FALSE)
 
 cases <- expand.grid(prior=names(map), pc=seq(0.1,0.6,by=0.1), delta=c(0,0.3))
 

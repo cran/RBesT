@@ -170,7 +170,7 @@ print(map_robust)
 
 Typically, operating characteristics are required to evaluate the
 proposed design or compare a few design options. RBesT requires the
-input of decision rules via **`oc2Sdecision`** function and then
+input of decision rules via **`decision2S`** function and then
 calculates the operating characteristics with the **`oc2S`**
 function. The calculation is expedited based on analytic
 expressions. In the following we compare a few design options, which
@@ -199,7 +199,7 @@ change from baseline in CDAI corresponds to improvement.
 ```{r rules}
 ## dual decision criteria
 ## pay attention to "lower.tail" argument and the order of active and pbo
-poc <- oc2Sdecision(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
+poc <- decision2S(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
 print(poc)
 ```
 

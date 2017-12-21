@@ -64,7 +64,7 @@ test_that("Analytical convolution of normal mixture matches numerical integratio
 ## test that the type I error is matching, i.e. is not off by more than 2%
 test_that("Type I error is matching between MC and analytical computations in the normal mixture case", {
     x <- c(-2, 0)
-    alpha <- oc2S(prior1, prior2, N1, N2, oc2Sdecision(pcrit, qcrit))(x,x)
+    alpha <- oc2S(prior1, prior2, N1, N2, decision2S(pcrit, qcrit), sigma1=sigma(prior1), sigma2=sigma(prior2))(x,x)
     alphaMC <- Voc2S_normal_MC(prior1, prior2, N1, N2, x, x, pcrit, qcrit)
     res <- 100 * abs(alpha - alphaMC)
     expect_equal(sum(res > 2) , 0)
@@ -73,7 +73,7 @@ test_that("Type I error is matching between MC and analytical computations in th
 
 ## test that the power is matching, i.e. is not off by more than 2%
 test_that("Power is matching between MC and analytical computations in the normal mixture case", {
-    power   <- oc2S(prior1, prior2, N1, N2, oc2Sdecision(pcrit, qcrit))(theta1, theta2)
+    power   <- oc2S(prior1, prior2, N1, N2, decision2S(pcrit, qcrit))(theta1, theta2)
     powerMC <- oc2S_normal_MC(prior1, prior2, N1, N2, theta1, theta2, pcrit, qcrit)
     res <- 100 * abs(power - powerMC)
     expect_equal(sum(res > 2) , 0)
@@ -94,9 +94,9 @@ test_that("Gsponer et al. results match (normal end-point)", {
 
               ## the success criteria is for delta which are larger than some
               ## threshold value which is why we set lower.tail=FALSE
-              successCrit  <- oc2Sdecision(c(0.95, 0.5), c(0, 50), FALSE)
+              successCrit  <- decision2S(c(0.95, 0.5), c(0, 50), FALSE)
               ## the futility criterion acts in the opposite direction
-              futilityCrit <- oc2Sdecision(c(0.90)     , c(40),    TRUE)
+              futilityCrit <- decision2S(c(0.90)     , c(40),    TRUE)
     
               nT1 <- 20
               nP1 <- 10
@@ -137,7 +137,7 @@ test_that("Schmidli et al. results (binary end-point)", {
               ocRef_uni$ref <- c(1.8, 2.3, 2.4, 2.6, 2.8, 2.6 ## unif/delta=0
                                 ,89.7, 82.1, 79.5, 79.5, 81.9, 89.8 ## unif/delta=0.3
                                  )/100
-              dec <- oc2Sdecision(0.975, 0, lower.tail=FALSE)
+              dec <- decision2S(0.975, 0, lower.tail=FALSE)
 
               N <- 40
 
@@ -187,8 +187,8 @@ test_critical_discrete <- function(design, decision, posterior, y2) {
 eps <- 1e-2
 alpha <- 0.05
 
-dec <- oc2Sdecision(1-alpha, 0, lower.tail=TRUE)
-decB <- oc2Sdecision(1-alpha, 0, lower.tail=FALSE)
+dec <- decision2S(1-alpha, 0, lower.tail=TRUE)
+decB <- decision2S(1-alpha, 0, lower.tail=FALSE)
 
 ## test binary case
 
@@ -204,6 +204,27 @@ test_that("Binary crticial value, lower.tail=FALSE", test_critical_discrete(desi
 test_that("Binary boundary case, lower.tail=TRUE",  expect_numeric(design_binary( 1, 1), lower=0, upper=1, finite=TRUE, any.missing=FALSE))
 test_that("Binary boundary case, lower.tail=FALSE", expect_numeric(design_binaryB(0, 0), lower=0, upper=1, finite=TRUE, any.missing=FALSE))
 
+## check case where decision never changes due to prior being too
+## strong
+
+beta_prior1 <- mixbeta(c(1, 0.9, 1000), param="mn")
+beta_prior2 <- mixbeta(c(1, 0.1, 1000), param="mn")
+design_lower <- oc2S(beta_prior1, beta_prior2, 20, 20, dec)  ## always 0
+design_upper <- oc2S(beta_prior1, beta_prior2, 20, 20, decB) ## always 1
+
+test_that("Binary case, no decision change, lower.tail=TRUE, critical value", expect_true(all(design_lower(y2=0:20) == -1)) )
+test_that("Binary case, no decision change, lower.tail=FALSE, critical value", expect_true(all(design_upper(y2=0:20) == 21)) )
+test_that("Binary case, no decision change, lower.tail=TRUE, frequency=0",  expect_numeric(design_lower(p_test, p_test), lower=0, upper=1E-6, finite=TRUE, any.missing=FALSE) )
+test_that("Binary case, no decision change, lower.tail=FALSE, frequency=1",  expect_numeric(design_upper(p_test, p_test), lower=1-1E-6, upper=1, finite=TRUE, any.missing=FALSE) )
+
+design_lower_rev <- oc2S(beta_prior2, beta_prior1, 20, 20, dec)  ## always 1
+design_upper_rev <- oc2S(beta_prior2, beta_prior1, 20, 20, decB) ## always 0
+
+test_that("Binary case, no decision change (reversed), lower.tail=TRUE, critical value", expect_true(all(design_lower_rev(y2=0:20) == 20)) )
+test_that("Binary case, no decision change (reversed), lower.tail=FALSE, critical value", expect_true(all(design_upper_rev(y2=0:20) == -1)) )
+test_that("Binary case, no decision change (reversed), lower.tail=TRUE, frequency=0",  expect_numeric(design_lower_rev(p_test, p_test), lower=1-1E-6, upper=1, finite=TRUE, any.missing=FALSE) )
+test_that("Binary case, no decision change (reversed), lower.tail=FALSE, frequency=1",  expect_numeric(design_upper_rev(p_test, p_test), lower=0, upper=1E-6, finite=TRUE, any.missing=FALSE) )
+
 ## check approximate method
 
 beta_prior <- mixbeta(c(1, 1, 1))
@@ -211,17 +232,19 @@ design_binary_eps <- oc2S(beta_prior, beta_prior, 100, 100, dec, eps=1E-3)
 p_test <- seq(0.1, 0.9, by=0.1)
 test_that("Binary type I error rate", test_scenario(design_binary_eps(p_test, p_test), alpha))
 
-test_that("Binary results cache expands", {
-              design_binary_eps <- oc2S(beta_prior, beta_prior, 100, 100, dec, eps=1E-3)
-              design_binary_eps(theta1=0.99, theta2=0.8)
-              ## in this case the cache boundaries do not cover the
-              ## critical value
-              expect_true(is.na(design_binary_eps(theta1=0.99, y2=80)))
-              ## while now they do as theta1 is set to 0.1 and 0.9
-              ## internally which triggers recalculation of the
-              ## internal boundaries
-              expect_true(!is.na(design_binary_eps(y2=80)))
-          })
+## 22 Nov 2017: disabled test as we trigger always calculation of the
+## boundaries as of now. 
+## test_that("Binary results cache expands", {
+##               design_binary_eps <- oc2S(beta_prior, beta_prior, 100, 100, dec, eps=1E-3)
+##               design_binary_eps(theta1=0.99, theta2=0.8)
+##               ## in this case the cache boundaries do not cover the
+##               ## critical value
+##               expect_true(is.na(design_binary_eps(theta1=0.99, y2=80)))
+##               ## while now they do as theta1 is set to 0.1 and 0.9
+##               ## internally which triggers recalculation of the
+##               ## internal boundaries
+##               expect_true(!is.na(design_binary_eps(y2=80)))
+##           })
 
 ## test poisson case
 
@@ -234,9 +257,11 @@ lambda_test <- seq(0.5, 1.3, by=0.1)
 test_that("Poisson type I error rate", test_scenario(design_poisson(lambda_test, lambda_test), alpha))
 test_that("Poisson crticial value, lower.tail=TRUE", test_critical_discrete(design_poisson, dec, posterior_poisson, 90))
 test_that("Poisson crticial value, lower.tail=FALSE", test_critical_discrete(design_poissonB, decB, posterior_poisson, 90))
-test_that("Poisson results cache expands", {
-              design_poisson  <- oc2S(gamma_prior, gamma_prior, 100, 100, dec)
-              design_poisson(theta1=1, theta2=c(0.7,1))
-              expect_true(sum(is.na(design_poisson(y2=70:90)) ) == 4)
-              expect_true(sum(is.na(design_poisson(theta1=c(0.01, 1), y2=70:90)) ) == 0)
-})
+## 22 Nov 2017: disabled test as we trigger always calculation of the
+## boundaries as of now. 
+##test_that("Poisson results cache expands", {
+##              design_poisson  <- oc2S(gamma_prior, gamma_prior, 100, 100, dec)
+##              design_poisson(theta1=1, theta2=c(0.7,1))
+##              expect_true(sum(is.na(design_poisson(y2=70:90)) ) == 4)
+##              expect_true(sum(is.na(design_poisson(theta1=c(0.01, 1), y2=70:90)) ) == 0)
+##          })

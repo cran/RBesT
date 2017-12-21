@@ -201,14 +201,14 @@ parameter. Here we evaluate a few design options as an example.
 The operating characteristics are setup in RBesT in a stepwise manner:
 
 1. Definition of priors for each arm.
-2. Definition of the decision criterion using the **`oc2Sdecision`** function.
+2. Definition of the decision criterion using the **`decision2S`** function.
 3. Specification of design options with the **`oc2S`** function. This
    includes the overall decision function and per arm the prior and
    the sample size to use.
 4. The object from step 3 is then used to calculate the operating
    characteristics.
 
-Note that for a 1-sample situation the respective `oc1Sdecision` and
+Note that for a 1-sample situation the respective `decision1S` and
 `oc1S` function are used instead.
 
 ### Type I Error
@@ -222,7 +222,7 @@ p_truth       <- seq(0.1,0.95,by=0.01)
 uniform_prior <- mixbeta(c(1,1,1))
 treat_prior   <- mixbeta(c(1,0.5,1)) # prior for treatment used in trial
 lancet_prior  <- mixbeta(c(1,11,32)) # prior for control   used in trial
-decision      <- oc2Sdecision(0.95, 0, lower.tail=TRUE)
+decision      <- decision2S(0.95, 0, lower.tail=TRUE)
 
 design_uniform   <- oc2S(uniform_prior, uniform_prior, 6, 24, decision)
 design_nonrobust <- oc2S(map          , treat_prior,   6, 24, decision)
@@ -274,16 +274,19 @@ non-statisticians is by considering data scenarios. They show the
 decisions based on potential trial outcomes. The information needed
 are the critical values at which the decision criterion flips. In the
 2-sample case this means to calculate the decision boundary, see the
-**`oc2S`** help for more information.
+**`decision2S_boundary`** help for more information.
 
 ```{r}
 ## Critical values at which the decision are given conditional on the
 ## outcome of the second read-out
+crit_uniform   <- decision2S_boundary(uniform_prior, uniform_prior, 6, 24, decision)
+crit_nonrobust <- decision2S_boundary(map          , treat_prior,   6, 24, decision)
+crit_robust    <- decision2S_boundary(map_robust   , treat_prior,   6, 24, decision)
 treat_y2 <- 0:24
 ## Note that -1 is returned to indicated that the decision is never 1
-ocC <- rbind(data.frame(y2=treat_y2, y1_crit=design_robust(y2=treat_y2),    prior="robust"),
-             data.frame(y2=treat_y2, y1_crit=design_nonrobust(y2=treat_y2), prior="non-robust"),
-             data.frame(y2=treat_y2, y1_crit=design_uniform(y2=treat_y2),   prior="uniform")
+ocC <- rbind(data.frame(y2=treat_y2, y1_crit=crit_robust(treat_y2),    prior="robust"),
+             data.frame(y2=treat_y2, y1_crit=crit_nonrobust(treat_y2), prior="non-robust"),
+             data.frame(y2=treat_y2, y1_crit=crit_uniform(treat_y2),   prior="uniform")
              )
 
 qplot(y2, y1_crit, data=ocC, colour=prior, geom="step", main="Critical values y1(y2)")
@@ -333,7 +336,7 @@ decision(post_placebo, post_treat)
 ### References
 
 [1] Neuenschwander B et. al, _Clin Trials_. 2010; 7(1):5-18  
-[2] Beaten D. et. al, _The Lancet_, 2013, (382), 9906, p 1705  
+[2] Baeten D. et. al, _The Lancet_, 2013, (382), 9906, p 1705  
 [3] Morita S. et. al, _Biometrics_ 2008;64(2):595-602  
 [4] Schmidli H. et. al, _Biometrics_ 2014;70(4):1023-1032  
 

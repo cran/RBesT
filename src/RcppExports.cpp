@@ -6,10 +6,41 @@
 
 using namespace Rcpp;
 
+// dBetaBinomial
+NumericVector dBetaBinomial(IntegerVector r, IntegerVector n, NumericVector alpha, NumericVector beta, bool log);
+RcppExport SEXP _RBesT_dBetaBinomial(SEXP rSEXP, SEXP nSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP logSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< bool >::type log(logSEXP);
+    rcpp_result_gen = Rcpp::wrap(dBetaBinomial(r, n, alpha, beta, log));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pBetaBinomial
+NumericVector pBetaBinomial(IntegerVector r, IntegerVector n, NumericVector alpha, NumericVector beta, bool lower_tail, bool log_p);
+RcppExport SEXP _RBesT_pBetaBinomial(SEXP rSEXP, SEXP nSEXP, SEXP alphaSEXP, SEXP betaSEXP, SEXP lower_tailSEXP, SEXP log_pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type n(nSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< bool >::type lower_tail(lower_tailSEXP);
+    Rcpp::traits::input_parameter< bool >::type log_p(log_pSEXP);
+    rcpp_result_gen = Rcpp::wrap(pBetaBinomial(r, n, alpha, beta, lower_tail, log_p));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP _rcpp_module_boot_stan_fit4gMAP_mod();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_RBesT_dBetaBinomial", (DL_FUNC) &_RBesT_dBetaBinomial, 5},
+    {"_RBesT_pBetaBinomial", (DL_FUNC) &_RBesT_pBetaBinomial, 6},
     {"_rcpp_module_boot_stan_fit4gMAP_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4gMAP_mod, 0},
     {NULL, NULL, 0}
 };

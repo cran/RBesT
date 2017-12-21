@@ -16,154 +16,132 @@ oc1S(prior, n, decision, ...)
 \method{oc1S}{gammaMix}(prior, n, decision, eps = 1e-06, ...)
 }
 \arguments{
-\item{prior}{prior for analysis.}
+\item{prior}{Prior for analysis.}
 
-\item{n}{sample size for the experiment.}
+\item{n}{Sample size for the experiment.}
 
-\item{decision}{one-sample decision function to use, see \code{\link{oc1Sdecision}}.}
+\item{decision}{One-sample decision function to use; see \code{\link{decision1S}}.}
 
-\item{...}{optional arguments.}
+\item{...}{Optional arguments.}
 
 \item{sigma}{The fixed reference scale. If left unspecified, the
 default reference scale of the prior is assumed.}
 
-\item{eps}{support of random variables are determined as the
-interval covering \code{1-eps} probability mass . Defaults to
-\code{10^-6}.}
+\item{eps}{Support of random variables are determined as the
+interval covering \code{1-eps} probability mass. Defaults to
+\eqn{10^{-6}}.}
 }
 \value{
-Returns a function which when called with one argument
-\code{theta} will return the frequencies at which the decision
-function is evaluated to 1. If called with no argument, then the
-critical value \eqn{y_c} is returned. Note that the returned
-function takes vectors arguments.
+Returns a function with one argument \code{theta} which
+calculates the frequency at which the decision function is
+evaluated to 1 for the defined 1 sample design. Note that the
+returned function takes vectors arguments.
 }
 \description{
-Calculates the frequency at which the decision function is
-evaluated to 1 under a specified true scenario and decision
-criteria in a one-sample experiment.
+The \code{oc1S} function defines a 1 sample design (prior, sample
+size, decision function) for the calculation of the frequency at
+which the decision is evaluated to 1 conditional on assuming
+known parameters.  A function is returned which performs the actual
+operating characteristics calculations.
 }
 \details{
-The operating characteristics calculate the frequency with
-which the decision function is evaluated to 1 under the assumption
-of a given true distribution of the data defined by
-\eqn{\theta}. The specification of the prior, the sample size and
-the decision function, \eqn{D(y)}, uniquely defines the
-decision boundary
+The \code{oc1S} function defines a 1 sample design and
+returns a function which calculates its operating
+characteristics. This is the frequency with which the decision
+function is evaluated to 1 under the assumption of a given true
+distribution of the data defined by a known parameter
+\eqn{\theta}. The 1 sample design is defined by the prior, the
+sample size and the decision function, \eqn{D(y)}. These uniquely
+define the decision boundary, see
+\code{\link{decision1S_boundary}}.
 
-\deqn{y_c = \sup_y\{D(y) = 0\},}{y_c = sup_{y}{D(y) = 0},}
-
-which is the critical value whenever the decision \eqn{D(y)}
-function changes its value from 0 to 1 for a decision function
-with \code{lower.tail=TRUE} (otherwise the definition is \eqn{y_c =
-\inf_{y}\{D(y) = 1\}}{y_c = inf_{y}{D(y) = 1}}). The decision
-function may change at most at a single critical value as only
-one-sided decision functions are supported. Here,
-\eqn{y} is defined for binary and Poisson endpoints as the sufficient
-statistic \eqn{y = \sum_{i=1}^{n} y_i} and for the normal
-case as the mean \eqn{\bar{y} = 1/n \sum_{i=1}^n
-y_i}.
-
-Calling the \code{oc1S} function calculates the critical value
-\eqn{y_c} and returns a function which can be used to query
-the critical value or evaluate the desired frequency which is
-evaluated as
+When calling the \code{oc1S} function, then internally the critical
+value \eqn{y_c} (using \code{\link{decision1S_boundary}}) is
+calculated and a function is returns which can be used to
+calculated the desired frequency which is evaluated as
 
 \deqn{ F(y_c|\theta). }
-
-\emph{Note:} Internally, the above integration is carried out
-assuming that it suffices to assume a true distribution of the
-mean.
-
-The convention for the critical value \eqn{y_c} depends on whether
-a left (\code{lower.tail=TRUE}) or right-sided decision function
-(\code{lower.tail=FALSE}) is used. For \code{lower.tail=TRUE} the
-critical value \eqn{y_c} is the largest value for which the
-decision is 1, \eqn{D(y \leq y_c) = 1}, while for
-\code{lower.tail=FALSE} then \eqn{D(y > y_c) = 1} holds. This is
-aligned with the cumulative density function definition within R
-(see for example \code{\link{pbinom}}).
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{betaMix}: Applies for the beta-binomial model with a mixture
+\item \code{betaMix}: Applies for binomial model with a mixture
 beta prior. The calculations use exact expressions.
 
-\item \code{normMix}: Used for the normal-normal model with fixed
-standard deviation (\eqn{\sigma}) of the sampling space and a
-normal mixture prior. As a consequence from the mean assumption,
-the calculation discards sampling uncertainty of the second
-moment. The function has an extra argument \code{eps} (defaults to
-\eqn{10^{-6}}). The critical value \eqn{y_c} is searched in the
-region of probability mass \code{1-eps} for \eqn{y}.
+\item \code{normMix}: Applies for the normal model with known
+standard deviation \eqn{\sigma} and a normal mixture prior for the
+mean. As a consequence from the assumption of a known standard
+deviation, the calculation discards sampling uncertainty of the
+second moment. The function \code{oc1S} has an extra
+argument \code{eps} (defaults to \eqn{10^{-6}}). The critical value
+\eqn{y_c} is searched in the region of probability mass
+\code{1-eps} for \eqn{y}.
 
-\item \code{gammaMix}: Used for the Poisson-gamma case
-(Poisson-exponential not yet supported). Takes an extra argument
-\code{eps} (\eqn{10^6}) which determines the region of probability
-mass \code{1-eps} where the boundary is searched for \eqn{y}.
+\item \code{gammaMix}: Applies for the Poisson model with a gamma
+mixture prior for the rate parameter.  The function
+\code{oc1S} takes an extra argument \code{eps} (defaults to \eqn{10^{-6}})
+which determines the region of probability mass \code{1-eps} where
+the boundary is searched for \eqn{y}.
 }}
 
 \examples{
 
-# see Neuenschwander et al., 2011
-
-# example is for a time-to-event trial evaluationg non-inferiority
-# using a normal approximation for the log-hazard ratio
-
-# reference scale
+# non-inferiority example using normal approximation of log-hazard
+# ratio, see ?decision1S for all details
 s <- 2
+flat_prior <- mixnorm(c(1,0,100), sigma=s)
+nL <- 233
 theta_ni <- 0.4
 theta_a <- 0
 alpha <- 0.05
 beta  <- 0.2
 za <- qnorm(1-alpha)
 zb <- qnorm(1-beta)
-n1 <- round( (s * (za + zb)/(theta_ni - theta_a))^2 )  # n for which design was intended
-nL <- 233
-c1 <- theta_ni - za * s / sqrt(n1)
-
-# flat prior
-prior <- mixnorm(c(1,0,100), sigma=s)
+n1 <- round( (s * (za + zb)/(theta_ni - theta_a))^2 )
+theta_c <- theta_ni - za * s / sqrt(n1)
 
 # standard NI design
-decA <- oc1Sdecision(1 - alpha, theta_ni, lower.tail=TRUE)
-
-# for double criterion with indecision point (mean estimate must be
-# lower than this)
-theta_c <- c1
+decA <- decision1S(1 - alpha, theta_ni, lower.tail=TRUE)
 
 # double criterion design
 # statistical significance (like NI design)
-dec1 <- oc1Sdecision(1-alpha, theta_ni, lower.tail=TRUE)
+dec1 <- decision1S(1-alpha, theta_ni, lower.tail=TRUE)
 # require mean to be at least as good as theta_c
-dec2 <- oc1Sdecision(0.5, theta_c, lower.tail=TRUE)
+dec2 <- decision1S(0.5, theta_c, lower.tail=TRUE)
 # combination
-decComb <- oc1Sdecision(c(1-alpha, 0.5), c(theta_ni, theta_c), lower.tail=TRUE)
+decComb <- decision1S(c(1-alpha, 0.5), c(theta_ni, theta_c), lower.tail=TRUE)
 
 theta_eval  <- c(theta_a, theta_c, theta_ni)
 
-designA_n1  <- oc1S(prior, n1, decA)
-designA_nL  <- oc1S(prior, nL, decA)
+# evaluate different designs at two sample sizes
+designA_n1  <- oc1S(flat_prior, n1, decA)
+designA_nL  <- oc1S(flat_prior, nL, decA)
+designC_n1  <- oc1S(flat_prior, n1, decComb)
+designC_nL  <- oc1S(flat_prior, nL, decComb)
 
-designC_n1  <- oc1S(prior, n1, decComb)
-designC_nL  <- oc1S(prior, nL, decComb)
-designC1_nL <- oc1S(prior, nL, dec1)
-designC2_nL <- oc1S(prior, nL, dec2)
+# evaluate designs at the key log-HR of positive treatment (HR<1),
+# the indecision point and the NI margin
 
 designA_n1(theta_eval)
 designA_nL(theta_eval)
 designC_n1(theta_eval)
 designC_nL(theta_eval)
 
-# note: the decision for the nL case is driven by the second
-# criterion (for the mean) only as the critical value is lower
-designC1_nL()
-designC2_nL()
-designC_nL()
+# to understand further the dual criterion design it is useful to
+# evaluate the criterions separatley:
+# statistical significance criterion to warrant NI...
+designC1_nL <- oc1S(flat_prior, nL, dec1)
+# ... or the clinically determined indifference point
+designC2_nL <- oc1S(flat_prior, nL, dec2)
+
+designC1_nL(theta_eval)
+designC2_nL(theta_eval)
+
+# see also ?decision1S_boundary to see which of the two criterions
+# will drive the decision
+
 
 }
-\references{
-Neuenschwander B, Rouyrre N, Hollaender H, Zuber E,
-Branson M. A proof of concept phase II non-inferiority
-criterion. \emph{Stat. in Med.}. 2011, 30:1618-1627
+\seealso{
+Other design1S: \code{\link{decision1S_boundary}},
+  \code{\link{decision1S}}, \code{\link{pos1S}}
 }

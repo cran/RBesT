@@ -138,10 +138,11 @@ dmix_impl <- function(dens, mix, x, log) {
     ## dgamma. Then we cast the result into a matrix with as many rows
     ## as nc components which we sum together with a fast colSums call.
     ox <- rep(mixinvlink(mix, x), each=Nc)
+    Nx <- length(x)
     if(!log)
-        return(.colSums(matrix(mix[1,] * mixJinv_orig(mix, ox) *dens(ox, mix[2,], mix[3,], log=FALSE), nrow=Nc), Nc, length(x)))
+        return(.colSums(matrix(mix[1,] * mixJinv_orig(mix, ox) *dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=FALSE), nrow=Nc), Nc, length(x)))
     ## log version is slower, but numerically more stable
-    apply(matrix(log(mix[1,]) + mixlJinv_orig(mix, ox) + dens(ox, mix[2,], mix[3,], log=TRUE), nrow=Nc), 2, log_sum_exp)
+    apply(matrix(log(mix[1,]) + mixlJinv_orig(mix, ox) + dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=TRUE), nrow=Nc), 2, log_sum_exp)
 }
 
 #' @export
@@ -171,10 +172,11 @@ pmix_impl <- function(dist, mix, q, lower.tail = TRUE, log.p=FALSE) {
     ## dgamma. Then we cast the result into a matrix with as many rows
     ## as nc components which we sum together with a fast colSums call.
     oq <- mixinvlink(mix, q)
+    Nq <- length(q)
     if(!log.p)
-        return(.colSums(matrix(mix[1,] * dist(rep(oq, each=Nc), mix[2,], mix[3,], lower.tail=lower.tail, log.p=FALSE), nrow=Nc), Nc, length(q)))
+        return(.colSums(matrix(mix[1,] * dist(rep(oq, each=Nc), rep(mix[2,], times=Nq), rep(mix[3,], times=Nq), lower.tail=lower.tail, log.p=FALSE), nrow=Nc), Nc, length(q)))
     ## log version is slower, but numerically more stable
-    res <- apply(matrix(log(mix[1,]) + dist(rep(oq, each=Nc), mix[2,], mix[3,], lower.tail=lower.tail, log.p=TRUE), nrow=Nc), 2, log_sum_exp)
+    res <- apply(matrix(log(mix[1,]) + dist(rep(oq, each=Nc), rep(mix[2,], times=Nq), rep(mix[3,], times=Nq), lower.tail=lower.tail, log.p=TRUE), nrow=Nc), 2, log_sum_exp)
     return(res)
 }
 
@@ -186,17 +188,24 @@ pmix.betaMix  <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(pbet
 pmix.normMix  <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(pnorm,  mix, q, lower.tail, log.p)
 
 #' @export
-pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) {
-    assert_that(is.dlink_identity(attr(mix, "link")))
-    ## the analytic solution needs the generalized hypergeometric
-    ## function which is only available in the hyper-geo package which
-    ## is why a numeric integration is performed here
-    dist <- cumsum(dmix.betaBinomialMix(mix, seq(0,max(q))))
-    p <- dist[q+1]
-    if(!lower.tail) p <- 1-p
-    if(log.p) p <- log(p)
-    return(p)
-}
+pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(Curry(pBetaBinomial, n=attr(mix, "n")), mix, q, lower.tail, log.p)
+## pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) {
+##     assert_that(is.dlink_identity(attr(mix, "link")))
+##     ## the analytic solution needs the generalized hypergeometric
+##     ## function which is only available in the hyper-geo package which
+##     ## is why a numeric integration is performed here
+##     ## treat out-of-bounds quantiles special
+##     out_low  <- q<0
+##     out_high <- q>attr(mix, "n")
+##     q[out_low | out_high] <- 0
+##     dist <- cumsum(dmix.betaBinomialMix(mix, seq(0,max(q))))
+##     p <- dist[q+1]
+##     p[out_low] <- 0
+##     p[out_high] <- 1
+##     if(!lower.tail) p <- 1-p
+##     if(log.p) p <- log(p)
+##     return(p)
+## }
 
 ## internal redefinition of negative binomial 
 ##.pnbinomAB <- function(q, a, b, lower.tail = TRUE, log.p = FALSE ) pnbinom(q, size=a, prob=b/(b+1), lower.tail = lower.tail, log.p = log.p )
@@ -256,9 +265,9 @@ qmix.normMix  <- function(mix, p, lower.tail = TRUE, log.p=FALSE) qmix_impl(qnor
 #' @export
 qmix.betaBinomialMix  <- function(mix, p, lower.tail = TRUE, log.p=FALSE) {
     assert_that(is.dlink_identity(attr(mix, "link")))
-    ## numerical evaulation
+    ## numerical evaluation
     n <- attr(mix, "n")
-    dist <- cumsum(dmix.betaBinomialMix(mix, seq(0,n-1)))
+    dist <- pmix.betaBinomialMix(mix, seq(0,n-1))
     if(log.p) p <- exp(p)
     ind <- findInterval(p, dist)
     if(!lower.tail) ind <- n - ind
@@ -283,7 +292,7 @@ qmix.gammaPoissonMix <- function(mix, p, lower.tail = TRUE, log.p=FALSE) {
     Nc <- ncol(mix)
     qhigh  <- max(.qnbinomAB(rep.int(phigh,  Nc), mix[2,], mix[3,], n=n))
 
-    dist <- cumsum(dmix.gammaPoissonMix(mix, seq(0,qhigh-1)))
+    dist <- pmix.gammaPoissonMix(mix, seq(0,qhigh-1))
     if(log.p) p <- exp(p)
     ind <- findInterval(p, dist)
     if(!lower.tail) ind <- qhigh - ind

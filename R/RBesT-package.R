@@ -33,6 +33,11 @@
 #' \code{RBesT.MC.init} \tab 1 \tab range of initial uniform [-1,1] is the default  \cr
 #' \code{RBesT.MC.rescale} \tab \code{TRUE} \tab Automatic rescaling of raw parameters  \cr
 #' \code{RBesT.verbose} \tab \code{FALSE} \tab requests outputs to be more verbose\cr
+#' \code{RBesT.integrate_args} \tab \code{list(lower=-Inf,} \tab arguments passed to \code{integrate} for\cr
+#'  \tab \code{upper=Inf,} \tab intergation of densities\cr
+#' \tab \code{rel.tol=1E-4} \tab \cr
+#' \tab \code{abs.tol=1E-4} \tab \cr
+#' \tab \code{subdivisions=1E3)} \tab \cr
 #' }
 #'
 #' @section Version History:

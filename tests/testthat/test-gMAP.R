@@ -165,3 +165,27 @@ test_that("gMAP reports divergences", {
 
 ## set sampling back to standards
 do.call(options, std_sampling)
+
+test_that("gMAP handles extreme response rates", {
+              n <- 5
+              data1 <- data.frame(n=c(n,n,n,n),r=c(5,5,5,5), study=1)
+              map1 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
+                           data=data1, tau.dist="HalfNormal", 
+                           tau.prior=2.0, beta.prior=2,
+                           warmup=100, iter=200, chains=1, thin=1)
+              expect_true(nrow(fitted(map1)) == 4)
+              data2 <- data.frame(n=c(n,n,n,n),r=c(0,0,0,0), study=1)
+              map2 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
+                           data=data2, tau.dist="HalfNormal", 
+                           tau.prior=2.0, beta.prior=2,
+                           warmup=100, iter=200, chains=1, thin=1)
+              expect_true(nrow(fitted(map2)) == 4)
+          })
+
+test_that("gMAP handles fixed tau case", {
+              map1 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
+                           data=AS, tau.dist="Fixed", 
+                           tau.prior=0.5, beta.prior=2,
+                           warmup=100, iter=200, chains=1, thin=1)
+              expect_true(map1$Rhat.max >= 1)
+          })

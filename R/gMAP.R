@@ -433,6 +433,24 @@ gMAP <- function (formula,
 
     count <- array(rep(0, H))
 
+    if(length(f)[2] == 1) {
+        ## no grouping has been given, then treat each data row as
+        ## individual study
+        group.index <- 1:H
+        labels <- as.character(group.index)
+    } else {
+        group.index <- model.part(f, data = mf, rhs = 2)
+        if(ncol(group.index) != 1)
+            stop("Grouping factor must be a single term (study).")
+        group.index <- group.index[,1]
+        labels <- as.character(group.index)
+        ## ensure that group.index is labelled sequentially
+        group.index <- match(labels, unique(labels))
+    }
+    group.index <- array(group.index)
+
+    n.groups <- length(unique(group.index))
+
     ## estimate of the reference scale, used in the normal case
     sigma_ref <- 0
 
@@ -453,7 +471,9 @@ gMAP <- function (formula,
         }
         y_se <- y.aux
         y_n <- weights
-        if(H > 1) tau_guess <- sd( y )
+        if(n.groups > 1) {
+            tau_guess <- max(1E-3, sd( tapply(y, group.index, mean) ) )
+        }
         ## reference scale is the pooled variance estimate scaled by
         ## the total sample size
         if(!is.null(y_se) & !is.null(y_n)) {
@@ -469,35 +489,27 @@ gMAP <- function (formula,
         r   <- y
         nr  <- y.aux
         r_n <- y + y.aux
-        if(H > 1) tau_guess <- sd( log((y + 0.5)/(nr + 0.5)) )
-        p_bar <- (sum(r) + 0.5)/ (sum(r_n) + 0.5)
+        lodds <- log((y + 0.5)/(nr + 0.5))
+        ## p_bar would be 1 of r=n
+        ##p_bar <- (sum(r) + 0.5)/ (sum(r_n) + 0.5)
+        p_bar <- mean(inv_logit(lodds))
         sigma_guess <- 1/sqrt(p_bar * (1-p_bar))
+        if(n.groups > 1) {
+            tau_guess <- max(1E-3, sd( tapply(lodds, group.index, mean) ) )
+        }
     }
     if(family$family == "poisson") {
         assert_that(family$link == "log")
         count <- y
         sigma_guess <- 1/exp(mean(log(y + 0.5) - offset))
-        tau_guess <- if(H > 1) sd( log(y + 0.5) - offset) else sigma_guess
+        if(n.groups > 1) {
+            tau_guess <- max(1E-3, sd( tapply(log(y + 0.5) - offset, group.index, mean) ) )
+        } else {
+            tau_guess <- sigma_guess
+        }
     }
-
-    if(length(f)[2] == 1) {
-        ## no grouping has been given, then treat each data row as
-        ## individual study
-        group.index <- 1:H
-        labels <- as.character(group.index)
-    } else {
-        group.index <- model.part(f, data = mf, rhs = 2)
-        if(ncol(group.index) != 1)
-            stop("Grouping factor must be a single term (study).")
-        group.index <- group.index[,1]
-        labels <- as.character(group.index)
-        ## ensure that group.index is labelled sequentially
-        group.index <- match(labels, unique(labels))
-    }
-    group.index <- array(group.index)
-
-    n.groups <- length(unique(group.index))
-
+##:ess-bp-start::browser@nil:##
+    
     ## create a unique label vector
     ulabels <- labels
     if(length(unique(ulabels)) != length(ulabels)) {
@@ -508,7 +520,8 @@ gMAP <- function (formula,
             }
         }
     }
-
+##:ess-bp-start::browser@nil:##
+    
     ## per group we must have an assignment to a tau stratum
     tau.strata.index <- model.extract(mf, "tau.strata")
     if(is.null(tau.strata.index))
@@ -679,11 +692,11 @@ gMAP <- function (formula,
     ## need the square root transformed distribution; now this
     ## estimate will be over-confident since the between-group
     ## variation decreases the information we have. Hence we inflate
-    ## the resulting sd according to the ratio of n_inf/n_(H-1)/2 (eq. 11,
-    ## Neuenschawander 2010)
-    if(H > 1) {
-        ms <- square_root_gamma_stats((H-1)/2, 2 * tau_guess^2 /(H-1))
-        ms[2] <- sqrt(1 + 2/(H-1)) * ms[2]
+    ## the resulting sd according to the ratio of
+    ## n_inf/n_(n.groups-1)/2 (eq. 11, Neuenschwander 2010)
+    if(n.groups > 1) {
+        ms <- square_root_gamma_stats((n.groups-1)/2, 2 * tau_guess^2 /(n.groups-1))
+        ms[2] <- sqrt(1 + 2/(n.groups-1)) * ms[2]
         tau_raw_guess <- c(log(ms[1]) - log( sqrt( (1 + ms[2]^2/ms[1]^2) ) ),
                            sqrt(log(1 + ms[2]^2/ms[1]^2)))
     } else {
@@ -780,12 +793,12 @@ gMAP <- function (formula,
     names(beta) <- colnames(X)
     names(tau)  <- paste0("tau", seq(n.tau.strata))
 
-    Rhat.max <- max(fit_sum[,"Rhat"])
+    Rhat.max <- max(fit_sum[,"Rhat"], na.rm=TRUE)
 
     if(Rhat.max > 1.1)
         warning("Maximal Rhat > 1.1. Consider increasing RBesT.MC.warmup MCMC parameter.")
 
-    Neff.min <- min(fit_sum[c(beta_ind, tau_ind, lp_ind),"n_eff"])
+    Neff.min <- min(fit_sum[c(beta_ind, tau_ind, lp_ind),"n_eff"], na.rm=TRUE)
 
     if(Neff.min < 1e3)
         message("Final MCMC sample equivalent to less than 1000 independent draws.\nPlease consider increasing the MCMC simulation size.")

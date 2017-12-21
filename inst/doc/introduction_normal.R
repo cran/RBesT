@@ -60,7 +60,7 @@ print(map_robust)
 ## ----rules---------------------------------------------------------------
 ## dual decision criteria
 ## pay attention to "lower.tail" argument and the order of active and pbo
-poc <- oc2Sdecision(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
+poc <- decision2S(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
 print(poc)
 
 ## ----design_options------------------------------------------------------

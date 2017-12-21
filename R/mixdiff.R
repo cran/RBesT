@@ -87,16 +87,6 @@ mixnormdiff <- function(mix1, mix2) {
     mixdiff
 }
 
-# internal function used to integrate in logit-transformed space
-logit_log_integrand <- function(integrand_log) {
-    function(l) {
-        u  <- inv_logit(l)
-        lp <- log(u)
-        lnp <- log(inv_logit(-l))              
-        exp(lp + lnp + integrand_log(u))
-    }
-}
-
 #' @rdname mixdiff
 #' @export
 dmixdiff <- function(mix1, mix2, x) {
@@ -108,24 +98,21 @@ dmixdiff <- function(mix1, mix2, x) {
 
     Nc1 <- ncol(mix1)
     Nc2 <- ncol(mix2)
-    
-    ## integrate density in logit space and split by component such
-    ## that the quantile function of each component is used
+
+    ## rescale integrand to ensure stability of integration when
+    ## default 1E-4 tolerances are used
+    scale <- 1E3
+    lscale <- log(scale)
 
     ## in case we know that mix2 is only a single-component density,
     ## then we swap the integration order
     if(Nc2 == 1) {
         .dens <- function(sx) {
-            integrate(logit_log_integrand(function(u) dmix(mix1, qmix(mix2, u)+sx, log=TRUE) ), -Inf, Inf, rel.tol=1E-6)$value
+            integrate_density_log(function(x) lscale + dmix(mix1, x+sx, log=TRUE), mix2) / scale
         }
     } else {
-        ## otherwise we use the general approach which could be
-        ## further optimized to taking advantage of Nc1==1 explicitly
-        .dens_comp <- function(sx, mix1_comp) {
-            integrate(logit_log_integrand(function(u) dmix(mix2, qmix(mix1_comp, u)-sx, log=TRUE) ), -Inf, Inf, rel.tol=1E-6)$value
-        }
         .dens <- function(sx) {
-            sum(vapply(1:Nc1, function(comp1) .dens_comp(sx, mix1[[comp1, rescale=TRUE]]), c(0.1)) * mix1[1,])
+            integrate_density_log(function(x) lscale + dmix(mix2, x-sx, log=TRUE), mix1) / scale
         }
     }
     
@@ -144,25 +131,16 @@ pmixdiff <- function(mix1, mix2, q, lower.tail=TRUE) {
 
     Nc1 <- ncol(mix1)
     Nc2 <- ncol(mix2)
-    ## integrate density in logit space and split by component such
-    ## that the quantile function of each component is used. This
-    ## ensures that the R implementation of the quantile function is
-    ## always used.
 
     ## should the second density only have a single component, then we
     ## take advantage of this
     if(Nc2 == 1) {
         .prob <- function(sx) {
-            integrate(logit_log_integrand(function(u) pmix(mix1, qmix(mix2, u)+sx, log.p=TRUE) ), -Inf, Inf, rel.tol=1E-6)$value
+            integrate_density_log(function(x) pmix(mix1, x+sx, log.p=TRUE), mix2)
         }
     } else {
-        ## otherwise we apply the general case integrating over
-        ## density 1 by component. This could be optimized for Nc==1.
-        .prob_comp <- function(sx, mix1_comp) {
-            integrate(logit_log_integrand(function(u) pmix(mix2, qmix(mix1_comp, u)-sx, lower.tail=FALSE, log.p=TRUE) ), -Inf, Inf, rel.tol=1E-6)$value
-        }
         .prob <- function(sx) {
-            sum(vapply(1:Nc1, function(comp1) .prob_comp(sx, mix1[[comp1, rescale=TRUE]]), c(0.1)) * mix1[1,])
+            integrate_density_log(function(x) pmix(mix2, x-sx, lower.tail=FALSE, log.p=TRUE), mix1)
         }
     }
     

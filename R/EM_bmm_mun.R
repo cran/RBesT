@@ -48,8 +48,9 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
         ## data center with roughly the variance of the sample
         cmin <- which.min(KNN$p)
         muInit[cmin] <- sum(KNN$p * KNN$center)
+        ## muInit[cmin] <- mean(x) ## could be considered here
         nInit[cmin] <- muInit[cmin]*(1-muInit[cmin])/var(x) - 1
-        Nmax <- max(2, max(nInit))
+        ##Nmax <- max(2, max(nInit))
         ## ensure n is positive for each cluster; if this is not the
         ## case, sample uniformly from the range of n we have
         ##Nneg <- nInit <= .Machine$double.eps

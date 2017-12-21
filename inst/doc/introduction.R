@@ -58,7 +58,7 @@ p_truth       <- seq(0.1,0.95,by=0.01)
 uniform_prior <- mixbeta(c(1,1,1))
 treat_prior   <- mixbeta(c(1,0.5,1)) # prior for treatment used in trial
 lancet_prior  <- mixbeta(c(1,11,32)) # prior for control   used in trial
-decision      <- oc2Sdecision(0.95, 0, lower.tail=TRUE)
+decision      <- decision2S(0.95, 0, lower.tail=TRUE)
 
 design_uniform   <- oc2S(uniform_prior, uniform_prior, 6, 24, decision)
 design_nonrobust <- oc2S(map          , treat_prior,   6, 24, decision)
@@ -98,11 +98,14 @@ qplot(delta, power, data=ocP, colour=prior, geom="line", main="Power")
 ## ------------------------------------------------------------------------
 ## Critical values at which the decision are given conditional on the
 ## outcome of the second read-out
+crit_uniform   <- decision2S_boundary(uniform_prior, uniform_prior, 6, 24, decision)
+crit_nonrobust <- decision2S_boundary(map          , treat_prior,   6, 24, decision)
+crit_robust    <- decision2S_boundary(map_robust   , treat_prior,   6, 24, decision)
 treat_y2 <- 0:24
 ## Note that -1 is returned to indicated that the decision is never 1
-ocC <- rbind(data.frame(y2=treat_y2, y1_crit=design_robust(y2=treat_y2),    prior="robust"),
-             data.frame(y2=treat_y2, y1_crit=design_nonrobust(y2=treat_y2), prior="non-robust"),
-             data.frame(y2=treat_y2, y1_crit=design_uniform(y2=treat_y2),   prior="uniform")
+ocC <- rbind(data.frame(y2=treat_y2, y1_crit=crit_robust(treat_y2),    prior="robust"),
+             data.frame(y2=treat_y2, y1_crit=crit_nonrobust(treat_y2), prior="non-robust"),
+             data.frame(y2=treat_y2, y1_crit=crit_uniform(treat_y2),   prior="uniform")
              )
 
 qplot(y2, y1_crit, data=ocC, colour=prior, geom="step", main="Critical values y1(y2)")

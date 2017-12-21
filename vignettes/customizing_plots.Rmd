@@ -181,14 +181,16 @@ n_trt <- 50
 n_pbo <- 20
 
 # Create decision rules and designs to represent success and futility
-success <- oc2Sdecision(pc=c(0.90, 0.50), qc=c(log(1), log(0.50)), lower.tail=TRUE, link="log")
-futility <- oc2Sdecision(pc=c(0.10, 0.50), qc=c(log(1), log(0.50)), lower.tail=FALSE, link="log")
+success <- decision2S(pc=c(0.90, 0.50), qc=c(log(1), log(0.50)), lower.tail=TRUE, link="log")
+futility <- decision2S(pc=c(0.10, 0.50), qc=c(log(1), log(0.50)), lower.tail=FALSE, link="log")
 design_suc <- oc2S(prior_trt, prior_pbo, n_trt, n_pbo, success)
 design_fut <- oc2S(prior_trt, prior_pbo, n_trt, n_pbo, futility)
+crit_suc <- decision2S_boundary(prior_trt, prior_pbo, n_trt, n_pbo, success)
+crit_fut <- decision2S_boundary(prior_trt, prior_pbo, n_trt, n_pbo, futility)
 
 # Create a data frame that holds the outcomes for y1 (treatment) that define success and futility, 
 # conditional on the number of events on y2 (placebo)
-outcomes <- data.frame(y2=c(0:n_pbo), suc=design_suc(y2=0:n_pbo), fut=design_fut(y2=0:n_pbo), max=n_trt)
+outcomes <- data.frame(y2=c(0:n_pbo), suc=crit_suc(0:n_pbo), fut=crit_fut(0:n_pbo), max=n_trt)
 outcomes$suc <- with(outcomes, ifelse(suc<0, 0, suc)) # don't allow negative number of events
 
 # Finally put it all together in a plot. 

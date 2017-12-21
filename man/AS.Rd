@@ -31,6 +31,6 @@ map_AS <- gMAP(cbind(r, n-r) ~ 1 | study,
                thin=1, chains=1)
 }
 \references{
-Beaten D. et. al, \emph{The Lancet}, 2013, (382), 9906, p 1705
+Baeten D. et. al, \emph{The Lancet}, 2013, (382), 9906, p 1705
 }
 \keyword{datasets}
