@@ -41,8 +41,8 @@ Option \tab Default \tab Description \cr
 \code{RBesT.verbose} \tab \code{FALSE} \tab requests outputs to be more verbose\cr
 \code{RBesT.integrate_args} \tab \code{list(lower=-Inf,} \tab arguments passed to \code{integrate} for\cr
  \tab \code{upper=Inf,} \tab intergation of densities\cr
-\tab \code{rel.tol=1E-4} \tab \cr
-\tab \code{abs.tol=1E-4} \tab \cr
+\tab \code{rel.tol=.Machine$double.eps^0.25,} \tab \cr
+\tab \code{abs.tol=.Machine$double.eps^0.25,} \tab \cr
 \tab \code{subdivisions=1E3)} \tab \cr
 }
 }

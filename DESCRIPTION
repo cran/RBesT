@@ -5,8 +5,8 @@ Description: Tool-set to support Bayesian evidence synthesis.
     This includes meta-analysis, (robust) prior derivation
     from historical data, operating characteristics
     and analysis (1 and 2 sample cases).
-Version: 1.3-1
-Date: 2017-12-21
+Version: 1.3-2
+Date: 2018-01-25
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -17,20 +17,20 @@ Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Trustees of", "Columbia University", role="cph", comment="src/init.cpp, tools/make_cpp.R, R/stanmodels.R")
 	    )
 Depends: R (>= 3.2.0), Rcpp (>= 0.12.0), methods
-Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.16.2),
+Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.17.2),
         bayesplot (>= 1.3.0), ggplot2, dplyr, stats, utils, lme4
-LinkingTo: StanHeaders (>= 2.16.0), rstan (>= 2.16.2), BH (>= 1.65.0),
+LinkingTo: StanHeaders (>= 2.17.0), rstan (>= 2.17.2), BH (>= 1.65.0),
         Rcpp (>= 0.12.0), RcppEigen
 License: GPL (>= 3) | file LICENSE
 LazyData: true
 NeedsCompilation: yes
 Suggests: rmarkdown, knitr, testthat (>= 0.11.0), foreach, tidyverse,
-        rstanarm (>= 2.15.3)
+        rstanarm (>= 2.17.2)
 VignetteBuilder: knitr
 SystemRequirements: pandoc
 RoxygenNote: 6.0.1
 RcppModules: stan_fit4gMAP_mod
-Packaged: 2017-12-21 18:12:42 UTC; WEBERSE2
+Packaged: 2018-01-25 17:01:12 UTC; WEBERSE2
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -42,4 +42,4 @@ Author: Novartis Pharma AG [cph],
     R/stanmodels.R)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2017-12-21 21:28:22 UTC
+Date/Publication: 2018-01-25 18:09:43 UTC

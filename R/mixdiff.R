@@ -101,7 +101,7 @@ dmixdiff <- function(mix1, mix2, x) {
 
     ## rescale integrand to ensure stability of integration when
     ## default 1E-4 tolerances are used
-    scale <- 1E3
+    scale <- 1E2
     lscale <- log(scale)
 
     ## in case we know that mix2 is only a single-component density,

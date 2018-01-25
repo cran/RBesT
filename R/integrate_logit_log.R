@@ -29,7 +29,7 @@ integrate_density_log <- function(log_integrand, mix, Lplower=-Inf, Lpupper=Inf)
     Nc <- ncol(mix)
     ## integrate by component of mix separatley to increase precision
     integrate_args_user <- getOption("RBesT.integrate_args", list())
-    args <- modifyList(list(lower=Lplower, upper=Lpupper, rel.tol=1E-4, abs.tol=1E-4, subdivisions=1000),
+    args <- modifyList(list(lower=Lplower, upper=Lpupper, rel.tol=.Machine$double.eps^0.25, abs.tol=.Machine$double.eps^0.25, subdivisions=1000),
                        integrate_args_user)
     
     .integrate_call <- function(integrand) {
