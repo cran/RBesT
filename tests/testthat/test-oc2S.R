@@ -165,6 +165,12 @@ test_scenario <- function(oc_res, ref) {
     expect_true(all(abs(resA) < eps))
 }
 
+expect_equal_each <- function(test, expected) {
+    for(elem in test) {
+       expect_equal(elem, expected)
+    }
+}
+
 ## design object, decision function, posterior function must return
 ## posterior after updatding the prior with the given value; we assume
 ## that the priors are the same for sample 1 and 2
@@ -173,13 +179,13 @@ test_critical_discrete <- function(design, decision, posterior, y2) {
     crit <- design(y2=y2)
     post2 <- posterior(y2)
     if(lower.tail) {
-        expect_true(decision(posterior(crit-1), post2) == 1)
-        expect_true(decision(posterior(crit  ), post2) == 1)
-        expect_true(decision(posterior(crit+1), post2) == 0)
+        expect_equal(decision(posterior(crit-1), post2), 1)
+        expect_equal(decision(posterior(crit  ), post2), 1)
+        expect_equal(decision(posterior(crit+1), post2), 0)
     } else {
-        expect_true(decision(posterior(crit-1), post2) == 0)
-        expect_true(decision(posterior(crit  ), post2) == 0)
-        expect_true(decision(posterior(crit+1), post2) == 1)
+        expect_equal(decision(posterior(crit-1), post2), 0)
+        expect_equal(decision(posterior(crit  ), post2), 0)
+        expect_equal(decision(posterior(crit+1), post2), 1)
     }
 }
 
@@ -187,7 +193,7 @@ test_critical_discrete <- function(design, decision, posterior, y2) {
 eps <- 1e-2
 alpha <- 0.05
 
-dec <- decision2S(1-alpha, 0, lower.tail=TRUE)
+dec  <- decision2S(1-alpha, 0, lower.tail=TRUE)
 decB <- decision2S(1-alpha, 0, lower.tail=FALSE)
 
 ## test binary case
@@ -196,11 +202,10 @@ beta_prior <- mixbeta(c(1, 1, 1))
 design_binary  <- oc2S(beta_prior, beta_prior, 100, 100, dec)
 design_binaryB <- oc2S(beta_prior, beta_prior, 100, 100, decB)
 posterior_binary <- function(r) postmix(beta_prior, r=r, n=100)
-p_test <- seq(0.1, 0.9, by=0.1)
+p_test <- 1:9 / 10
 test_that("Binary type I error rate", test_scenario(design_binary(p_test, p_test), alpha))
 test_that("Binary crticial value, lower.tail=TRUE", test_critical_discrete(design_binary, dec, posterior_binary, 30))
 test_that("Binary crticial value, lower.tail=FALSE", test_critical_discrete(design_binaryB, decB, posterior_binary, 30))
-
 test_that("Binary boundary case, lower.tail=TRUE",  expect_numeric(design_binary( 1, 1), lower=0, upper=1, finite=TRUE, any.missing=FALSE))
 test_that("Binary boundary case, lower.tail=FALSE", expect_numeric(design_binaryB(0, 0), lower=0, upper=1, finite=TRUE, any.missing=FALSE))
 
@@ -212,18 +217,19 @@ beta_prior2 <- mixbeta(c(1, 0.1, 1000), param="mn")
 design_lower <- oc2S(beta_prior1, beta_prior2, 20, 20, dec)  ## always 0
 design_upper <- oc2S(beta_prior1, beta_prior2, 20, 20, decB) ## always 1
 
-test_that("Binary case, no decision change, lower.tail=TRUE, critical value", expect_true(all(design_lower(y2=0:20) == -1)) )
-test_that("Binary case, no decision change, lower.tail=FALSE, critical value", expect_true(all(design_upper(y2=0:20) == 21)) )
-test_that("Binary case, no decision change, lower.tail=TRUE, frequency=0",  expect_numeric(design_lower(p_test, p_test), lower=0, upper=1E-6, finite=TRUE, any.missing=FALSE) )
-test_that("Binary case, no decision change, lower.tail=FALSE, frequency=1",  expect_numeric(design_upper(p_test, p_test), lower=1-1E-6, upper=1, finite=TRUE, any.missing=FALSE) )
+test_that("Binary case, no decision change, lower.tail=TRUE, critical value", expect_equal_each(design_lower(y2=0:20), -1))
+test_that("Binary case, no decision change, lower.tail=FALSE, critical value", expect_equal_each(design_upper(y2=0:20), 21))
+test_that("Binary case, no decision change, lower.tail=TRUE, frequency=0", expect_equal_each(design_lower(p_test, p_test), 0.0))
+test_that("Binary case, no decision change, lower.tail=FALSE, frequency=1",  expect_equal_each(design_upper(p_test, p_test), 1.0))
+
 
 design_lower_rev <- oc2S(beta_prior2, beta_prior1, 20, 20, dec)  ## always 1
 design_upper_rev <- oc2S(beta_prior2, beta_prior1, 20, 20, decB) ## always 0
 
-test_that("Binary case, no decision change (reversed), lower.tail=TRUE, critical value", expect_true(all(design_lower_rev(y2=0:20) == 20)) )
-test_that("Binary case, no decision change (reversed), lower.tail=FALSE, critical value", expect_true(all(design_upper_rev(y2=0:20) == -1)) )
-test_that("Binary case, no decision change (reversed), lower.tail=TRUE, frequency=0",  expect_numeric(design_lower_rev(p_test, p_test), lower=1-1E-6, upper=1, finite=TRUE, any.missing=FALSE) )
-test_that("Binary case, no decision change (reversed), lower.tail=FALSE, frequency=1",  expect_numeric(design_upper_rev(p_test, p_test), lower=0, upper=1E-6, finite=TRUE, any.missing=FALSE) )
+test_that("Binary case, no decision change (reversed), lower.tail=TRUE, critical value",  expect_equal_each(design_lower_rev(y2=0:20), 20))
+test_that("Binary case, no decision change (reversed), lower.tail=FALSE, critical value", expect_equal_each(design_upper_rev(y2=0:20), -1))
+test_that("Binary case, no decision change (reversed), lower.tail=TRUE, frequency=0",  expect_equal_each(design_lower_rev(p_test, p_test), 1.0))
+test_that("Binary case, no decision change (reversed), lower.tail=FALSE, frequency=1",  expect_equal_each(design_upper_rev(p_test, p_test), 0.0))
 
 ## check approximate method
 

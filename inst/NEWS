@@ -1,3 +1,10 @@
+February 2nd, 2018 (1.3-3)
+
+* Change numerical equality testing to use expect_equal (which uses
+  all.equal internally accounting for machine specifc tolerances) to
+  pass tests for no long double case. Numerical tolerances are
+  reverted back to 1.3-1 settings.
+
 January 25th, 2018 (1.3-2)
 
 * Adjust numerical tolerances to pass tests for no long double case

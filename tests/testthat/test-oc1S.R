@@ -78,13 +78,13 @@ dec1b <- decision1S(1-alpha, theta_ni, lower.tail=FALSE)
 test_critical_discrete <- function(crit, decision, posterior) {
     lower.tail <- attr(decision, "lower.tail")
     if(lower.tail) {
-        expect_true(decision(posterior(crit-1)) == 1)
-        expect_true(decision(posterior(crit  )) == 1)
-        expect_true(decision(posterior(crit+1)) == 0)
+        expect_equal(decision(posterior(crit-1)), 1)
+        expect_equal(decision(posterior(crit  )), 1)
+        expect_equal(decision(posterior(crit+1)), 0)
     } else {
-        expect_true(decision(posterior(crit-1)) == 0)
-        expect_true(decision(posterior(crit  )) == 0)
-        expect_true(decision(posterior(crit+1)) == 1)
+        expect_equal(decision(posterior(crit-1)), 0)
+        expect_equal(decision(posterior(crit  )), 0)
+        expect_equal(decision(posterior(crit+1)), 1)
     }
 }
 
@@ -96,7 +96,7 @@ crit1 <- decision1S_boundary(beta_prior, 1000, dec1)
 crit1B <- decision1S_boundary(beta_prior, 1000, dec1b)
 posterior_binary <- function(r) postmix(beta_prior, r=r, n=1000)
 test_that("Binary type I error rate", test_scenario(design_binary(theta_ni), alpha))
-test_that("Binary crticial value, lower.tail=TRUE", test_critical_discrete(crit1, dec1, posterior_binary))
+test_that("Binary crticial value, lower.tail=TRUE",  test_critical_discrete(crit1,  dec1,  posterior_binary))
 test_that("Binary crticial value, lower.tail=FALSE", test_critical_discrete(crit1B, dec1b, posterior_binary))
 
 test_that("Binary boundary case, lower.tail=TRUE",  expect_numeric(design_binary( 1), lower=0, upper=1, finite=TRUE, any.missing=FALSE))
@@ -112,5 +112,5 @@ pcrit1 <- decision1S_boundary(gamma_prior, 1000, dec_count)
 pcrit1B <- decision1S_boundary(gamma_prior, 1000, dec_countB)
 posterior_poisson <- function(m) postmix(gamma_prior, m=m/1000, n=1000)
 test_that("Poisson type I error rate", test_scenario(design_poisson(1), alpha) )
-test_that("Poisson critical value, lower.tail=TRUE", test_critical_discrete(pcrit1, dec_count, posterior_poisson))
+test_that("Poisson critical value, lower.tail=TRUE",  test_critical_discrete(pcrit1,  dec_count,  posterior_poisson))
 test_that("Poisson critical value, lower.tail=FALSE", test_critical_discrete(pcrit1B, dec_countB, posterior_poisson))

@@ -5,8 +5,8 @@ Description: Tool-set to support Bayesian evidence synthesis.
     This includes meta-analysis, (robust) prior derivation
     from historical data, operating characteristics
     and analysis (1 and 2 sample cases).
-Version: 1.3-2
-Date: 2018-01-25
+Version: 1.3-3
+Date: 2018-02-02
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -24,13 +24,13 @@ LinkingTo: StanHeaders (>= 2.17.0), rstan (>= 2.17.2), BH (>= 1.65.0),
 License: GPL (>= 3) | file LICENSE
 LazyData: true
 NeedsCompilation: yes
-Suggests: rmarkdown, knitr, testthat (>= 0.11.0), foreach, tidyverse,
+Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, tidyverse,
         rstanarm (>= 2.17.2)
 VignetteBuilder: knitr
 SystemRequirements: pandoc
 RoxygenNote: 6.0.1
 RcppModules: stan_fit4gMAP_mod
-Packaged: 2018-01-25 17:01:12 UTC; WEBERSE2
+Packaged: 2018-02-02 12:05:19 UTC; WEBERSE2
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -42,4 +42,4 @@ Author: Novartis Pharma AG [cph],
     R/stanmodels.R)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2018-01-25 18:09:43 UTC
+Date/Publication: 2018-02-02 18:37:06 UTC
