@@ -27,6 +27,8 @@ normMix <- mixnorm(c(0.2, 0, 2), c(0.8, 2, 1), sigma=1)
 n <- 25
 
 preddist_cmp <- function(mix,  n, n_rng, N=Nsamp, qntls=p_quants, stat=c("sum", "mean"), Teps=eps) {
+    skip_on_cran()
+
     ## sample for each draw a single hyper-parameter which is then
     ## used n times in the rng function to return n samples from the
     ## sampling distribution

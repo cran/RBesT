@@ -120,7 +120,18 @@ solve_boundary1S_normMix <- function(decision, mix, n, lim) {
         Vectorize(fn)
     }
 
-    uniroot(cond_decisionStep(), lim)$root
+    ## ensure that at the limiting boundaries the decision function
+    ## has a different sign (which must be true)
+    ind_fun <- cond_decisionStep()
+    dec_bounds <- ind_fun(lim)
+    while(prod(dec_bounds) > 0) {
+        w <- diff(lim)
+        lim <- c(lim[1] - w/2, lim[2] + w/2)
+        dec_bounds <- ind_fun(lim)
+    }
+
+    uniroot(ind_fun, interval=lim,
+            f.lower=dec_bounds[1], f.upper=dec_bounds[2])$root
 }
 
 #' @templateVar fun decision1S_boundary

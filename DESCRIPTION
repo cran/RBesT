@@ -5,8 +5,8 @@ Description: Tool-set to support Bayesian evidence synthesis.
     This includes meta-analysis, (robust) prior derivation
     from historical data, operating characteristics
     and analysis (1 and 2 sample cases).
-Version: 1.3-3
-Date: 2018-02-02
+Version: 1.3-4
+Date: 2018-10-16
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -14,23 +14,22 @@ Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Baldur", "Magnusson", email="baldur.magnusson@novartis.com", role="ctb")
             ,person("Yue", "Li", email="yue-1.li@novartis.com", role="ctb")
             ,person("Satrajit", "Roychoudhury", email="satrajit.roychoudhury@novartis.com", role="ctb")
-            ,person("Trustees of", "Columbia University", role="cph", comment="src/init.cpp, tools/make_cpp.R, R/stanmodels.R")
+            ,person("Trustees of", "Columbia University", role="cph", comment="src/init.cpp, tools/make_cc.R, R/stanmodels.R, R/Makevars, R/Makevars.win")
 	    )
-Depends: R (>= 3.2.0), Rcpp (>= 0.12.0), methods
-Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.17.2),
-        bayesplot (>= 1.3.0), ggplot2, dplyr, stats, utils, lme4
-LinkingTo: StanHeaders (>= 2.17.0), rstan (>= 2.17.2), BH (>= 1.65.0),
-        Rcpp (>= 0.12.0), RcppEigen
+Depends: R (>= 3.4.0), Rcpp (>= 0.12.0), methods
+Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.18.1),
+        bayesplot (>= 1.4.0), ggplot2, dplyr, stats, utils
+LinkingTo: StanHeaders (>= 2.18.0), rstan (>= 2.18.1), BH (>= 1.66.0),
+        Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0)
 License: GPL (>= 3) | file LICENSE
 LazyData: true
 NeedsCompilation: yes
 Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, tidyverse,
-        rstanarm (>= 2.17.2)
+        purrr, rstanarm (>= 2.17.2)
 VignetteBuilder: knitr
-SystemRequirements: pandoc
-RoxygenNote: 6.0.1
-RcppModules: stan_fit4gMAP_mod
-Packaged: 2018-02-02 12:05:19 UTC; WEBERSE2
+SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
+RoxygenNote: 6.1.0
+Packaged: 2018-10-17 18:14:03 UTC; weberse2
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -38,8 +37,8 @@ Author: Novartis Pharma AG [cph],
   Baldur Magnusson [ctb],
   Yue Li [ctb],
   Satrajit Roychoudhury [ctb],
-  Trustees of Columbia University [cph] (src/init.cpp, tools/make_cpp.R,
-    R/stanmodels.R)
+  Trustees of Columbia University [cph] (src/init.cpp, tools/make_cc.R,
+    R/stanmodels.R, R/Makevars, R/Makevars.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2018-02-02 18:37:06 UTC
+Date/Publication: 2018-10-17 22:20:15 UTC

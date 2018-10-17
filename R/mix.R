@@ -188,24 +188,24 @@ pmix.betaMix  <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(pbet
 pmix.normMix  <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(pnorm,  mix, q, lower.tail, log.p)
 
 #' @export
-pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(Curry(pBetaBinomial, n=attr(mix, "n")), mix, q, lower.tail, log.p)
-## pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) {
-##     assert_that(is.dlink_identity(attr(mix, "link")))
+## pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) pmix_impl(Curry(pBetaBinomial, n=attr(mix, "n")), mix, q, lower.tail, log.p)
+pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) {
+    assert_that(is.dlink_identity(attr(mix, "link")))
 ##     ## the analytic solution needs the generalized hypergeometric
 ##     ## function which is only available in the hyper-geo package which
 ##     ## is why a numeric integration is performed here
 ##     ## treat out-of-bounds quantiles special
-##     out_low  <- q<0
-##     out_high <- q>attr(mix, "n")
-##     q[out_low | out_high] <- 0
-##     dist <- cumsum(dmix.betaBinomialMix(mix, seq(0,max(q))))
-##     p <- dist[q+1]
-##     p[out_low] <- 0
-##     p[out_high] <- 1
-##     if(!lower.tail) p <- 1-p
-##     if(log.p) p <- log(p)
-##     return(p)
-## }
+     out_low  <- q<0
+     out_high <- q>attr(mix, "n")
+     q[out_low | out_high] <- 0
+     dist <- cumsum(dmix.betaBinomialMix(mix, seq(0,max(q))))
+     p <- dist[q+1]
+     p[out_low] <- 0
+     p[out_high] <- 1
+     if(!lower.tail) p <- 1-p
+     if(log.p) p <- log(p)
+     return(p)
+}
 
 ## internal redefinition of negative binomial 
 ##.pnbinomAB <- function(q, a, b, lower.tail = TRUE, log.p = FALSE ) pnbinom(q, size=a, prob=b/(b+1), lower.tail = lower.tail, log.p = log.p )

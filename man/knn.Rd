@@ -4,7 +4,8 @@
 \alias{knn}
 \title{k nearest neighbor algorithm for multi-variate data}
 \usage{
-knn(X, K = 2, init, Ninit = 50, verbose = FALSE, tol, Niter.max = 500)
+knn(X, K = 2, init, Ninit = 50, verbose = FALSE, tol,
+  Niter.max = 500)
 }
 \arguments{
 \item{X}{data matrix, i.e. observations X dimensions}

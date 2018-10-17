@@ -10,19 +10,20 @@
 \title{Meta-Analytic-Predictive Analysis for Generalized Linear Models}
 \usage{
 gMAP(formula, family = gaussian, data, weights, offset, tau.strata,
-  tau.dist = c("HalfNormal", "TruncNormal", "Uniform", "Gamma", "InvGamma",
-  "LogNormal", "TruncCauchy", "Exp", "Fixed"), tau.prior, tau.strata.pred = 1,
-  beta.prior, REdist = c("normal", "t"), t.df = 5, contrasts = NULL,
-  iter = getOption("RBesT.MC.iter", 6000),
-  warmup = getOption("RBesT.MC.warmup", 2000),
-  thin = getOption("RBesT.MC.thin", 4), init = getOption("RBesT.MC.init",
-  1), chains = getOption("RBesT.MC.chains", 4),
+  tau.dist = c("HalfNormal", "TruncNormal", "Uniform", "Gamma",
+  "InvGamma", "LogNormal", "TruncCauchy", "Exp", "Fixed"), tau.prior,
+  tau.strata.pred = 1, beta.prior, REdist = c("normal", "t"),
+  t.df = 5, contrasts = NULL, iter = getOption("RBesT.MC.iter",
+  6000), warmup = getOption("RBesT.MC.warmup", 2000),
+  thin = getOption("RBesT.MC.thin", 4),
+  init = getOption("RBesT.MC.init", 1),
+  chains = getOption("RBesT.MC.chains", 4),
   cores = getOption("mc.cores", 1L))
 
 \method{print}{gMAP}(x, digits = 3, probs = c(0.025, 0.5, 0.975), ...)
 
-\method{fitted}{gMAP}(object, type = c("response", "link"), probs = c(0.025,
-  0.5, 0.975), ...)
+\method{fitted}{gMAP}(object, type = c("response", "link"),
+  probs = c(0.025, 0.5, 0.975), ...)
 
 \method{coef}{gMAP}(object, probs = c(0.025, 0.5, 0.975), ...)
 

@@ -30,7 +30,7 @@ plot.gMAP <- function(x, size=NULL, ...) {
     
     div_opts <- list()
     if(sum(nuts_diag$Value[nuts_diag$Parameter=="divergent__"]) > 0) {
-        div_opts$divergences <- bayesplot::nuts_params(x$fit, inc_warmup=TRUE)
+        div_opts$np <- bayesplot::nuts_params(x$fit, inc_warmup=TRUE)
         plot_verbose <- TRUE ## if any divergent transition happens,
                              ## then we plot verbose in any case
     }

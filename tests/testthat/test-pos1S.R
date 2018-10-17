@@ -62,3 +62,7 @@ dec_countU  <- decision1S(1-alpha, 1, lower.tail=FALSE)
 gamma_ia <- postmix(gamma_prior, m=0.9, n=40)
 test_that("Poisson PoS 1 sample function matches MC integration of CPO", test_pos1S(gamma_prior, gamma_ia, n1, dec_count, dec_countU))
 
+prior_unit_inf <- mixnorm(c(1, 0, 1), sigma=s, param="mn")
+post_ia_unit_inf <- postmix(prior_unit_inf, m=-1, n=162)
+test_pos1S(prior_unit_inf, post_ia_unit_inf, 459-162, decA, decAU)
+test_that("Normal PoS 1 sample function matches MC integration of CPO (more extreme case)", test_pos1S(prior_unit_inf, post_ia_unit_inf, 459-162, decA, decAU))

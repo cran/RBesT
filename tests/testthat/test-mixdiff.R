@@ -35,6 +35,8 @@ mixdiff_sample <- function(mix1, mix2, q, p, N=Nsamp) {
 }
 
 mixdiff_cmp <- function(case, rev=FALSE) {
+    ## skip for speed on CRAN
+    skip_on_cran()
     ref_probs <- do.call(pmixdiff, case[c("mix1", "mix2", "q")])
     ref_quants <- do.call(qmixdiff, case[c("mix1", "mix2", "p")])
     test <- do.call(mixdiff_sample, case)

@@ -5,11 +5,11 @@
 \alias{oc2Sdecision}
 \title{Decision Function for 2 Sample Designs}
 \usage{
-decision2S(pc = 0.975, qc = 0, lower.tail = TRUE, link = c("identity",
-  "logit", "log"))
+decision2S(pc = 0.975, qc = 0, lower.tail = TRUE,
+  link = c("identity", "logit", "log"))
 
-oc2Sdecision(pc = 0.975, qc = 0, lower.tail = TRUE, link = c("identity",
-  "logit", "log"))
+oc2Sdecision(pc = 0.975, qc = 0, lower.tail = TRUE,
+  link = c("identity", "logit", "log"))
 }
 \arguments{
 \item{pc}{Vector of critical cumulative probabilities of the
@@ -125,3 +125,4 @@ sequential designs. \emph{Pharm. Stat.}. 2014; 13: 71-80
 Other design2S: \code{\link{decision2S_boundary}},
   \code{\link{oc2S}}, \code{\link{pos2S}}
 }
+\concept{design2S}

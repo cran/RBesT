@@ -508,7 +508,6 @@ gMAP <- function (formula,
             tau_guess <- sigma_guess
         }
     }
-##:ess-bp-start::browser@nil:##
     
     ## create a unique label vector
     ulabels <- labels
@@ -520,7 +519,6 @@ gMAP <- function (formula,
             }
         }
     }
-##:ess-bp-start::browser@nil:##
     
     ## per group we must have an assignment to a tau stratum
     tau.strata.index <- model.extract(mf, "tau.strata")

@@ -79,3 +79,31 @@ gammaMix2 <- mixgamma(c(8.949227e-01, 7.051570e-01, 6.125121e-02),
                       c(1.666667e-04, 1.836051e+04, 1.044005e-02))
 
 test_that("Singular gamma mixture quantile function is correct", mix_simul_test(gammaMix2, 10*eps, c(1, 1E3), ptest = seq(0.2, 0.8, by=0.1)))
+
+
+consistent_cdf <- function(mix, values) {
+    dens <- dmix(mix, values)
+    cdf <- pmix(mix, values)
+    expect_true(all(diff(cdf) >= 0))
+    expect_numeric(dens, any.missing=FALSE)
+    expect_numeric(cdf, any.missing=FALSE)
+}
+
+test_that("Beta CDF function is consistent", consistent_cdf(beta, seq(0.1, 0.9, by=0.1)))
+test_that("Beta mixture CDF function is consistent", consistent_cdf(betaMix, seq(0.1, 0.9, by=0.1)))
+
+test_that("Normal CDF is consistent", consistent_cdf(norm, seq(-2, 2, by=0.1)))
+test_that("Normal mixture CDF is consistent", consistent_cdf(norm, seq(-2, 2, by=0.1)))
+
+test_that("Gamma CDF function is consistent", consistent_cdf(gamma, seq(2, 7, by=0.1)))
+test_that("Gamma mixture CDF function is consistent", consistent_cdf(gammaMix, seq(2, 7, by=0.1)))
+
+
+## problematic beta which triggers that the cumulative of the
+## predictive is not monotone (probably fixed with Stan 2.18, check
+## again once 2.18 is out)
+
+## problematic Beta density
+bm <- mixbeta(c(1.0, 298.30333970, 146.75306521))
+test_that("Problematic (1) BetaBinomial CDF function is consistent", consistent_cdf(preddist(bm, n=50), 0:50))
+

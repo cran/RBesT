@@ -1,8 +1,11 @@
 ## ----setup, include=FALSE------------------------------------------------
-rm(list=ls())
 suppressPackageStartupMessages(library(tidyverse))
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 1.62*4, fig.height = 4)
+## setup up fast sampling when run on CRAN
+if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+    options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
+}
 
 ## ------------------------------------------------------------------------
 # Load required libraries

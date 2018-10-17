@@ -84,6 +84,12 @@ test_that("throws an error if more weights than mixtures given", {
               expect_error(mixcombine(bm, unif, weight=c(8, 1, 1)), "length(weight) not equal to length(comp)", fixed=TRUE)
           })
 
+test_that("combination of normal mixtures without default sigma works", {
+              norm_ui <- mixnorm(c(1, 0, 2))
+              norm_ui_mix <- mixcombine(norm_ui, norm_ui, weight=c(0.5,0.5))
+              expect_true(ncol(norm_ui_mix) == 2)
+          })
+
 context("Utilities: robustify")
 
 example("robustify", package="RBesT", echo=FALSE, ask=FALSE, verbose=FALSE)
@@ -127,6 +133,13 @@ test_that("normal mixture is robustified with n=5 equivalent prior", {
               expect_equal(rnMix2[1,nr], 0.1)
           })
 
+context("Utilities: Plotting of Mixtures")
+test_that("plotting of normal mixtures without default sigma works", {
+              norm_ui <- mixnorm(c(1, 0, 2))
+              norm_mix_ui <- mixcombine(norm_ui, norm_ui, weight=c(0.5,0.5))
+              pl <- plot(norm_mix_ui)
+              expect_true(inherits(pl, "ggplot"))
+          })
 
 context("Utilities: Mixture Effective Sample Size")
 

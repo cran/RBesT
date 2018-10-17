@@ -128,9 +128,10 @@ summary.normMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
 }
 
 #' @rdname mixnorm
+#' @method sigma normMix
 #' @export
 #' @export sigma
-#' @rawNamespace if(getRversion()>='3.3.0') importFrom(stats, sigma) else importFrom(lme4, sigma)
+#' @rawNamespace importFrom(stats, sigma)
 sigma.normMix <- function(object, ...) {
     attr(object, "sigma")
 }
@@ -138,7 +139,7 @@ sigma.normMix <- function(object, ...) {
 #' @describeIn mixnorm Allows to assign a new reference scale \code{sigma}.
 #' @export
 'sigma<-' <- function(object, value) {
-    assert_number(value, lower=0)
+    assert_number(value, lower=0, null.ok=TRUE)
     attr(object, "sigma") <- value
     object
 }

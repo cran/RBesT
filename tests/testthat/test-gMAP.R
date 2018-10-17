@@ -147,7 +147,8 @@ test_that("gMAP processes single trial case", {
 
 test_that("gMAP processes not continuously labeled studies", {
               out <- capture.output(map1 <- gMAP(cbind(r, n-r) ~ 1 | study, data=AS[-1,],
-                           family=binomial, tau.dist="HalfNormal", tau.prior=0.5))
+                                                 family=binomial, tau.dist="HalfNormal", tau.prior=0.5,
+                                                 iter=100, warmup=50, chains=1, thin=1))
               expect_true(nrow(fitted(map1)) == nrow(AS) - 1)
           })
 
@@ -156,9 +157,10 @@ do.call(options, bad_sampling)
 
 set.seed(23434)
 test_that("gMAP reports divergences", {
-              suppressMessages(suppressWarnings(mcmc_div <- gMAP(cbind(r, n-r) ~ 1 | study, data=AS[1:2,], family=binomial,
-                                                     tau.dist="TruncCauchy", tau.prior=cbind(0, 100),
-                                                     beta.prior=cbind(0,1E5))))
+              suppressMessages(suppressWarnings(mcmc_div <- gMAP(cbind(r, n-r) ~ 1 | study, data=AS[1,,drop=FALSE], family=binomial,
+                                                                 tau.dist="Uniform", tau.prior=cbind(0, 1000),
+                                                                 beta.prior=cbind(0,1E5),
+                                                                 iter=1000, warmup=0, chains=1, thin=1, init=10)))
               sp <- rstan::get_sampler_params(mcmc_div$fit)[[1]]
               expect_true(sum(sp[,"divergent__"]) > 0)
           })

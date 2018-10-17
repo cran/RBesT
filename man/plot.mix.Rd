@@ -4,8 +4,8 @@
 \alias{plot.mix}
 \title{Plot mixture distributions}
 \usage{
-\method{plot}{mix}(x, prob = 0.99, fun = dmix, log = FALSE, comp = TRUE,
-  size = 1.25, ...)
+\method{plot}{mix}(x, prob = 0.99, fun = dmix, log = FALSE,
+  comp = TRUE, size = 1.25, ...)
 }
 \arguments{
 \item{x}{mixture distribution}
@@ -92,3 +92,4 @@ Other mixdist: \code{\link{mixbeta}},
   \code{\link{mixcombine}}, \code{\link{mixgamma}},
   \code{\link{mixnorm}}, \code{\link{mix}}
 }
+\concept{mixdist}

@@ -29,6 +29,8 @@ dec <- decision2S(pcrit, qcrit)
 decU <- decision2S(pcrit, qcrit, lower.tail=FALSE)
 
 test_pos2S <- function(prior1, prior2, ia_dist1, ia_dist2, n1, n2, dec, decU) {
+    skip_on_cran()
+
     ## the PoS is the expected value of the condition power integrated
     ## over the interim density which is what we check here
     cpo_analytic <- oc2S(prior1, prior2, n1, n2, dec)
@@ -57,6 +59,8 @@ test_that("Normal PoS 2 sample function matches MC integration of CPO",
 
 ## also run a MC comparison
 pos2S_normal_MC <- function(prior1, prior2, N1, N2, dtheta1, dtheta2, pcrit=0.975, qcrit=0) {
+    skip_on_cran()
+
     mean_sd1 <- sigma(prior1) / sqrt(N1)
     mean_sd2 <- sigma(prior2) / sqrt(N2)
 

@@ -4,7 +4,8 @@
 \alias{plot.EM}
 \title{Diagnostic plots for EM fits}
 \usage{
-\method{plot}{EM}(x, size = 1.25, link = c("identity", "logit", "log"), ...)
+\method{plot}{EM}(x, size = 1.25, link = c("identity", "logit", "log"),
+  ...)
 }
 \arguments{
 \item{x}{EM fit}
@@ -25,7 +26,7 @@ beneficial, for example a \code{logit} (\code{log}) link for beta
 }
 \value{
 A list of \code{\link[ggplot2]{ggplot}} plots for
-diagnostics of the EM run. Detailled EM diagnostic plots are
+diagnostics of the EM run. Detailed EM diagnostic plots are
 included only if the global option \code{RBesT.verbose} is set to
 \code{TRUE}. These include plots of the parameters of each
 component vs the iteration. The plot of the mixture density with a
@@ -73,3 +74,4 @@ names(pl_all)
 \seealso{
 Other EM: \code{\link{mixfit}}
 }
+\concept{EM}

@@ -14,7 +14,8 @@ pos2S(prior1, prior2, n1, n2, decision, ...)
 \method{pos2S}{normMix}(prior1, prior2, n1, n2, decision, sigma1, sigma2,
   eps = 1e-06, Ngrid = 10, ...)
 
-\method{pos2S}{gammaMix}(prior1, prior2, n1, n2, decision, eps = 1e-06, ...)
+\method{pos2S}{gammaMix}(prior1, prior2, n1, n2, decision, eps = 1e-06,
+  ...)
 }
 \arguments{
 \item{prior1}{Prior for sample 1.}
@@ -147,3 +148,4 @@ pos_final(postP_interim, postT_interim)
 Other design2S: \code{\link{decision2S_boundary}},
   \code{\link{decision2S}}, \code{\link{oc2S}}
 }
+\concept{design2S}

@@ -18,7 +18,7 @@
 #' @template plot-help
 #'
 #' @return A list of \code{\link[ggplot2]{ggplot}} plots for
-#' diagnostics of the EM run. Detailled EM diagnostic plots are
+#' diagnostics of the EM run. Detailed EM diagnostic plots are
 #' included only if the global option \code{RBesT.verbose} is set to
 #' \code{TRUE}. These include plots of the parameters of each
 #' component vs the iteration. The plot of the mixture density with a

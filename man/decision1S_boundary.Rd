@@ -11,10 +11,11 @@ decision1S_boundary(prior, n, decision, ...)
 
 \method{decision1S_boundary}{betaMix}(prior, n, decision, ...)
 
-\method{decision1S_boundary}{normMix}(prior, n, decision, sigma, eps = 1e-06,
-  ...)
+\method{decision1S_boundary}{normMix}(prior, n, decision, sigma,
+  eps = 1e-06, ...)
 
-\method{decision1S_boundary}{gammaMix}(prior, n, decision, eps = 1e-06, ...)
+\method{decision1S_boundary}{gammaMix}(prior, n, decision, eps = 1e-06,
+  ...)
 }
 \arguments{
 \item{prior}{Prior for analysis.}
@@ -125,3 +126,4 @@ decision1S_boundary(flat_prior, nL, dec2)
 Other design1S: \code{\link{decision1S}},
   \code{\link{oc1S}}, \code{\link{pos1S}}
 }
+\concept{design1S}

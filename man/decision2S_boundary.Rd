@@ -9,11 +9,11 @@
 \usage{
 decision2S_boundary(prior1, prior2, n1, n2, decision, ...)
 
-\method{decision2S_boundary}{betaMix}(prior1, prior2, n1, n2, decision, eps,
-  ...)
+\method{decision2S_boundary}{betaMix}(prior1, prior2, n1, n2, decision,
+  eps, ...)
 
-\method{decision2S_boundary}{normMix}(prior1, prior2, n1, n2, decision, sigma1,
-  sigma2, eps = 1e-06, Ngrid = 10, ...)
+\method{decision2S_boundary}{normMix}(prior1, prior2, n1, n2, decision,
+  sigma1, sigma2, eps = 1e-06, Ngrid = 10, ...)
 
 \method{decision2S_boundary}{gammaMix}(prior1, prior2, n1, n2, decision,
   eps = 1e-06, ...)
@@ -140,3 +140,4 @@ futilityCrit(postmix(priorP, m=y1c-1E-3, n=10), postmix(priorT, m=-10, n=20))
 Other design2S: \code{\link{decision2S}},
   \code{\link{oc2S}}, \code{\link{pos2S}}
 }
+\concept{design2S}

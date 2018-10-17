@@ -329,13 +329,13 @@ decision2S_boundary.normMix <- function(prior1, prior2, n1, n2, decision, sigma1
                 boundary_discrete <<- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, lim2, delta2)
             } else {
                 if(lim2[1] < clim2[1]) {
-                    ## the lower bound is not low enough
-                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(lim2[1], max(lim2[1], clim2[1]-delta2)), delta2)
+                    ## the lower bound is not low enough... only add the region which is missing
+                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(min(lim2[1], clim2[1]-delta2), lim2[1]), delta2)
                     boundary_discrete <<- rbind(boundary_extra, boundary_discrete)
                 }
                 if(lim2[2] > clim2[2]) {
-                    ## the upper bound is not large enough
-                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(min(lim2[2], clim2[2]+delta2), lim2[2]), delta2)
+                    ## the upper bound is not large enough.. again only add whats missing
+                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(lim2[2], max(lim2[2], clim2[2]+delta2)), delta2)
                     boundary_discrete <<- rbind(boundary_discrete, boundary_extra)
                 }
             }

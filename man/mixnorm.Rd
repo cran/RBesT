@@ -106,3 +106,4 @@ Other mixdist: \code{\link{mixbeta}},
   \code{\link{mixcombine}}, \code{\link{mixgamma}},
   \code{\link{mix}}, \code{\link{plot.mix}}
 }
+\concept{mixdist}

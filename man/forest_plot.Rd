@@ -5,8 +5,8 @@
 \title{Forest Plot}
 \usage{
 forest_plot(x, prob = 0.95, est = c("both", "MAP", "Mean", "none"),
-  model = c("stratified", "both", "meta"), point_est = c("median", "mean"),
-  size = 1.25, alpha = 0.5)
+  model = c("stratified", "both", "meta"), point_est = c("median",
+  "mean"), size = 1.25, alpha = 0.5)
 }
 \arguments{
 \item{x}{\code{\link{gMAP}} object.}
