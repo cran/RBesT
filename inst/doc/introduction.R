@@ -6,7 +6,11 @@ knitr::opts_chunk$set(
     fig.height = 4
     )
 ## setup up fast sampling when run on CRAN
-if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
+## NOTE: for running this vignette locally, please uncomment the
+## following line:
+## is_CRAN <- FALSE
+if (is_CRAN) {
     options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
 }
 

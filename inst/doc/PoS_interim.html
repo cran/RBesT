@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Yue Li" />
+
+<meta name="date" content="2018-11-14" />
+
+<title>Probability of Success at an Interim Analysis</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Probability of Success at an Interim Analysis</h1>
+<h4 class="author"><em>Yue Li</em></h4>
+<h4 class="date"><em>2018-11-14</em></h4>
+
+
+
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{Probability of Success at an Interim Analysis}
+-->
+<p>At different stages of drug development, there are questions about how likely a study will be successful given previously collected data within the trial itself or data from other earlier trials. For example given Ph2a (PoC, proof of concept) and Ph2b (DRF, dose range finding) studies, how likely a new Ph3 study would be successful is of great interest. Another example, at an interim analysis (IA) of a PoC study, one would also be interested to understand the probability of success at the end of the study given the partial data observed. <strong><code>pos1S()</code></strong> and <strong><code>pos2S()</code></strong> are constructed to calculate predictive probabilities for this purpose to inform quantitative decision making. This vignette shows an example from an IA in a PoC study, where <strong><code>pos2S()</code></strong> was used to explore the probability of success for the final analysis given the interim data.</p>
+<p>The primary endpoint for this study is log transformed facial lesion count, assumed to be normally distributed. Decrease in the lesion count upon treatment is considered improvement in the patients. Below is the summary statistics of this primary endpoint by group at the interim.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ia &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">n=</span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">14</span>),
+                 <span class="dt">median_count=</span><span class="kw">c</span>(<span class="fl">20.5</span>, <span class="dv">21</span>),
+                 <span class="dt">mean_count=</span><span class="kw">c</span>(<span class="fl">23.3</span>, <span class="dv">27</span>),
+                 <span class="dt">mean_log=</span><span class="kw">c</span>(<span class="fl">2.96</span>, <span class="fl">3.03</span>),
+                 <span class="dt">sd_log=</span><span class="kw">c</span>(<span class="fl">0.67</span>, <span class="fl">0.774</span>),
+                 <span class="dt">row.names=</span><span class="kw">c</span>(<span class="st">&quot;active&quot;</span>, <span class="st">&quot;placebo&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">transform</span>(<span class="dt">se_log=</span><span class="kw">round</span>(sd_log<span class="op">/</span><span class="kw">sqrt</span>(n), <span class="dv">3</span>))
+sd_log_pooled &lt;-<span class="st"> </span><span class="kw">with</span>(ia, <span class="kw">sqrt</span>(<span class="kw">sum</span>(sd_log<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(n<span class="op">-</span><span class="dv">1</span>))<span class="op">/</span>(<span class="kw">sum</span>(n)<span class="op">-</span><span class="dv">2</span>)))
+<span class="kw">kable</span>(ia)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">n</th>
+<th align="right">median_count</th>
+<th align="right">mean_count</th>
+<th align="right">mean_log</th>
+<th align="right">sd_log</th>
+<th align="right">se_log</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>active</td>
+<td align="right">12</td>
+<td align="right">20.5</td>
+<td align="right">23.3</td>
+<td align="right">2.96</td>
+<td align="right">0.670</td>
+<td align="right">0.193</td>
+</tr>
+<tr class="even">
+<td>placebo</td>
+<td align="right">14</td>
+<td align="right">21.0</td>
+<td align="right">27.0</td>
+<td align="right">3.03</td>
+<td align="right">0.774</td>
+<td align="right">0.207</td>
+</tr>
+</tbody>
+</table>
+<p>The predefined dual PoC criteria is as follows,</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n &lt;-<span class="st"> </span><span class="dv">21</span> <span class="co"># planned total n per arm</span>
+rules &lt;-<span class="st"> </span><span class="kw">decision2S</span>(<span class="kw">c</span>(<span class="fl">0.9</span>, <span class="fl">0.5</span>), <span class="kw">c</span>(<span class="dv">0</span>,<span class="op">-</span><span class="fl">0.357</span>), <span class="dt">lower.tail =</span> <span class="ot">TRUE</span>)
+<span class="kw">print</span>(rules)</code></pre></div>
+<pre><code>## 2 sample decision function
+## Conditions for acceptance:
+## P(x1 - x2 &lt;= 0) &gt; 0.9
+## P(x1 - x2 &lt;= -0.357) &gt; 0.5
+## Link: identity</code></pre>
+<p>The interim data were evaluated against the PoC criteria with weakly informative priors for both active and placebo groups. The criteria were not met, although it seemed to show some benefit of the active treatment over placebo numerically. The variability of this endpoint is higher than what was assumed for study sample size calculation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">priorP &lt;-<span class="st"> </span>priorT &lt;-<span class="st"> </span><span class="kw">mixnorm</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="kw">log</span>(<span class="dv">20</span>), <span class="dv">1</span>), <span class="dt">sigma =</span> <span class="fl">0.47</span>, <span class="dt">param =</span> <span class="st">'mn'</span>)
+## posterior at IA data
+postT_interim &lt;-<span class="st"> </span><span class="kw">postmix</span>(priorT, <span class="dt">m=</span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;mean_log&quot;</span>], <span class="dt">se=</span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;se_log&quot;</span>])
+postP_interim &lt;-<span class="st"> </span><span class="kw">postmix</span>(priorP, <span class="dt">m=</span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;mean_log&quot;</span>], <span class="dt">se=</span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;se_log&quot;</span>])
+<span class="kw">pmixdiff</span>(postT_interim, postP_interim, <span class="dv">0</span>)</code></pre></div>
+<pre><code>## [1] 0.5900663</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pmixdiff</span>(postT_interim, postP_interim,<span class="op">-</span><span class="fl">0.357</span>)</code></pre></div>
+<pre><code>## [1] 0.12637</code></pre>
+<p>The probability of success at the final analysis, i.e. the probability of meeting PoC criteria at trial completion given observed interim data, was computed using function <strong><code>pos2S()</code></strong>. One could assume that the new data after the interim would be from the same distribution as the interim data. If the <span class="math inline">\(\sigma_{1}\)</span> and <span class="math inline">\(\sigma_{2}\)</span> in <strong><code>pos2S()</code></strong> were not specified, i.e. the previously assumed <span class="math inline">\(\sigma\)</span> would be used.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pos_final &lt;-<span class="st"> </span><span class="kw">pos2S</span>(
+  postT_interim,
+  postP_interim,
+  n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;n&quot;</span>],
+  n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;n&quot;</span>],
+  rules,
+  <span class="dt">sigma1 =</span> sd_log_pooled,
+  <span class="dt">sigma2 =</span> sd_log_pooled
+  )</code></pre></div>
+<p>The function constructed by <strong><code>pos2S()</code></strong> can produce the predictive probability given any defined distribution for the two groups. For example, if the interim posterior distributions are used, the calculated probability is small, suggesting a low chance of success at the final analysis given observed IA data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">pos_final</span>(postT_interim, postP_interim)</code></pre></div>
+<pre><code>## [1] 0.02413245</code></pre>
+<p>One can also use <strong><code>oc2S()</code></strong> to compute conditional power for any given treatment effect.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ia_oc &lt;-<span class="st"> </span><span class="kw">oc2S</span>(
+    postT_interim,
+    postP_interim,
+    n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;n&quot;</span>],
+    n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;n&quot;</span>],
+    rules,
+    <span class="dt">sigma1 =</span> sd_log_pooled,
+    <span class="dt">sigma2 =</span> sd_log_pooled
+    )
+  
+delta &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>, <span class="fl">0.9</span>, <span class="fl">0.01</span>) <span class="co">#pct diff from pbo</span>
+pbomean &lt;-<span class="st"> </span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;mean_log&quot;</span>]
+y1 &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="kw">exp</span>(pbomean) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>delta)) <span class="co">#active</span>
+y2 &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="kw">exp</span>(pbomean) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="dv">0</span> <span class="op">*</span><span class="st"> </span>delta)) <span class="co">#placebo</span>
+  
+out &lt;-
+<span class="st">    </span><span class="kw">data.frame</span>(
+        <span class="dt">diff_pct =</span> delta,
+        <span class="dt">diff =</span> <span class="kw">round</span>(y1 <span class="op">-</span><span class="st"> </span>y2, <span class="dv">2</span>),
+        <span class="dt">y_act =</span> y1,
+        <span class="dt">y_pbo =</span> y2,
+        <span class="dt">cp =</span> <span class="kw">ia_oc</span>(y1, y2)
+        )
+  
+<span class="kw">ggplot</span>(<span class="dt">data =</span> out, <span class="kw">aes</span>(<span class="dt">x =</span> diff_pct, <span class="dt">y =</span> cp)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span>
+<span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>percent) <span class="op">+</span>
+<span class="st">        </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">'Conditional power'</span>,
+             <span class="dt">x =</span> <span class="st">'True percentage difference from placebo in lesion count'</span>,
+             <span class="dt">title =</span> <span class="st">'Conditional power at interim for success at final analysis'</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div id="r-session-info" class="section level3">
+<h3>R Session Info</h3>
+<pre><code>## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-pc-linux-gnu (64-bit)
+## Running under: Red Hat Enterprise Linux
+## 
+## Matrix products: default
+## BLAS/LAPACK: /CHBS/apps/busdev_apps/eb/software/imkl/2018.3.222-GCC-6.4.0-2.28/compilers_and_libraries_2018.3.222/linux/mkl/lib/intel64_lin/libmkl_gf_lp64.so
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=C              
+##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] scales_1.0.0    bindrcpp_0.2.2  ggplot2_3.1.0   purrr_0.2.5    
+## [5] dplyr_0.7.6     bayesplot_1.6.0 knitr_1.20      RBesT_1.3-5    
+## [9] Rcpp_0.12.19   
+## 
+## loaded via a namespace (and not attached):
+##  [1] highr_0.7          pillar_1.3.0       compiler_3.5.1    
+##  [4] plyr_1.8.4         bindr_0.1.1        tools_3.5.1       
+##  [7] pkgbuild_1.0.0     digest_0.6.15      debugme_1.1.0     
+## [10] evaluate_0.11      tibble_1.4.2       gtable_0.2.0      
+## [13] checkmate_1.8.5    pkgconfig_2.0.1    rlang_0.2.1       
+## [16] parallel_3.5.1     yaml_2.2.0         mvtnorm_1.0-8     
+## [19] loo_2.0.0          gridExtra_2.3      withr_2.1.2       
+## [22] stringr_1.3.1      stats4_3.5.1       rprojroot_1.3-2   
+## [25] grid_3.5.1         tidyselect_0.2.4   glue_1.3.0        
+## [28] inline_0.3.15      R6_2.2.2           processx_3.1.0    
+## [31] rmarkdown_1.10     rstan_2.18.1       Formula_1.2-3     
+## [34] reshape2_1.4.3     callr_2.0.4        magrittr_1.5      
+## [37] ggridges_0.5.0     codetools_0.2-15   matrixStats_0.54.0
+## [40] StanHeaders_2.18.0 backports_1.1.2    htmltools_0.3.6   
+## [43] assertthat_0.2.0   colorspace_1.3-2   labeling_0.3      
+## [46] stringi_1.2.4      lazyeval_0.2.1     munsell_0.5.0     
+## [49] crayon_1.3.4</code></pre>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

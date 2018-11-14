@@ -1,3 +1,10 @@
+November 13th, 2018 (1.3-5)
+
+* Corrected 1.3-4 release notes to include MAP for variances vignette
+* Make build process more robust (updated src/Makevars{.win})
+* Added probability of success at interim vignette
+* Added probability of success with co-data vignette
+
 October 16th, 2018 (1.3-4)
 
 * Make package work with rstan 2.18.1.
@@ -6,6 +13,7 @@ October 16th, 2018 (1.3-4)
 * Bugfix for mixcombine and plot with normal mixtures without a sigma being defined.
 * Bugfix for repeated calls to decision2S_boundary for normal endpoint (fixes pos2S & oc2S as well).
 * Avoid use of deprecated bayesplot function arguments whenever divergencies occured.
+* (corrected) Added MAP for variances vignette
 
 February 2nd, 2018 (1.3-3)
 
