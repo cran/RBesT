@@ -5,8 +5,8 @@ Description: Tool-set to support Bayesian evidence synthesis.
     This includes meta-analysis, (robust) prior derivation
     from historical data, operating characteristics
     and analysis (1 and 2 sample cases).
-Version: 1.3-5
-Date: 2018-11-13
+Version: 1.3-6
+Date: 2018-11-14
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -29,7 +29,7 @@ Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, tidyverse,
 VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
 RoxygenNote: 6.1.0
-Packaged: 2018-11-14 08:09:01 UTC; weberse2
+Packaged: 2018-11-14 16:22:44 UTC; weberse2
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -41,4 +41,4 @@ Author: Novartis Pharma AG [cph],
     R/stanmodels.R, src/Makevars, src/Makevars.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2018-11-14 08:50:07 UTC
+Date/Publication: 2018-11-15 08:20:09 UTC

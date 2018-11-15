@@ -1,3 +1,8 @@
+November 14th, 2018 (1.3-6)
+
+* Re-create vignettes with proper MCMC sampling.
+* Automate R package build process using CI/CD.
+
 November 13th, 2018 (1.3-5)
 
 * Corrected 1.3-4 release notes to include MAP for variances vignette
