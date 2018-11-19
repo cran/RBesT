@@ -48,7 +48,8 @@
 #' @docType package
 #' @useDynLib RBesT, .registration = TRUE 
 #' @import methods
-#' @importFrom rstan sampling extract get_sampler_params summary stanc_builder
+#' @importMethodsFrom rstan sampling extract get_sampler_params summary
+#' @importFrom rstan stanc_builder
 #' @import stats
 #' @importFrom utils capture.output modifyList
 #' @import assertthat

@@ -122,6 +122,7 @@ print.gammaExpMix <- function(x, digits=NULL, ...) {
     NextMethod()
 }
 
+#' @method summary gammaMix
 #' @export
 #' @rdname mixgamma
 summary.gammaMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
@@ -143,6 +144,7 @@ summary.gammaMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     c(mean=mmix, sd=sqrt(vmix), q)
 }
 
+#' @method summary gammaPoissonMix
 #' @export
 #' @rdname mixgamma
 summary.gammaPoissonMix <- function(object, probs=c(0.025,0.5,0.975), ...) {

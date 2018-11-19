@@ -108,6 +108,7 @@ print.normMix <- function(x, digits=NULL, ...) {
     NextMethod()
 }
 
+#' @method summary normMix
 #' @export
 #' @rdname mixnorm
 summary.normMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
