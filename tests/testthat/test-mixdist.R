@@ -106,4 +106,3 @@ test_that("Gamma mixture CDF function is consistent", consistent_cdf(gammaMix, s
 ## problematic Beta density
 bm <- mixbeta(c(1.0, 298.30333970, 146.75306521))
 test_that("Problematic (1) BetaBinomial CDF function is consistent", consistent_cdf(preddist(bm, n=50), 0:50))
-

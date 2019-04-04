@@ -9,7 +9,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
     ## in case X is no matrix, interpret it as uni-variate case
     if(!is.matrix(X))
         X <- matrix(X,ncol=1)
-    
+
     N <- dim(X)[1]
     Nd <- dim(X)[2]
     assert_that(N+Nc >= Ninit)
@@ -22,7 +22,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
     pEst <- mix_init$p
     muEst <- mix_init$center
     covEst <- mix_init$cov
-    
+
     ## take current estimates and transform to scale on which
     ## convergence is assessed
     est2par <- function(p, mu, cov) {
@@ -76,14 +76,14 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
     runMixPar <- array(-Inf, dim=c(Neps,df.comp,Nc))
     runOrder <- 0:(Neps-1)
     if(Nc == 1) Npar <- df else Npar <- df + 1
-    
+
     ## initialize component and element wise log-likelihood matrix
     lli <- array(-20, dim=c(N,Nc))
 
     if(verbose) {
         cat("EM multi-variate normal with Nc =", Nc, ":\n")
     }
-    
+
     while(iter < Niter.max) {
         ## calculate responsabilities from the likelihood terms;
         ## calculations are done in log-space to avoid numerical
@@ -92,6 +92,9 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
         for(i in seq(Nc)) {
             lli[,i] <- log(pEst[i]) + dmvnorm(X, muEst[i,], as.matrix(covEst[i,,]), log=TRUE)
         }
+        ## ensure that the log-likelihood does not go out of numerical
+        ## reasonable bounds
+        lli <- apply(lli, 2, pmax, -30)
         lnresp <- apply(lli, 1, log_sum_exp)
         ## the log-likelihood is then given by the sum of lresp
         lliCur <- sum(lnresp)
@@ -129,11 +132,11 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
         lzSum <- apply(lresp, 2, log_sum_exp)
         ##zSum <- exp(lzSum)
         pEst <- exp(lzSum - logN)
-        
+
         ## make sure it is scale to exactly 1 which may not happen due
         ## to small rounding issues
         pEst <- pEst / sum(pEst)
-        
+
         ## now obtain new estimates for each component of the mixtures
         ## of their mu vector and covariance matrices
         for(i in seq(Nc)) {
@@ -145,7 +148,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
             for(j in 1:Nd)
                 covEst[i,j,j] <- max(covEst[i,j,j], .Machine$double.eps)
         }
-        
+
         ind <- 1 + iter %% Neps
         runMixPar[ind,,] <- est2par(pEst, muEst, covEst)
         runOrder[ind] <- iter
@@ -160,7 +163,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
     pEst <- pEst[o]
     muEst <- muEst[o,,drop=FALSE]
     covEst <- covEst[o,,,drop=FALSE]
-    
+
     ##if(Nd != 1) {
     ##    rhoEst <- array(apply(covEst, 1, cov2cor), c(Nd,Nd,Nc))
     ##    rhoEst <- apply(rhoEst, 3, function(x) x[lower.tri(x)])
@@ -178,7 +181,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
     attr(mixEst, "lli") <- lliCur
 
     attr(mixEst, "Nc") <- Nc
-    
+
     attr(mixEst, "tol") <- tol
     attr(mixEst, "traceLli") <- traceLli
     attr(mixEst, "traceMix") <- traceMix
@@ -259,7 +262,7 @@ mv2vec <- function(mean, sigma, df, label=TRUE) {
 ##     sigma <- Tau %*% sigma %*% Tau
 ##     list(mean=mean, sigma=sigma)
 ## }
-## 
+##
 ## ## extracts results in a flattened form
 ## extractMVNmix <- function(emFit) {
 ##     pMix <- emFit$p
@@ -281,7 +284,7 @@ mv2vec <- function(mean, sigma, df, label=TRUE) {
 ##     names(pMix) <- names(MAPmix)
 ##     list(mvn=MAPmix, pMix=pMix)
 ## }
-## 
+##
 ## ## utility functions for multi-variate normal mixtures
 ## rmvnormMix <- function(n, p, m, sigma){
 ##   ind <- sample.int(length(p), n, replace = TRUE, prob = p)
@@ -291,7 +294,7 @@ mv2vec <- function(mean, sigma, df, label=TRUE) {
 ##       samp[i,] <- rmvnorm(1, m[ind[i],], as.matrix(sigma[ind[i],,]))
 ##   samp
 ## }
-## 
+##
 ## dmvnormMix <- function(x, p, m, sigma) {
 ##     nc <- length(p)
 ##     ## logic is to replicate the original data vector such that each
@@ -303,7 +306,7 @@ mv2vec <- function(mean, sigma, df, label=TRUE) {
 ##         dens <- dens + p[i] * dmvnorm(x, m[i,], sigma[i,,])
 ##     dens
 ## }
-## 
+##
 ## ## utility function to plot BVN mixtures
 ## bicontourNMM <- function(X, bvn, title="", ng=50) {
 ##     ## some pretty colors
@@ -313,18 +316,18 @@ mv2vec <- function(mean, sigma, df, label=TRUE) {
 ##     my.cols <- c("#4A6FE3", "#6D84E1", "#8898E1", "#A0AAE2", "#B5BBE3", "#C7CBE3", "#D7D9E3",
 ##                  "#E2E2E2", "#E4D6D8", "#E6C4CA", "#E6AFB9", "#E498A7", "#E07E93", "#DB627F",
 ##                  "#D33F6A")
-## 
+##
 ##     r <- apply(X, 2, range)
 ##     xg <- seq(r[1,1],r[2,1], length=ng)
 ##     yg <- seq(r[1,2],r[2,2], length=ng)
 ##     Z <- outer(xg,yg, function(x,y) dmvnormMix(cbind(x,y), bvn$p, bvn$center, bvn$cov))
-## 
+##
 ##     Nc <- length(bvn$p)
-##     
+##
 ##     plot(X, pch=19, cex=.2)
 ##     contour(xg, yg, Z, drawlabels=FALSE, nlevels=k, col=my.cols, add=TRUE, lwd=2)
 ##     abline(h=bvn$center[,2], v=bvn$center[,1], lwd=1, col=1:Nc)
 ##     title(title)
 ##     legend("bottomleft", legend=paste("Mix", 1:Nc, " ", round(100*bvn$p,1), "%", sep=""), text.col=1:Nc)
 ## }
-## 
+##

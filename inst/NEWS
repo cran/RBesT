@@ -1,3 +1,12 @@
+April 3nd, 2019 (1.3-8)
+
+* Use Simulation Based Calibration for gMAP model qualification
+* Improve covariate handling (naming of data items)
+* Speedup Stan model by avoiding matrix-vector products with many zeros
+* Fix index issue with differential discounting when used with covariates
+* Make initialization of EM algorithms more robust
+* Avoid special build hacks on MacOS
+
 November 16th, 2018 (1.3-7)
 
 * Address issue for build process on MacOS.

@@ -1,9 +1,9 @@
 context("gMAP: Generalized Meta Analytic Predictive")
 
-## test gMAP results against OncoBayes results and matching rstanarm
-## models
+## test gMAP results using SBC and with matching rstanarm models
 
 suppressPackageStartupMessages(library(rstan))
+suppressPackageStartupMessages(library(dplyr))
 suppressWarnings(suppressPackageStartupMessages(library(rstanarm)))
 
 eps <- 2e-1
@@ -26,7 +26,8 @@ get_std_quants <- function(sim, med, disp) {
 }
 
 
-
+## used for now for comparisons to rstanarm (maybe drop as we have SBC
+## now?)
 cmp_reference <- function(best_gmap, OB_ref) {
     best_sim <- rstan::extract(best_gmap$fit, pars=c("beta", "tau", "theta_resp_pred"))
     for(n in names(best_sim)) {
@@ -56,48 +57,48 @@ make_rstanarm_ref <- function(stanreg) {
 do.call(options, std_sampling)
 options(RBesT.MC.control=list(adapt_delta=0.999, stepsize=0.01))
 
-set.seed(1779)
-test_that("gMAP matches OncoBayes MAP.Normal", {
-              skip_on_cran()
-              cmp_reference(best_gmap=gMAP(cbind(y, s) ~ 1 | label,
-                                data=RBesT:::OB_normal_data,
-                                weights=n,
-                                family=gaussian,
-                                tau.dist="LogNormal",
-                                tau.prior=c(log(0.25), log(2)/1.96),
-                                beta.prior=cbind(0, 1e2)
-                                           )
-                           ,OB_ref=OB_normal_ref)
-          }
-          )
+test_that("gMAP meets SBC requirements wrt to a Chi-Square statistic.", {
+    require(dplyr)
+    require(tidyr)
+    sbc_chisq_test <-  RBesT:::calibration_data %>%
+        gather(count.mu, count.tau, key="param", value="count") %>%
+        group_by(problem, family, sd_tau, param) %>%
+        do(as.data.frame(chisq.test(.$count)[c("statistic", "p.value")]))
+    num_tests  <- nrow(sbc_chisq_test)
+    num_failed <- sum(sbc_chisq_test$p.value < 0.05)
+    pv <- pbinom(num_failed, num_tests, 0.05)
+    expect_true( pv > 0.025 & pv < 0.975 )
+}
+)
 
-set.seed(657567)
-test_that("gMAP matches OncoBayes MAP.Binary",  {
-              skip_on_cran()
-              cmp_reference(best_gmap=gMAP(cbind(r, n-r) ~ 1 | study,
-                                data=colitis,
-                                family=binomial,
-                                tau.dist="HalfNormal",
-                                tau.prior=c(1),
-                                beta.prior=cbind(0, 10)
-                                           )
-                           ,OB_ref=OB_binary_ref)
-          }
-          )
+test_that("gMAP meets SBC requirements per bin.", {
+    require(dplyr)
+    require(tidyr)
+    B <- RBesT:::calibration_meta$B
+    S  <- RBesT:::calibration_meta$S
+    alpha  <- 0.2
+    ptrue  <- 1/B
+    crit_low  <- qbinom(alpha/2, S, ptrue)
+    crit_high  <- qbinom(1-alpha/2, S, ptrue)
+    sbc_binom_test <-  RBesT:::calibration_data %>%
+        gather(count.mu, count.tau, key="param", value="count") %>%
+        group_by(problem, family, sd_tau, param) %>%
+        summarise(crit=sum(count < crit_low | count > crit_high)) %>%
+        mutate(pvalue=pbinom(crit, B, alpha), extreme=pvalue<0.025|pvalue>0.975)
+    num_tests  <- nrow(sbc_binom_test)
+    num_failed <- sum(sbc_binom_test$extreme)
+    pv <- pbinom(num_failed, num_tests, 0.05)
+    expect_true( pv > 0.025 & pv < 0.975 )
+}
+)
 
-set.seed(32456)
-test_that("gMAP matches OncoBayes MAP.Poisson", {
-              skip_on_cran()
-              cmp_reference(best_gmap=gMAP(r ~ 1 + offset(log(e)) | label,
-                                data=RBesT:::OB_poisson_data,
-                                family=poisson,
-                                tau.dist="LogNormal",
-                                tau.prior=c(log(0.25), log(2)/1.96),
-                                beta.prior=cbind(0, 1e2)
-                                           )
-                           ,OB_ref=OB_poisson_ref)
-          }
-          )
+test_that("SBC data was up to date at package creation.", {
+    calibration_datum  <- RBesT:::calibration_meta$created
+    package_datum <- RBesT:::pkg_create_date
+    delta <- difftime(package_datum, calibration_datum, units="weeks")
+    expect_true(delta < 52./2.)
+}
+)
 
 ## match against respective rstanarm model
 set.seed(92575)
@@ -172,22 +173,49 @@ test_that("gMAP handles extreme response rates", {
               n <- 5
               data1 <- data.frame(n=c(n,n,n,n),r=c(5,5,5,5), study=1)
               map1 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
-                           data=data1, tau.dist="HalfNormal", 
+                           data=data1, tau.dist="HalfNormal",
                            tau.prior=2.0, beta.prior=2,
                            warmup=100, iter=200, chains=1, thin=1)
               expect_true(nrow(fitted(map1)) == 4)
               data2 <- data.frame(n=c(n,n,n,n),r=c(0,0,0,0), study=1)
               map2 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
-                           data=data2, tau.dist="HalfNormal", 
+                           data=data2, tau.dist="HalfNormal",
                            tau.prior=2.0, beta.prior=2,
                            warmup=100, iter=200, chains=1, thin=1)
               expect_true(nrow(fitted(map2)) == 4)
+              data3 <- data.frame(n=c(n,n,n,n),r=c(5,5,5,5), study=c(1,1,2,2))
+              map3 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
+                           data=data3, tau.dist="HalfNormal",
+                           tau.prior=2.0, beta.prior=2,
+                           warmup=100, iter=200, chains=1, thin=1)
+              expect_true(nrow(fitted(map3)) == 4)
           })
 
 test_that("gMAP handles fixed tau case", {
               map1 <- gMAP(cbind(r, n-r) ~ 1 | study, family=binomial,
-                           data=AS, tau.dist="Fixed", 
+                           data=AS, tau.dist="Fixed",
                            tau.prior=0.5, beta.prior=2,
                            warmup=100, iter=200, chains=1, thin=1)
               expect_true(map1$Rhat.max >= 1)
           })
+
+test_that("gMAP labels data rows correctly when using covariates", {
+
+    data_covs <- data.frame(n=10, r=3, study=c(1,2,2), stratum=factor(c("A", "A", "B")) ) %>%
+        mutate(group=paste(study,stratum,sep="/"), id=as.integer(factor(group)))
+
+    suppressMessages(suppressWarnings(map_covs <- gMAP(cbind(r, n-r) ~ 1 + stratum | study, family=binomial,
+                                                       data=data_covs, tau.dist="Fixed",
+                                                       tau.prior=0.25, beta.prior=2,
+                                                       warmup=100, iter=200, chains=1, thin=1)))
+
+    expect_true(all(rownames(fitted(map_covs)) == paste(data_covs$study, data_covs$stratum, sep="/")))
+
+    suppressMessages(suppressWarnings(map_tau_strata <- gMAP(cbind(r, n-r) ~ 1 | id, family=binomial,
+                                                             tau.strata=stratum,
+                                                             data=data_covs, tau.dist="Fixed",
+                                                             tau.prior=c(0.25, 0.5), beta.prior=2,
+                                                             warmup=100, iter=200, chains=1, thin=1)))
+    expect_true(all(rownames(fitted(map_tau_strata)) == as.character(data_covs$id)))
+
+    })

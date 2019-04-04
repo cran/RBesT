@@ -1,12 +1,14 @@
 Package: RBesT
 Type: Package
 Title: R Bayesian Evidence Synthesis Tools
-Description: Tool-set to support Bayesian evidence synthesis.
-    This includes meta-analysis, (robust) prior derivation
-    from historical data, operating characteristics
-    and analysis (1 and 2 sample cases).
-Version: 1.3-7
-Date: 2018-11-19
+Description: Tool-set to support Bayesian evidence synthesis.  This
+    includes meta-analysis, (robust) prior derivation from historical
+    data, operating characteristics and analysis (1 and 2 sample
+    cases). Please refer to Neuenschwander et al. (2010)
+    <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
+    <doi:10.1111/biom.12242> for details on the methodology.
+Version: 1.3-8
+Date: 2019-04-03
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -25,12 +27,12 @@ License: GPL (>= 3) | file LICENSE
 LazyData: true
 NeedsCompilation: yes
 Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, tidyverse,
-        purrr, rstanarm (>= 2.17.2), scales
+        purrr, rstanarm (>= 2.17.2), scales, tools, broom, tidyr
 VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
 Encoding: UTF-8
 RoxygenNote: 6.1.1
-Packaged: 2018-11-19 18:12:25 UTC; weberse2
+Packaged: 2019-04-04 07:48:14 UTC; 
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -42,4 +44,4 @@ Author: Novartis Pharma AG [cph],
     R/stanmodels.R, src/Makevars, src/Makevars.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2018-11-19 23:20:06 UTC
+Date/Publication: 2019-04-04 12:10:10 UTC

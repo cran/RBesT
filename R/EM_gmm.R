@@ -19,14 +19,21 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
 
     ## initialize randomly using KNN
     if(missing(mix_init)) {
-        ## assume that the sample is ordered randomly 
+        ## assume that the sample is ordered randomly
         ind <- seq(1,N-Nc,length=Ninit)
-        knnInit <- list(mu=matrix(0,nrow=Nc,ncol=1), p=(1/seq(1,Nc))/sum(seq(1,Nc)))
+        knnInit <- list(mu=matrix(0,nrow=Nc,ncol=1), p=rep(1/Nc, times=Nc))
         for(k in seq(Nc))
             knnInit$mu[k,1] <- mean(x[ind+k-1])
         KNN <- suppressWarnings(knn(x, K=Nc, init=knnInit, Niter.max=50))
-        muInit <- as.vector(KNN$center)
-        varInit <- tapply(x, KNN$cluster, var)
+        muInit <- rep(mean(x), times=Nc)
+        varInit <- rep(1.5*var(x), times=Nc)
+        for(k in 1:Nc) {
+            kind <- KNN$cluster == k
+            if(sum(kind) > 10) {
+                muInit[k] <- KNN$center[k]
+                varInit[k] <- var(x[kind])
+            }
+        }
         ## relocate the component with the least weight in the center
         ## and assign the sample variance to it; the idea is that we
         ## expect an informative component and a heavy tailed
@@ -50,7 +57,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         cat("Initial estimates:\n")
         print(mixEst)
     }
-    
+
     ## mixEst parametrization during fitting
     mixEstPar <- mixEst
     mixEstPar[1,] <- logit(mixEst[1,,drop=FALSE])
@@ -60,7 +67,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
 
     ## the optimizer needs a fixed range where search log-alpha
     MLrange <- c(min(mixEstPar[2,]) - log(1e4), max(mixEstPar[2,]) + log(1e4))
-    
+
     ## in case tolerance is not specified, then this criteria is
     ## ignored
     if(missing(tol)) {
@@ -90,7 +97,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
     ## eps can also be given as a single integer which is interpreted
     ## as number of digits
     if(length(eps) == 1) eps <- rep(10^(-eps), 3)
-    
+
     iter <- 0
     logN <- log(N)
     traceMix <- list()
@@ -113,6 +120,9 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         ## calculations are done in log-space to avoid numerical difficulties if some points are far away from some component and hence recieve very low density
         ##li <- t(matrix(abmEst[,1] * dgamma(xRep, abmEst[,2], abmEst[,3]), nrow=Nc))
         lli <- t(matrix(log(mixEst[1,]) + dgamma(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+        ## ensure that the log-likelihood does not go out of numerical
+        ## reasonable bounds
+        lli <- apply(lli, 2, pmax, -30)
 
         lnresp <- apply(lli, 1, log_sum_exp)
         ## the log-likelihood is then given by the sum of lresp norms
@@ -152,7 +162,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         lzSum <- apply(lresp, 2, log_sum_exp)
         zSum <- exp(lzSum)
         mixEst[1,] <- exp(lzSum - logN)
-        
+
         ## make sure it is scale to exactly 1 which may not happen due
         ## to small rounding issues
         mixEst[1,] <- mixEst[1,] / sum(mixEst[1,])
@@ -197,7 +207,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
     attr(mixEst, "lli") <- lliCur
 
     attr(mixEst, "Nc") <- Nc
-    
+
     attr(mixEst, "tol") <- tol
     attr(mixEst, "traceLli") <- traceLli
     attr(mixEst, "traceMix") <- lapply(traceMix, function(x) {class(x) <- c("gammaMix", "mix"); x})

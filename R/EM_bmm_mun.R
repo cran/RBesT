@@ -24,7 +24,7 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
         message("Detected ", sum(x1), " value(s) which are exactly 1.\nTo avoid numerical issues during EM such values are moved to one minus smallest eps on machine.")
         x[x1] <- 1-.Machine$double.eps
     }
-  
+
     ## temporaries needed during EM
     LxO <- matrix(logit(x), ncol=Nc, nrow=N)
     LxC <- matrix(log1p(-x), ncol=Nc, nrow=N)
@@ -35,21 +35,28 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
 
     ## initialize randomly using KNN
     if(missing(mix_init)) {
-        ## assume that the sample is ordered randomly 
+        ## assume that the sample is ordered randomly
         ind <- seq(1,N-Nc,length=Ninit)
-        knnInit <- list(mu=matrix(0,nrow=Nc,ncol=1), p=(1/seq(1,Nc))/sum(seq(1,Nc)))
+        knnInit <- list(mu=matrix(0,nrow=Nc,ncol=1), p=rep(1/Nc, times=Nc))
         for(k in seq(Nc))
             knnInit$mu[k,1] <- mean(x[ind+k-1])
         KNN <- suppressWarnings(knn(x, K=Nc, init=knnInit, Niter.max=50))
-        muInit <- as.vector(KNN$center)
-        varInit <- tapply(x, KNN$cluster, var)
-        nInit <- muInit*(1-muInit)/varInit - 1
+        muInit <- rep(mean(x), times=Nc)
+        varInit <- rep(1.5*var(x), times=Nc)
+        for(k in 1:Nc) {
+            kind <- KNN$cluster == k
+            if(sum(kind) > 10) {
+                muInit[k] <- KNN$center[k]
+                varInit[k] <- var(x[kind])
+            }
+        }
+        nInit <- pmax(muInit*(1-muInit)/varInit - 1, 1, na.rm=TRUE)
         ## place the component which recieved the least weight at the
         ## data center with roughly the variance of the sample
         cmin <- which.min(KNN$p)
         muInit[cmin] <- sum(KNN$p * KNN$center)
         ## muInit[cmin] <- mean(x) ## could be considered here
-        nInit[cmin] <- muInit[cmin]*(1-muInit[cmin])/var(x) - 1
+        nInit[cmin] <- pmax(muInit[cmin]*(1-muInit[cmin])/var(x) - 1, 1, na.rm=TRUE)
         ##Nmax <- max(2, max(nInit))
         ## ensure n is positive for each cluster; if this is not the
         ## case, sample uniformly from the range of n we have
@@ -71,14 +78,14 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
         cat("Initial estimates:\n")
         print(mixEst)
     }
-    
+
     ## mixEst parametrization during fitting
     mixEstPar <- mixEst
     mixEstPar[1,] <- logit(mixEst[1,,drop=FALSE])
     mixEstPar[2,] <- logit(mixEst[2,] / (mixEst[2,] + mixEst[3,]))
     mixEstPar[3,] <- log(mixEst[2,] + mixEst[3,])
     rownames(mixEstPar) <-  c("w", "Lm", "lN")
-    
+
     ## in case tolerance is not specified, then this criteria is
     ## ignored
     if(missing(tol)) {
@@ -107,7 +114,7 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
     ## eps can also be given as a single integer which is interpreted
     ## as number of digits
     if(length(eps) == 1) eps <- rep(10^(-eps), 3)
-    
+
     iter <- 0
     logN <- log(N)
     traceMix <- list()
@@ -117,7 +124,7 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
     runOrder <- 0:(Neps-1)
     Npar <- Nc + 2*Nc
     if(Nc == 1) Npar <- Npar - 1
-    
+
     ## find alpha and beta for a given component in log-space
     bmm_mun_ml <- function(c1,c2) {
         function(par) {
@@ -138,6 +145,9 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
         ## component and hence recieve very low density
         lli <- t(matrix(log(mixEst[1,]) + dbeta(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
         lnresp <- apply(lli, 1, log_sum_exp)
+        ## ensure that the log-likelihood does not go out of numerical
+        ## reasonable bounds
+        lli <- apply(lli, 2, pmax, -30)
         ## the log-likelihood is then given by the sum of lresp norms
         lliCur <- sum(lnresp)
         ## record current state
@@ -175,14 +185,14 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
         lzSum <- apply(lresp, 2, log_sum_exp)
         zSum <- exp(lzSum)
         mixEst[1,] <- exp(lzSum - logN)
-        
+
         ## make sure it scales exactly to 1 which may not happen due
         ## to small rounding issues
         mixEst[1,] <- mixEst[1,] / sum(mixEst[1,])
-        
+
         c1 <- colSums(LxO * resp)/zSum
         c2 <- colSums(LxC * resp)/zSum
-        
+
         ## now solve for new alpha and beta estimates jointly for each
         ## component
         for(i in 1:Nc) {
@@ -219,7 +229,7 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
     attr(mixEst, "lli") <- lliCur
 
     attr(mixEst, "Nc") <- Nc
-    
+
     attr(mixEst, "tol") <- tol
     attr(mixEst, "traceLli") <- traceLli
     attr(mixEst, "traceMix") <- lapply(traceMix, function(x) {

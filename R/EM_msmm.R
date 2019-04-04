@@ -13,13 +13,13 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
     ## in case X is no matrix, interpret it as uni-variate case
     if(!is.matrix(X))
         X <- matrix(X,ncol=1)
-    
+
     N <- dim(X)[1]
     Nd <- dim(X)[2]
 
     ## initialize randomly
     if(missing(init)) {
-        ## assume that the sample is ordered randomly 
+        ## assume that the sample is ordered randomly
         ind <- seq(1,N-Nc,length=Ninit)
         knnInit <- list(mu=matrix(0,nrow=Nc,ncol=Nd), p=(1/seq(1,Nc))/sum(seq(1,Nc)))
         for(k in seq(Nc))
@@ -36,7 +36,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
         for(i in seq(Nc)) {
             if(i == cmin) next
             ind <- KNN$cluster==i
-            if(sum(ind) > 1) {
+            if(sum(ind) > 10) {
                 covKNN <- as.matrix(cov(X[ind,,drop=FALSE]))
                 R <- cov2cor(covKNN)
                 tau <- sqrt(diag(covKNN))
@@ -60,7 +60,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
         nuEst <- init$nu
         covEst <- init$cov
     }
-    
+
     iter <- 0
     logN <- log(N)
     traceLli <- c()
@@ -82,7 +82,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
             (log(nu/2) - digamma(nu/2) + c1 + digamma((nu+Nd)/2) - log((nu+Nd)/2))^2
         }
     }
-    
+
     while(iter < Niter.max) {
         ## calculate responsabilities from the likelihood terms;
         ## calculations are done in log-space to avoid numerical
@@ -91,6 +91,9 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
         for(i in seq(Nc)) {
             lli[,i] <- log(pEst[i]) + mvtnorm::dmvt(X, muEst[i,], as.matrix(covEst[i,,]), nuEst[i], log=TRUE)
         }
+        ## ensure that the log-likelihood does not go out of numerical
+        ## reasonable bounds
+        lli <- apply(lli, 2, pmax, -30)
         lnresp <- apply(lli, 1, log_sum_exp)
         ## the log-likelihood is then given by the sum of lresp
         lliCur <- sum(lnresp)
@@ -123,7 +126,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
         ##zSum <- colSums(resp)
         ##pEst <- zSum/N ## Eq. 29
         pEst <-  exp(lzSum - logN)
-        
+
         ## make sure it is scale to exactly 1 which may not happen due
         ## to small rounding issues
         pEst <- pEst/sum(pEst)
@@ -181,7 +184,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
     muEst <- muEst[o,,drop=FALSE]
     covEst <- covEst[o,,,drop=FALSE]
     nuEst <- nuEst[o,drop=FALSE]
-    
+
     if(Nd != 1) {
         rhoEst <- array(apply(covEst, 1, cov2cor), c(Nd,Nd,Nc))
         rhoEst <- apply(rhoEst, 3, function(x) x[lower.tri(x)])

@@ -22,14 +22,14 @@ data {
   vector[H]    offset;
 
   // exchangeability cluster mapping
-  int<lower=1,upper=H> n_groups;
+  int<lower=1> n_groups;
   int<lower=1,upper=n_groups> group_index[H];
 
   // tau prediction stratum
   int<lower=1,upper=n_groups> n_tau_strata;
   int<lower=1,upper=n_tau_strata> tau_strata_pred;
-  // group to tau stratum mapping
-  int<lower=1,upper=n_tau_strata> tau_strata_index[n_groups];
+  // data item to tau stratum mapping
+  int<lower=1,upper=n_tau_strata> tau_strata_index[H];
 
   // number of predictors
   int<lower=1> mX;
@@ -58,9 +58,11 @@ data {
 transformed data {
   vector[mX] beta_prior_stan[2];
   vector[n_tau_strata] tau_prior_stan[2];
-  matrix[n_groups, n_tau_strata] S;
-  matrix[H, n_groups] Z;
+  //matrix[n_groups, n_tau_strata] S;
+  //matrix[H, n_groups] Z;
   matrix[H, mX] X_param;
+  // group index to tau stratum mapping
+  int<lower=1,upper=n_tau_strata> tau_strata_gindex[n_groups] = rep_array(tau_strata_pred, n_groups);
 
   for (i in 1:mX) {
     beta_prior_stan[1,i] = beta_prior[i,1];
@@ -72,6 +74,11 @@ transformed data {
     tau_prior_stan[2,i] = tau_prior[i,2];
   }
   
+  for (i in 1:H) {
+    tau_strata_gindex[group_index[i]] = tau_strata_index[i];
+  }
+  
+  /*
   // strata to group mapping
   S = rep_matrix(0, n_groups, n_tau_strata);
   for (i in 1:n_groups)
@@ -81,7 +88,8 @@ transformed data {
   Z = rep_matrix(0, H, n_groups);
   for (i in 1:H)
     Z[i,group_index[i]] = 1.0;
-
+  */
+  
   print("Stan gMAP analysis");
 
   if(link == 1)            print("likelihood:      Normal (identity link)");
@@ -124,6 +132,7 @@ transformed parameters {
   vector[n_groups] eta;
   vector[mX] beta;
   vector[n_tau_strata] tau;
+  vector[n_groups] tau_group;
 
   beta = beta_raw_guess[1] + beta_raw_guess[2] .* beta_raw;
 
@@ -133,13 +142,14 @@ transformed parameters {
   else
     tau = exp(tau_raw_guess[1] + tau_raw_guess[2] * tau_raw);
 
+  tau_group = tau[tau_strata_gindex];
   
   if (ncp)  // NCP
-    eta = xi_eta .* (S * tau);
+    eta = xi_eta .* tau_group;
   else // CP places overall intercept into random effect
     eta = beta_raw_guess[1,1] + beta_raw_guess[2,1] * xi_eta;
 
-  theta = X_param * beta + Z * eta;
+  theta = X_param * beta + eta[group_index];
 }
 model {
   if (ncp) {
@@ -148,8 +158,8 @@ model {
     if(re_dist == 1) xi_eta ~ student_t(re_dist_t_df, 0, 1);
   } else {
     // random effect distribution
-    if(re_dist == 0) xi_eta ~ normal( (beta[1] - beta_raw_guess[1,1])/beta_raw_guess[2,1], S * (tau / beta_raw_guess[2,1]));
-    if(re_dist == 1) xi_eta ~ student_t(re_dist_t_df, (beta[1] - beta_raw_guess[1,1])/beta_raw_guess[2,1], S * (tau / beta_raw_guess[2,1]));
+    if(re_dist == 0) xi_eta ~ normal( (beta[1] - beta_raw_guess[1,1])/beta_raw_guess[2,1], tau_group / beta_raw_guess[2,1]);
+    if(re_dist == 1) xi_eta ~ student_t(re_dist_t_df, (beta[1] - beta_raw_guess[1,1])/beta_raw_guess[2,1], tau_group / beta_raw_guess[2,1]);
   }
 
   // assign priors to coefficients

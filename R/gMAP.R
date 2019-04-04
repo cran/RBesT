@@ -436,20 +436,23 @@ gMAP <- function (formula,
     if(length(f)[2] == 1) {
         ## no grouping has been given, then treat each data row as
         ## individual study
-        group.index <- 1:H
-        labels <- as.character(group.index)
+        group.factor <- 1:H
     } else {
-        group.index <- model.part(f, data = mf, rhs = 2)
-        if(ncol(group.index) != 1)
+        group.factor <- model.part(f, data = mf, rhs = 2)
+        if(ncol(group.factor) != 1)
             stop("Grouping factor must be a single term (study).")
-        group.index <- group.index[,1]
-        labels <- as.character(group.index)
-        ## ensure that group.index is labelled sequentially
-        group.index <- match(labels, unique(labels))
+        group.factor <- group.factor[,1]
     }
-    group.index <- array(group.index)
+    if (!is.factor(group.factor)) {
+        group.factor <- factor(group.factor)
+    }
+    labels <- as.character(group.factor)
+    group.index <- array(as.integer(group.factor))
 
-    n.groups <- length(unique(group.index))
+    ## nubmer of groups coded by the factor
+    n.groups <- nlevels(group.factor)
+    ## number of groups actually observed in the data
+    n.groups.obs <- length(unique(group.index))
 
     ## estimate of the reference scale, used in the normal case
     sigma_ref <- 0
@@ -471,9 +474,6 @@ gMAP <- function (formula,
         }
         y_se <- y.aux
         y_n <- weights
-        if(n.groups > 1) {
-            tau_guess <- max(1E-3, sd( tapply(y, group.index, mean) ) )
-        }
         ## reference scale is the pooled variance estimate scaled by
         ## the total sample size
         if(!is.null(y_se) & !is.null(y_n)) {
@@ -482,6 +482,9 @@ gMAP <- function (formula,
         } else {
             sigma_ref <- NULL
             sigma_guess <- tau_guess
+        }
+        if(n.groups.obs > 1) {
+            tau_guess <- max(sigma_guess/10, sd( tapply(y, group.index, mean) ) )
         }
     }
     if(family$family == "binomial") {
@@ -494,39 +497,60 @@ gMAP <- function (formula,
         ##p_bar <- (sum(r) + 0.5)/ (sum(r_n) + 0.5)
         p_bar <- mean(inv_logit(lodds))
         sigma_guess <- 1/sqrt(p_bar * (1-p_bar))
-        if(n.groups > 1) {
-            tau_guess <- max(1E-3, sd( tapply(lodds, group.index, mean) ) )
+        if(n.groups.obs > 1) {
+            tau_guess <- max(sigma_guess/10, sd( tapply(lodds, group.index, mean) ) )
         }
     }
     if(family$family == "poisson") {
         assert_that(family$link == "log")
         count <- y
         sigma_guess <- 1/exp(mean(log(y + 0.5) - offset))
-        if(n.groups > 1) {
-            tau_guess <- max(1E-3, sd( tapply(log(y + 0.5) - offset, group.index, mean) ) )
+        if(n.groups.obs > 1) {
+            tau_guess <- max(sigma_guess/10, sd( tapply(log(y + 0.5) - offset, group.index, mean) ) )
         } else {
             tau_guess <- sigma_guess
         }
     }
-    
+
     ## create a unique label vector
     ulabels <- labels
     if(length(unique(ulabels)) != length(ulabels)) {
-        for(l in unique(labels)) {
-            ind <- labels == l
-            if(sum(ind) > 1) {
-                ulabels[ind] <- paste(ulabels[ind], seq(1,sum(ind)), sep="/")
+        group_column <- names(model.part(f, data = mf, rhs = 2))[1]
+        data_factors <- setdiff(names(.getXlevels(mt, mf)), group_column)
+        if(!is.null(model.extract(mf, "tau.strata"))) {
+            group_column <- c(group_column, "(tau.strata)")
+        }
+        label_columns <- c(group_column, data_factors)
+        if(length(label_columns) > 1)
+            ulabels <- do.call(paste, c(mf[,label_columns], list(sep="/")))
+        ## if now labels are still not unique, we label them sequentially
+        if(length(unique(ulabels)) != length(ulabels)) {
+            for(l in unique(labels)) {
+                ind <- labels == l
+                if(sum(ind) > 1) {
+                    ulabels[ind] <- paste(ulabels[ind], seq(1,sum(ind)), sep="/")
+                }
             }
         }
     }
-    
+
     ## per group we must have an assignment to a tau stratum
-    tau.strata.index <- model.extract(mf, "tau.strata")
-    if(is.null(tau.strata.index))
-        tau.strata.index <- rep(1, n.groups)
-    n.tau.strata <- max(length(unique(tau.strata.index)), tau.strata.pred)
-    assert_that(NROW(tau.strata.index) == n.groups)
-    tau.strata.index <- array(tau.strata.index)
+    tau.strata.factor <- model.extract(mf, "tau.strata")
+    if(is.null(tau.strata.factor)) {
+        tau.strata.factor <- rep(1, H)
+    } else {
+        ## check that per group the tau stratum is unique
+        for(g in levels(group.factor)) {
+            gind <- group.factor == g
+            if(length(unique(tau.strata.factor[gind])) != 1)
+                stop("Found multiple tau strata defined for group", g, "!\nEach tau stratum must correspond to a unique group.")
+        }
+    }
+    if(!is.factor(tau.strata.factor))
+        tau.strata.factor <- factor(tau.strata.factor)
+    tau.strata.index <- as.integer(tau.strata.factor)
+    n.tau.strata <- max(nlevels(tau.strata.factor), tau.strata.pred)
+    tau.strata.index <- array(as.integer(tau.strata.factor))
 
     ## setup design matrix
     X <- model.matrix(f, mf, rhs=1, contrasts.arg=contrasts)
@@ -834,6 +858,8 @@ gMAP <- function (formula,
                 model = mf,
                 terms = mt,
                 xlevels = .getXlevels(mt, mf),
+                group.factor=group.factor,
+                tau.strata.factor=tau.strata.factor,
                 data = data,
                 offset = offset,
                 est_strat=est_strat,

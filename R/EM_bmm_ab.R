@@ -5,7 +5,7 @@
 ## relative n and absolute mean; or revisit eps calculation with
 ## parameters mu and n.
 
-EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
+EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=TRUE, maxIter=500, tol, eps=0.1)
 {
     N <- length(x)
 
@@ -22,7 +22,7 @@ EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
         message("Detected ", sum(x1), " value(s) which are exactly 1.\nTo avoid numerical issues during EM such values are moved to one minus smallest eps on machine.")
         x[x1] <- 1-.Machine$double.eps
     }
-    
+
     ## temporaries needed during EM
     Lx <- matrix(log(x), ncol=Nc, nrow=N)
     LxC <- matrix(log1p(-x), ncol=Nc, nrow=N)
@@ -33,19 +33,31 @@ EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
     if(missing(mix_init)) {
         ##abmEst <- matrix(1+rlnorm(Nc*3, 0, log(5)/1.96), nrow=Nc)
         ##abmEst[,1] <- 1/Nc
-        KNN <- suppressWarnings(knn(x, Nc, Niter.max=50))
-        muInit <- as.vector(KNN$center)
-        varInit <- tapply(x, KNN$cluster, var)
-        nInit <- muInit*(1-muInit)/varInit - 1
-        Nmax <- max(2, max(nInit))
+        ## assume that the sample is ordered randomly
+        ind <- seq(1,N-Nc,length=Ninit)
+        knnInit <- list(mu=matrix(0,nrow=Nc,ncol=1), p=rep(1/Nc, times=Nc))
+        for(k in seq(Nc))
+            knnInit$mu[k,1] <- mean(x[ind+k-1])
+        KNN <- suppressWarnings(knn(x, K=Nc, init=knnInit, Niter.max=50))
+        muInit <- rep(mean(x), times=Nc)
+        varInit <- rep(1.5*var(x), times=Nc)
+        for(k in 1:Nc) {
+            kind <- KNN$cluster == k
+            if(sum(kind) > 10) {
+                muInit[k] <- KNN$center[k]
+                varInit[k] <- var(x[kind])
+            }
+        }
+        nInit <- pmax(muInit*(1-muInit)/varInit - 1, 1, na.rm=TRUE)
+        ##Nmax <- max(2, max(nInit))
         ## ensure n is positive for each cluster; if this is not the
         ## case, sample uniformly from the range of n we have
         ##Nneg <- nInit <= .Machine$double.eps
-        Nsmall <- nInit <= 0.5
-        if(any(Nsmall))
-            nInit[Nsmall] <- runif(sum(Nsmall), 0.5, Nmax)
-        nInitR <- 0.5 + rlnorm(Nc, log(nInit), log(5)/1.96)
-        mixEst <- rbind(KNN$p, nInitR*muInit, nInitR*(1-muInit))
+        ##Nsmall <- nInit <= 0.5
+        ##if(any(Nsmall))
+        ##    nInit[Nsmall] <- runif(sum(Nsmall), 0.5, Nmax)
+        ##nInitR <- 0.5 + rlnorm(Nc, log(nInit), log(5)/1.96)
+        mixEst <- rbind(KNN$p, nInit*muInit, nInit*(1-muInit))
         rownames(mixEst) <- c("w", "a", "b")
     } else {
         mixEst <- mix_init
@@ -56,7 +68,7 @@ EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
         cat("Initial estimates:\n")
         print(mixEst)
     }
-    
+
     if(missing(tol)) {
         ## automatic selection of tolerance, based on targeted
         ## precision of alpha and beta (crude estimate)
@@ -67,7 +79,7 @@ EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
         ##if(tol < 0.05)
         ##    warning("Tolerance set to very low value. Consider increasing eps, the precision of component estimates.")
     }
-    
+
     if(verbose) {
         cat("Admissable change in log-likelihood tol =", tol,"\n")
     }
@@ -95,6 +107,10 @@ EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
         ## difficulties if some points are far away from some
         ## component and hence recieve very low density
         lli <- t(matrix(log(mixEst[1,]) + dbeta(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+        ## ensure that the log-likelihood does not go out of numerical
+        ## reasonable bounds
+        lli <- apply(lli, 2, pmax, -30)
+
         lnresp <- apply(lli, 1, log_sum_exp)
         ## the log-likelihood is then given by the sum of lresp norms
         lliCur <- sum(lnresp)
@@ -150,7 +166,7 @@ EM_bmm_ab <- function(x, Nc, mix_init, verbose=TRUE, maxIter=500, tol, eps=0.1)
     attr(mixEst, "lli") <- lliCur
 
     attr(mixEst, "Nc") <- Nc
-    
+
     attr(mixEst, "tol") <- tol
     attr(mixEst, "traceLli") <- traceLli
     attr(mixEst, "traceMix") <- lapply(traceMix, function(x) {class(x) <- "betaMix"; x})

@@ -4,7 +4,7 @@
 #' Predictive distribution for mixture of conjugate distributions
 #' (beta, normal, gamma).
 #'
-#' @param mix mixture distribution 
+#' @param mix mixture distribution
 #' @param n predictive sample size, set by default to 1
 #' @param ... includes arguments which depend on the specific prior-likelihood pair, see description below.
 #'
@@ -28,11 +28,11 @@
 #'
 #' @return The function returns for a normal, beta or gamma mixture
 #' the matching predictive distribution for \eqn{y_n}.
-#' 
+#'
 #' @template conjugate_pairs
 #'
 #' @examples
-#' 
+#'
 #' # Example 1: predictive distribution from uniform prior.
 #' bm <- mixbeta(c(1,1,1))
 #' bmPred <- preddist(bm, n=10)
@@ -47,9 +47,9 @@
 #' # median
 #' mdn <- qmix(bmPred,0.5)
 #' mdn
-#' 
+#'
 #' # Example 2: 2-comp Beta mixture
-#' 
+#'
 #' bm <- mixbeta( inf=c(0.8,15,50),rob=c(0.2,1,1))
 #' plot(bm)
 #' bmPred <- preddist(bm,n=10)
@@ -63,9 +63,9 @@
 #' d
 #' table(r)/n.sim
 #' }
-#' 
+#'
 #' # Example 3: 3-comp Normal mixture
-#' 
+#'
 #' m3 <- mixnorm( c(0.50,-0.2,0.1),c(0.25,0,0.2), c(0.25,0,0.5), sigma=10)
 #' print(m3)
 #' summary(m3)
@@ -74,7 +74,7 @@
 #' plot(predm3)
 #' print(predm3)
 #' summary(predm3)
-#' 
+#'
 #' @export
 preddist <- function(mix, ...) UseMethod("preddist")
 #' @export
@@ -111,6 +111,7 @@ preddist.normMix <- function(mix, n=1, sigma, ...) {
     ##mix[3,] <- sqrt(mix[3,]^2 * n^2 + tau^2 * n )
     ## now: predictive for \bar{y}_n, the mean
     mix[3,] <- sqrt(mix[3,]^2  + sigma_ref^2/n )
+    class(mix) <- c("normMix", "mix")
     mix
 }
 
