@@ -57,7 +57,7 @@ $$ E[\log(X)] = \psi(\alpha) - \log(\beta)$$
 $$ Var[\log(X)] = \psi^{(1)}(\alpha).$$
 
 Here, $\psi(x)$ is the digamma function and $\psi^{(1)}(x)$ is the
-polygamma function of order 1 (first derivative of the $\log$ of the
+polygamma function of order 1 (second derivative of the $\log$ of the
 $\Gamma$ function).
 
 Thus, by approximating the $\log$ transformed $\Gamma$ distribution

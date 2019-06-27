@@ -12,9 +12,10 @@
 gMAP(formula, family = gaussian, data, weights, offset, tau.strata,
   tau.dist = c("HalfNormal", "TruncNormal", "Uniform", "Gamma",
   "InvGamma", "LogNormal", "TruncCauchy", "Exp", "Fixed"), tau.prior,
-  tau.strata.pred = 1, beta.prior, REdist = c("normal", "t"),
-  t.df = 5, contrasts = NULL, iter = getOption("RBesT.MC.iter",
-  6000), warmup = getOption("RBesT.MC.warmup", 2000),
+  tau.strata.pred = 1, beta.prior, prior_PD = FALSE,
+  REdist = c("normal", "t"), t.df = 5, contrasts = NULL,
+  iter = getOption("RBesT.MC.iter", 6000),
+  warmup = getOption("RBesT.MC.warmup", 2000),
   thin = getOption("RBesT.MC.thin", 4),
   init = getOption("RBesT.MC.init", 1),
   chains = getOption("RBesT.MC.chains", 4),
@@ -65,6 +66,8 @@ see section prior specification below.}
 
 \item{beta.prior}{mean and standard deviation for normal priors of
 regression coefficients, see section prior specification below.}
+
+\item{prior_PD}{logical to indicate if the prior predictive distribution should be sampled (no conditioning on the data). Defaults to \code{FALSE}.}
 
 \item{REdist}{type of random effects distribution. \code{Normal} (default) or \code{t}.}
 

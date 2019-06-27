@@ -21,7 +21,7 @@ test_that("variances have correct ordering", {
               ## the predictive must include between and within; as such it is
               ## larger than within
               expect_true(all(pred_var_pred > tau_est))
-              
+
               ## ensure that predictive has larger variance than the model estimate
               expect_true(all(summary(pred_cov_link_pred)[,"sd"] > summary(pred_cov_link)[,"sd"]))
           })
@@ -53,7 +53,7 @@ test_that("automixfit attempts K=4 different models and returns best fitting", {
 
 test_that("mixfit for prediction handles response and link scale", {
               pred_map <- mixfit(pred_new, Nc=2)
-              
+
               expect_true(is.list(pred_map))
               expect_true("betaMix" %in% class(pred_map[[1]]))
               expect_equal(ncol(pred_map[[1]]), 2)
@@ -148,6 +148,7 @@ example("ess", package="RBesT", echo=FALSE, ask=FALSE, verbose=FALSE)
 test_that("conjugate beta case matches canonical formula", {
               expect_equal(a+b, ess(prior, "moment"))
               expect_equal(a+b, ess(prior, "morita"))
+              expect_equal(a+b, ess(prior, "elir"))
           })
 
 test_that("moment matching for beta mixtures is correct", {
@@ -162,10 +163,16 @@ test_that("normal mixtures have reference scale used correctly", {
               suppressMessages(e2m <- ess(nmix_sigma_small, "moment"))
               expect_gt(e1m, e2m)
               expect_equal(floor(abs(e2m - e1m/2)), 0)
+
               suppressMessages(e1b <- ess(nmix, "morita"))
               suppressMessages(e2b <- ess(nmix_sigma_small, "morita"))
               expect_gt(e1b, e2b)
               expect_equal(floor(abs(e2b - e1b/2)), 0)
+
+              suppressMessages(e1r <- ess(nmix, "elir"))
+              suppressMessages(e2r <- ess(nmix_sigma_small, "elir"))
+              expect_gt(e1r, e2r)
+              expect_equal(floor(abs(e2r - e1r/2)), 0)
           })
 
 test_that("gamma mixtures have likelihood property respected", {
@@ -176,9 +183,14 @@ test_that("gamma mixtures have likelihood property respected", {
               e1m <- ess(gmix1, "moment")
               e2m <- ess(gmix2, "moment")
               expect_true(e1m != e2m)
+
               e1b <- ess(gmix1, "morita")
               e2b <- ess(gmix2, "morita")
               expect_true(e1b != e2b)
+
+              e1r <- ess(gmix1, "morita")
+              e2r <- ess(gmix2, "morita")
+              expect_true(e1r != e2r)
           })
 
 
@@ -187,13 +199,76 @@ test_that("gamma 1-component density gives canonical results", {
               likelihood(guni1) <- "poisson"
               guni2 <- gmix[[1, rescale=TRUE]]
               likelihood(guni2) <- "exp"
+
               e1m <- ess(guni1, "moment")
-              expect_true(guni1[3,1] == e1m)
               e2m <- ess(guni2, "moment")
+              expect_true(e1m != e2m)
+              expect_true(guni1[3,1] == e1m)
               expect_true(guni2[2,1] == e2m)
+
               e1b <- ess(guni1, "morita")
               e2b <- ess(guni2, "morita")
               expect_true(e1b != e2b)
               expect_true(guni1[3,1] == e1b)
               expect_true(guni2[2,1] == e2b)
+
+              e1r <- ess(guni1, "elir")
+              e2r <- ess(guni2, "elir")
+              expect_true(e1r != e2r)
+              expect_true(abs(guni1[3,1] - e1r) < 1E-4)
+              ## ELIR gives a-1 as ESS
+              expect_true(abs(guni2[2,1] - (e2r+1)) < 1E-4)
           })
+
+## check predictive consistency of ELIR
+elir_predictive_consistent  <- function(dens, m, Nsim, seed, stat, ...) {
+    ## simulated from predictve which is m events equivalent to
+    suppressMessages(pdens <- preddist(dens, n=m))
+    set.seed(seed)
+    psamp  <- rmix(pdens, Nsim)
+
+    if(inherits(dens, "gammaMix"))
+        psamp <- psamp / m
+
+    posterior_ess  <- function(mix, method, stat, ...) {
+        args <- c(list(priormix=mix, stat=0), list(...))
+        names(args)[2] <- stat
+        fn  <- function(x) {
+            args[[stat]] <- x
+            suppressMessages(res  <- ess(do.call(postmix, args), method=method))
+            res
+        }
+        Vectorize(fn)
+    }
+
+    ## obtain ess of each posterior
+    pred_ess <- posterior_ess(dens, "elir", stat, ...)
+    ess_psamp <- pred_ess(psamp)
+
+    suppressMessages(elir_prior <- ess(dens, "elir"))
+    ## the average over the predicitve of the posterior ESS must match
+    ## the the elir value taken directly (when m is subtracted, of
+    ## course)
+    elir_pred <- mean(ess_psamp) - m
+
+    expect_true(abs(elir_prior - elir_pred) < 0.75)
+}
+
+
+test_that("ESS elir is predictively consistent for normal mixtures", {
+    skip_on_cran()
+    nmix <- mixnorm(rob=c(0.5, 0, 2), inf=c(0.5, 3, 4), sigma=10)
+    elir_predictive_consistent(nmix, m=3E2, Nsim=1E3, seed=3435, stat="m", se=10/sqrt(3E2))
+})
+
+test_that("ESS elir is predictively consistent for beta mixtures", {
+    skip_on_cran()
+    bmix <- mixbeta(rob=c(0.2, 1, 1), inf=c(0.8, 10, 2))
+    elir_predictive_consistent(bmix, m=1E2, Nsim=1E3, seed=355435, stat="r", n=1E2)
+})
+
+test_that("ESS elir is predictively consistent for gamma mixtures (Poisson likelihood)", {
+    skip_on_cran()
+    gmixP <- mixgamma(rob=c(0.3, 20, 4), inf=c(0.7, 50, 10), likelihood="poisson")
+    elir_predictive_consistent(gmixP, m=1E2, Nsim=1E3, seed=355435, stat="m", n=1E2)
+})

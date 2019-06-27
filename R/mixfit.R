@@ -49,11 +49,11 @@
 #' generated. See links below.
 #'
 #' @family EM
-#' 
+#'
 #' @references Dempster A.P., Laird N.M., Rubin D.B. Maximum
 #' Likelihood from Incomplete Data via the EM Algorithm. \emph{Journal
 #' of the Royal Statistical Society, Series B} 1977; 39 (1): 1-38.
-#' 
+#'
 #' @examples
 #' bmix <- mixbeta(rob=c(0.2, 1, 1), inf=c(0.8, 10, 2))
 #'
@@ -87,7 +87,7 @@ mixfit.default <- function(sample, type=c("norm", "beta", "gamma"), thin, ...)
 {
     type <- match.arg(type)
     assert_that(type %in% c("norm", "beta", "gamma"))
-    EM <- switch(type, norm=EM_nmm, beta=EM_bmm_mun, gamma=EM_gmm)
+    EM <- switch(type, norm=EM_nmm, beta=EM_bmm_ab, gamma=EM_gmm)
     if(!missing(thin)) {
         assert_that(thin >= 1)
         sample <- sample[seq(1,NROW(sample),by=thin),drop=FALSE]
@@ -170,5 +170,5 @@ set_likelihood <- function(mix, family) {
     } else if(family == "poisson") {
         likelihood(mix) <- "poisson"
     }
-    mix   
+    mix
 }

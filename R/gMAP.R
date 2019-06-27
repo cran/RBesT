@@ -28,6 +28,7 @@
 #' see section prior specification below.
 #' @param beta.prior mean and standard deviation for normal priors of
 #' regression coefficients, see section prior specification below.
+#' @param prior_PD logical to indicate if the prior predictive distribution should be sampled (no conditioning on the data). Defaults to \code{FALSE}.
 #' @param REdist type of random effects distribution. \code{Normal} (default) or \code{t}.
 #' @param t.df degrees of freedom if random-effects distribution is \code{t}.
 #' @param contrasts an optional list; See \code{contrasts.arg} from
@@ -353,6 +354,7 @@ gMAP <- function (formula,
                   tau.prior,
                   tau.strata.pred=1,
                   beta.prior,
+                  prior_PD=FALSE,
                   REdist=c("normal","t"),
                   t.df=5,
                   contrasts=NULL,
@@ -728,6 +730,8 @@ gMAP <- function (formula,
     beta_raw_guess <- rbind(mean=fit.pooled$coefficients,
                             sd=rep(sigma_guess/sqrt(nInf), mX))
 
+    assert_logical(prior_PD, FALSE, len=1)
+
     fitData <- list("H", "X", "mX", "link",
                     "y", "y_se",
                     "r", "r_n",
@@ -737,7 +741,8 @@ gMAP <- function (formula,
                     "group.index", "n.groups",
                     "tau.strata.index", "n.tau.strata", "tau.strata.pred",
                     "beta.prior", "tau.prior",
-                    "ncp", "tau_raw_guess", "beta_raw_guess")
+                    "ncp", "tau_raw_guess", "beta_raw_guess",
+                    "prior_PD")
 
     ## MODEL SETUP
 
@@ -745,6 +750,9 @@ gMAP <- function (formula,
 
     ## place data in a named list for safer passing it around in R
     dataL <- mget(unlist(fitData), envir=as.environment(-1))
+
+    ## convert to Stan's 0/1 convention
+    dataL$prior_PD <- as.integer(dataL$prior_PD)
 
     ## change variable naming conventions, replace forbidden "." to
     ## "_"
@@ -797,7 +805,7 @@ gMAP <- function (formula,
 
     ## only display Stan messages in verbose mode
     if(verbose) {
-        cat(paste(stan_msg, collapse="\n"))
+        cat(paste(c(stan_msg, ""), collapse="\n"))
     }
 
     ## MODEL FINISHED

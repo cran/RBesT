@@ -1,3 +1,9 @@
+July 27th, 2019 (1.4-0)
+
+* Introduce elir ESS method as new default for ESS
+* Allow to sample prior predictive with gMAP (argument prior_PD)
+* Switch internally to ab parametrized version of EM beta algorithm
+
 April 3nd, 2019 (1.3-8)
 
 * Use Simulation Based Calibration for gMAP model qualification

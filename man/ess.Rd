@@ -4,12 +4,12 @@
 \alias{ess}
 \title{Effective Sample Size for a Conjugate Prior}
 \usage{
-ess(mix, method = c("moment", "morita"), ...)
+ess(mix, method = c("elir", "moment", "morita"), ...)
 }
 \arguments{
 \item{mix}{Prior (mixture of conjugate distributions).}
 
-\item{method}{Selects the used method. Can be either \code{moment} (default) or \code{morita}.}
+\item{method}{Selects the used method. Can be either \code{elir} (default), \code{moment} or \code{morita}.}
 
 \item{...}{Optional arguments applicable to specific methods.}
 }
@@ -19,10 +19,20 @@ ESS indicates how many experimental units the prior is roughly
 equivalent to.
 }
 \details{
-The ESS is calculated using the either a moments based
-approach or the more sophisticated method by \emph{Morita et
-al. (2008)}. The moments based method is the default method and
-provides conservative estimates of the ESS.
+The ESS is calculated using either the expected local
+    information ratio (elir) \emph{Neuenschwander et
+    al. (submitted)}, the moments approach or the method by
+    \emph{Morita et al. (2008)}. The moments based method is the
+    default method and provides conservative estimates of the ESS.
+
+The elir approach is the only ESS which fulfills predictive
+consistency. The predictive consistency of the ESS requires that
+the ESS of a prior is the same as averaging the posterior ESS after
+a fixed amount of events over the prior predictive distribution
+from which the number of forward simulated events is
+subtracted. The elir approach results in ESS estimates which are
+neither conservative nor liberal. See the example section for a
+demonstration of predictive consistency.
 
 For the moments method the mean and standard deviation of the
 mixture are calculated and then approximated by the conjugate
@@ -55,12 +65,14 @@ b <- 15
 prior <- mixbeta(c(1, a, b))
 
 ess(prior)
-(a+b) 
+(a+b)
 
 # Beta mixture example
 bmix <- mixbeta(rob=c(0.2, 1, 1), inf=c(0.8, 10, 2))
 
-ess(bmix)
+ess(bmix, "elir")
+
+ess(bmix, "moment")
 # moments method is equivalent to
 # first calculate moments
 bmix_sum <- summary(bmix)
@@ -72,10 +84,22 @@ round(sum(ab_matched))
 
 ess(bmix, method="morita")
 
+# Predictive consistency of elir
+\dontrun{
+n_forward <- 1E2
+bmixPred <- preddist(bmix, n=n_forward)
+pred_samp <- rmix(bmixPred, 1E3)
+pred_ess <- sapply(pred_samp, function(r) ess(postmix(bmix, r=r, n=n_forward), "elir") )
+ess(bmix, "elir")
+mean(pred_ess) - n_forward
+}
+
 # Normal mixture example
 nmix <- mixnorm(rob=c(0.5, 0, 2), inf=c(0.5, 3, 4), sigma=10)
 
-ess(nmix)
+ess(nmix, "elir")
+
+ess(nmix, "moment")
 
 ## the reference scale determines the ESS
 sigma(nmix) <- 20
@@ -95,4 +119,8 @@ ess(gmix) ## interpreted as appropriate for an exponential likelihood
 Morita S, Thall PF, Mueller P.
 Determining the effective sample size of a parametric prior.
 \emph{Biometrics} 2008;64(2):595-602.
+
+Neuenschwander B, Weber S, Schmidli H, O'Hagen A.
+Predictively Consistent Prior Effective Sample Sizes.
+\emph{submitted}
 }

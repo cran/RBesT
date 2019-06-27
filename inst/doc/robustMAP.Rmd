@@ -213,7 +213,7 @@ est <- foreach(case=names(map), .combine=rbind) %do% {
     r1 <- 0:N1
     ESSstage1 <- c()
     for(r in r1) {
-        ESSstage1 <- c(ESSstage1, ess(postmix(prior, r=r, n=N1), loc="mode"))
+        ESSstage1 <- c(ESSstage1, ess(postmix(prior, r=r, n=N1), method="morita", loc="mode"))
     }
 
     ## number of patients enrolled in stage 2

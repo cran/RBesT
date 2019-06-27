@@ -7,8 +7,8 @@ Description: Tool-set to support Bayesian evidence synthesis.  This
     cases). Please refer to Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
     <doi:10.1111/biom.12242> for details on the methodology.
-Version: 1.3-8
-Date: 2019-04-03
+Version: 1.4-0
+Date: 2019-06-27
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -32,7 +32,7 @@ VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
 Encoding: UTF-8
 RoxygenNote: 6.1.1
-Packaged: 2019-04-04 07:48:14 UTC; 
+Packaged: 2019-06-27 08:22:45 UTC; 
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -44,4 +44,4 @@ Author: Novartis Pharma AG [cph],
     R/stanmodels.R, src/Makevars, src/Makevars.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2019-04-04 12:10:10 UTC
+Date/Publication: 2019-06-27 09:00:03 UTC

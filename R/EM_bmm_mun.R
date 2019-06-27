@@ -1,11 +1,6 @@
 
 ## EM for Beta Mixture Models (BMM) with Nc components
 
-## TODO: revisit convergence criteria; consider changing to monitoring
-## relative n and absolute mean; or revisit eps calculation with
-## parameters mu and n.
-
-
 EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol, Neps, eps=c(w=0.005,m=0.005,N=0.005))
 {
     N <- length(x)
@@ -131,8 +126,9 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
             mu  <- inv_logit(par[1])
             nmu <- inv_logit(-par[1]) ## 1-mu
             n <- exp(par[2])
-            di <- digamma(nmu * n)
-            eq1 <- digamma(n * mu) - di
+            ab <- c(mu * n, nmu * n)
+            di <- digamma(ab[2])
+            eq1 <- digamma(ab[1]) - di
             eq2 <- di - digamma(n)
             (eq1 - c1)^2 + (eq2 - c2)^2
         }
@@ -239,10 +235,3 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
 
     mixEst
 }
-
-#' @export
-print.EMbmm <- function(x, ...) {
-    cat("EM for Beta Mixture Model\nLog-Likelihood = ", logLik(x), "\n\n",sep="")
-    NextMethod()
-}
-

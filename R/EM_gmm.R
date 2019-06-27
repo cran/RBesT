@@ -115,6 +115,15 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         }
     }
 
+    gmm_ml_grad <- function(c1) {
+        function(la) {
+            a <- exp(la)
+            val <- (c1 - digamma(a) + la)
+            grad <- 2 * val * (1 - trigamma(a) * a)
+            grad
+        }
+    }
+
     while(iter < Niter.max) {
         ## calculate responsabilities from the likelihood terms;
         ## calculations are done in log-space to avoid numerical difficulties if some points are far away from some component and hence recieve very low density
@@ -168,17 +177,16 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         mixEst[1,] <- mixEst[1,] / sum(mixEst[1,])
 
         lrx <- apply(Lx + lresp, 2, log_sum_exp)
-        ##lrx <- log(colSums(x * resp))
-        c1 <- colSums(Lx * resp)/zSum + lzSum - lrx
+        resp_zscaled  <- exp(sweep(lresp, 2, lzSum, "-"))
+        c1 <- colSums(Lx * resp_zscaled) + lzSum - lrx
         c2 <- lzSum - lrx
 
         ## now solve for new alpha and beta estimates
         for(i in 1:Nc) {
             Lest <- optimize(gmm_ml(c1[i]), MLrange)
-            if(is.na(Lest$objective)) {
-                stop("EM failed!")
-            }
-            if(abs(Lest$objective) > 1e-4) {
+            ##theta <- c(log(mixEst[2,i]))
+            ##Lest <- optim(theta, gmm_ml(c1[i]), gr=gmm_ml_grad(c1[i]), method="BFGS", control=list(maxit=500))
+            if(abs(Lest$objective) > 1E-4) {
                 warning("Warning: Component", i, "in iteration", iter, "had convergence problems!")
             }
             mixEstPar[2,i] <- Lest$minimum

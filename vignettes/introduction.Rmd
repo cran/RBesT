@@ -146,12 +146,12 @@ effective sample size (ESS) of the prior. It can be calculated in
 RBesT with the **`ess`** function. It should be noted, however, that the
 concept of ESS is somewhat elusive. In particular, the definition of
 the ESS is not unique and multiple methods have therefore been
-implemented in RBesT. The default moment-based approach yields
+implemented in RBesT. The moment-based approach yields
 conservative (small) ESS in comparison to the Morita [3] approach,
 which yields liberal (large) ESS:
 
 ```{r}
-ess(map)
+ess(map, method="moment")
 ess(map, method="morita")
 ```
 The Morita approach uses the curvature of the prior at the mode and

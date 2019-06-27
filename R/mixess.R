@@ -1,18 +1,28 @@
 #' Effective Sample Size for a Conjugate Prior
-#' 
+#'
 #' Calculates the Effective Sample Size (ESS) for a mixture prior. The
 #' ESS indicates how many experimental units the prior is roughly
 #' equivalent to.
 #'
 #' @param mix Prior (mixture of conjugate distributions).
-#' @param method Selects the used method. Can be either \code{moment} (default) or \code{morita}.
+#' @param method Selects the used method. Can be either \code{elir} (default), \code{moment} or \code{morita}.
 # @param s For \code{morita} method large constant to ensure that the prior scaled by this value is vague (default 100); see Morita et al. (2008) for details.
 #' @param ... Optional arguments applicable to specific methods.
 #'
-#' @details The ESS is calculated using the either a moments based
-#' approach or the more sophisticated method by \emph{Morita et
-#' al. (2008)}. The moments based method is the default method and
-#' provides conservative estimates of the ESS.
+#' @details The ESS is calculated using either the expected local
+#'     information ratio (elir) \emph{Neuenschwander et
+#'     al. (submitted)}, the moments approach or the method by
+#'     \emph{Morita et al. (2008)}. The moments based method is the
+#'     default method and provides conservative estimates of the ESS.
+#'
+#' The elir approach is the only ESS which fulfills predictive
+#' consistency. The predictive consistency of the ESS requires that
+#' the ESS of a prior is the same as averaging the posterior ESS after
+#' a fixed amount of events over the prior predictive distribution
+#' from which the number of forward simulated events is
+#' subtracted. The elir approach results in ESS estimates which are
+#' neither conservative nor liberal. See the example section for a
+#' demonstration of predictive consistency.
 #'
 #' For the moments method the mean and standard deviation of the
 #' mixture are calculated and then approximated by the conjugate
@@ -30,20 +40,26 @@
 #' @references Morita S, Thall PF, Mueller P.
 #' Determining the effective sample size of a parametric prior.
 #' \emph{Biometrics} 2008;64(2):595-602.
-#' 
+#'
+#' @references Neuenschwander B, Weber S, Schmidli H, O'Hagen A.
+#' Predictively Consistent Prior Effective Sample Sizes.
+#' \emph{submitted}
+#'
 #' @examples
 #' # Conjugate Beta example
 #' a <- 5
 #' b <- 15
 #' prior <- mixbeta(c(1, a, b))
-#' 
+#'
 #' ess(prior)
-#' (a+b) 
+#' (a+b)
 #'
 #' # Beta mixture example
 #' bmix <- mixbeta(rob=c(0.2, 1, 1), inf=c(0.8, 10, 2))
 #'
-#' ess(bmix)
+#' ess(bmix, "elir")
+#'
+#' ess(bmix, "moment")
 #' # moments method is equivalent to
 #' # first calculate moments
 #' bmix_sum <- summary(bmix)
@@ -52,18 +68,30 @@
 #' # finally take the sum of a and b which are equivalent
 #' # to number of responders/non-responders respectivley
 #' round(sum(ab_matched))
-#' 
+#'
 #' ess(bmix, method="morita")
+#'
+#' # Predictive consistency of elir
+#' \dontrun{
+#' n_forward <- 1E2
+#' bmixPred <- preddist(bmix, n=n_forward)
+#' pred_samp <- rmix(bmixPred, 1E3)
+#' pred_ess <- sapply(pred_samp, function(r) ess(postmix(bmix, r=r, n=n_forward), "elir") )
+#' ess(bmix, "elir")
+#' mean(pred_ess) - n_forward
+#' }
 #'
 #' # Normal mixture example
 #' nmix <- mixnorm(rob=c(0.5, 0, 2), inf=c(0.5, 3, 4), sigma=10)
 #'
-#' ess(nmix)
+#' ess(nmix, "elir")
+#'
+#' ess(nmix, "moment")
 #'
 #' ## the reference scale determines the ESS
 #' sigma(nmix) <- 20
 #' ess(nmix)
-#' 
+#'
 #' # Gamma mixture example
 #' gmix <- mixgamma(rob=c(0.3, 20, 4), inf=c(0.7, 50, 10))
 #'
@@ -71,12 +99,12 @@
 #'
 #' likelihood(gmix) <- "exp"
 #' ess(gmix) ## interpreted as appropriate for an exponential likelihood
-#' 
+#'
 #'
 #' @export
-ess <- function(mix, method=c("moment", "morita"), ...) UseMethod("ess")
+ess <- function(mix, method=c("elir", "moment", "morita"), ...) UseMethod("ess")
 #' @export
-ess.default <- function(mix, method=c("moment", "morita"), ...) "Unknown density"
+ess.default <- function(mix, method=c("elir", "moment", "morita"), ...) "Unknown density"
 
 
 calc_loc <- function(mix, loc=c("mode", "median", "mean")) {
@@ -125,6 +153,14 @@ mixInfo <- function(mix, x, dens, gradl, hessl) {
     gsum - hsum
 }
 
+## local information ratio (which we integrate over the prior)
+weighted_lir <- function(mix, info, fisher_inverse) {
+    fn  <- function(x) {
+        dmix(mix, x) * info(mix, x) * fisher_inverse(x)
+    }
+    Vectorize(fn)
+}
+
 ## function to calculate the gradient of the log mixture
 ## mixLogGrad <- function(mix, x, dens, gradl) {
 ##     p <- mix[1,]
@@ -133,7 +169,7 @@ mixInfo <- function(mix, x, dens, gradl, hessl) {
 ##     densMix <- dmix(mix,x)
 ##     densComp <- dens(x, a, b)
 ##     dgl <- gradl(x,a,b)
-##     sum(p*densComp*dgl)/densMix    
+##     sum(p*densComp*dgl)/densMix
 ## }
 
 
@@ -143,9 +179,14 @@ mixInfo <- function(mix, x, dens, gradl, hessl) {
 # only difference: evaluated at mode of prior rather than at mean; and the flattened prior are derived with respect to the scale of 1 instead of being relative to the input scale
 # SW: speedup by using analytical results and use of bisectioning search
 #' @export
-ess.betaMix <- function(mix, method=c("moment", "morita"), ..., s=100) {
+ess.betaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100) {
 
     method <- match.arg(method)
+
+    if(method == "elir") {
+        elir <- integrate(weighted_lir(mix, betaMixInfo, bernoulliFisherInfo_inverse), 0, 1)
+        return(elir$value)
+    }
 
     ## simple and conservative moment matching
     if(method == "moment") {
@@ -219,12 +260,25 @@ betaInfo <- function(x,a,b) {
     -betaLogHess(x,a,b)
 }
 
+## 1/i_F(x): The inverse of the fisher information for a Bernoulli
+## experiment (binomial with n=1)
+bernoulliFisherInfo_inverse <- function(x) {
+    x - x^2
+}
+
 
 #' @export
-ess.gammaMix <- function(mix, method=c("moment", "morita"), s=100, ...) {
+ess.gammaMix <- function(mix, method=c("elir", "moment", "morita"), s=100, ...) {
 
     method <- match.arg(method)
     lik <- likelihood(mix)
+
+    if(method == "elir") {
+        if(lik == "poisson")
+            return(integrate(weighted_lir(mix, gammaMixInfo, poissonFisherInfo_inverse), 0, Inf)$value)
+        if(lik == "exp")
+            return(integrate(weighted_lir(mix, gammaMixInfo, expFisherInfo_inverse), 0, Inf)$value)
+    }
 
     ## simple and conservative moment matching
     if(method == "moment") {
@@ -286,10 +340,16 @@ gammaInfo <- function(x,a,b) {
 gammaMixInfo <- function(mix,x) {
     mixInfo(mix, x, dgamma, gammaLogGrad, gammaLogHess)
 }
+poissonFisherInfo_inverse <- function(x) {
+    x
+}
+expFisherInfo_inverse <- function(x) {
+    x^2
+}
 
 
 #' @export
-ess.normMix <- function(mix, method=c("moment", "morita"), sigma, s=100, ...) {
+ess.normMix <- function(mix, method=c("elir", "moment", "morita"), sigma, s=100, ...) {
 
     method <- match.arg(method)
 
@@ -304,6 +364,10 @@ ess.normMix <- function(mix, method=c("moment", "morita"), sigma, s=100, ...) {
     mu <- mix[2,]
     sigma <- mix[3,]
     sigmaSq <- sigma^2
+
+    if(method == "elir") {
+        return(tauSq * integrate(weighted_lir(mix, normMixInfo, normStdFisherInfo_inverse), -Inf, Inf)$value)
+    }
 
     ## simple and conservative moment matching
     if(method == "moment") {
@@ -350,3 +414,7 @@ normInfo <- function(x,mean,sigma) {
     -normLogHess(x,mean,sigma)
 }
 
+## Fisher info for normal sampling sd with known unit variance
+normStdFisherInfo_inverse <- function(x) {
+    1.0
+}

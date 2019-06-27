@@ -54,6 +54,9 @@ data {
   // guesses on the parameter location and scales
   vector[mX] beta_raw_guess[2];
   real       tau_raw_guess[2];
+
+  // sample from prior predictive (do not add data to likelihood)
+  int<lower=0,upper=1> prior_PD;
 }
 transformed data {
   vector[mX] beta_prior_stan[2];
@@ -121,6 +124,8 @@ transformed data {
       X_param[i,1] = 0;
     }
   }
+  if(prior_PD)
+    print("Info: Sampling from prior predictive distribution.")
 }
 parameters {
   vector[mX]           beta_raw;
@@ -182,9 +187,11 @@ model {
   if(tau_prior_dist != -1) target += tau_raw_guess[2] * tau_raw;
   
   // finally compute data-likelihood
-  if(link == 1) y     ~ normal(              theta, y_se);
-  if(link == 2) r     ~ binomial_logit(r_n,  theta);
-  if(link == 3) count ~ poisson_log(offset + theta);
+  if(!prior_PD) {
+    if(link == 1) y     ~ normal(              theta, y_se);
+    if(link == 2) r     ~ binomial_logit(r_n,  theta);
+    if(link == 3) count ~ poisson_log(offset + theta);
+  }
 }
 generated quantities {
   real theta_pred;
