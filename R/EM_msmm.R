@@ -74,7 +74,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
     lU <- array(0, dim=c(N,Nc))
 
     if(verbose) {
-        cat("EM multi-variate student t with Nc =", Nc, ":\n")
+        message("EM multi-variate student t with Nc =", Nc, ":\n")
     }
 
     nu_ml <- function(c1) {
@@ -104,7 +104,7 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
             Dlli <- (traceLli[iter+1] - traceLli[iter - 1])/2
         }
         if(verbose)
-            cat("Iteration", iter, ": log-likelihood", lliCur, "; Dlli =", Dlli, "\n")
+            message("Iteration", iter, ": log-likelihood", lliCur, "; Dlli =", Dlli, "\n")
         if(Dlli < tol) {
             break
         }

@@ -17,21 +17,8 @@
 #' the largest dimension. For the case of a vector and a matrix, the
 #' function will transpose the results for better readabiliy.
 #'
-#' @examples
-#' \dontrun{
-#' x1 <- rnorm(100)
-#' SimSum(x1)
-#'
-#' x2 <- matrix(rnorm(100), ncol=5)
-#' SimSum(x2)
-#'
-#' x3 <- array(rnorm(5*10*3), dim=c(5,10,3))
-#' SimSum(x3)
-#' SimSum(x3, margin=2)
-#' }
-#'
 #' @keywords internal
-#' 
+#'
 `SimSum` <-
 function( x, min.max=FALSE, n.sim=FALSE, probs=c(0.025,0.5,0.975), margin=ifelse(is.null(dim(x) | length(dim(x)) == 1), 2, length(dim(x))) )
 {
@@ -44,14 +31,14 @@ function( x, min.max=FALSE, n.sim=FALSE, probs=c(0.025,0.5,0.975), margin=ifelse
         N  <- if(n.sim)   c(nsim=length(r))         else NULL
         c( mean=mean(r), sd=sd(r), quantile(r,probs), ex, N )
     }
-    
+
     sim.out <- apply(x, margin, sfun)
 
     ## to ensure compatibility with old versions of the function, a
     ## transpose is needed for the standard case of margin being 2
     if(is.matrix(x) && margin == 2)
         sim.out <- t(sim.out)
-    
+
     return(sim.out)
 }
 

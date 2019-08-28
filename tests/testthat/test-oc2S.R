@@ -20,7 +20,7 @@ theta2 <- 0.5
 
 Nsim <- 1e4
 
-run_on_cran <- function() 
+run_on_cran <- function()
 {
     if (identical(Sys.getenv("NOT_CRAN"), "true")) {
         return(FALSE)
@@ -74,7 +74,7 @@ test_that("Analytical convolution of normal mixture matches numerical integratio
 ## test that the type I error is matching, i.e. is not off by more than 2%
 test_that("Type I error is matching between MC and analytical computations in the normal mixture case", {
               skip_on_cran()
-              
+
               x <- c(-2, 0)
               alpha <- oc2S(prior1, prior2, N1, N2, decision2S(pcrit, qcrit), sigma1=sigma(prior1), sigma2=sigma(prior2))(x,x)
               alphaMC <- Voc2S_normal_MC(prior1, prior2, N1, N2, x, x, pcrit, qcrit)
@@ -86,7 +86,7 @@ test_that("Type I error is matching between MC and analytical computations in th
 ## test that the power is matching, i.e. is not off by more than 2%
 test_that("Power is matching between MC and analytical computations in the normal mixture case", {
               skip_on_cran()
-              
+
               power   <- oc2S(prior1, prior2, N1, N2, decision2S(pcrit, qcrit))(theta1, theta2)
               powerMC <- oc2S_normal_MC(prior1, prior2, N1, N2, theta1, theta2, pcrit, qcrit)
               res <- 100 * abs(power - powerMC)
@@ -113,26 +113,26 @@ test_that("Gsponer et al. results match (normal end-point)", {
               successCrit  <- decision2S(c(0.95, 0.5), c(0, 50), FALSE)
               ## the futility criterion acts in the opposite direction
               futilityCrit <- decision2S(c(0.90)     , c(40),    TRUE)
-    
+
               nT1 <- 20
               nP1 <- 10
-    
+
               oc <- data.frame(delta=c(0,40,50,60,70))
 
               ## Note that due to the fact that only a single mixture component is
               ## used, the decision boundary is a linear function such that only few
               ## evaluations of the boundary are needed to estimate reliably the
               ## spline function
-              
+
               ## Table 1, probability for interim for success
               oc$success <- oc2S(priorP, priorT, nP1, nT1, successCrit, Ngrid=1)(-49, -49-oc$delta)
-    
+
               ## Table 1, probability for interim for futility
               oc$futile <- oc2S(priorP, priorT, nP1, nT1, futilityCrit, Ngrid=1)(-49, -49-oc$delta)
-              
+
               ## Table 1, first three columns, page 74
               oc[-1] <- lapply(100*oc[-1], round, 1)
-              
+
               resFutility <- abs(ocRef$futile - oc$futile)
               resSuccess  <- abs(ocRef$success - oc$success)
 
@@ -149,12 +149,12 @@ test_that("Ensure that repeated oc2S evaluation works for normal case", {
 
               n_ia <- 38
               n_final <- 2*n_ia
-              n_ia_to_final <- n_final - n_ia 
+              n_ia_to_final <- n_final - n_ia
               sem_ia <- samp_sigma/sqrt(n_ia)
 
               theta_ctl <- 0
               delta <- 1.04
-              
+
               obs_P <- 0.11
               obs_T <- 1.28
 
@@ -168,7 +168,7 @@ test_that("Ensure that repeated oc2S evaluation works for normal case", {
                   postT_interim, postP_interim,
                   n_ia_to_final, n_ia_to_final,
                   successCrit, sigma1=samp_sigma, sigma2=samp_sigma)
-              
+
               cpd_ia <- interim_CP(obs_T, obs_P)
               cpd_ia2 <- interim_CP(theta_ctl + delta, theta_ctl)
 
@@ -194,7 +194,7 @@ test_that("Schmidli et al. results (binary end-point)", {
               ocRef_inf$ref <- c(0, 1.6, 6.1, 13.7, 26.0, 44.4 ## beta/delta=0
                                 ,81.6, 87.8, 93.4, 97.9, 99.6, 100.0 ## beta/delta=0.3
                                  )/100
-              
+
               ocRef_uni <- expand.grid(pc=seq(0.1,0.6, by=0.1),delta=c(0,0.3))
               ocRef_uni$ref <- c(1.8, 2.3, 2.4, 2.6, 2.8, 2.6 ## unif/delta=0
                                 ,89.7, 82.1, 79.5, 79.5, 81.9, 89.8 ## unif/delta=0.3
@@ -206,15 +206,15 @@ test_that("Schmidli et al. results (binary end-point)", {
               prior_inf <- mixbeta(c(1, 4, 16))
               prior_uni <- mixbeta(c(1, 1,  1))
 
-              N_ctl_uni <- N - ess(prior_uni, method="morita")
-              N_ctl_inf <- N - ess(prior_inf, method="morita")
-              
+              N_ctl_uni <- N - round(ess(prior_uni, method="morita"))
+              N_ctl_inf <- N - round(ess(prior_inf, method="morita"))
+
               design_uni <- oc2S(prior_uni, prior_uni, N, N_ctl_uni, dec)
               design_inf <- oc2S(prior_uni, prior_inf, N, N_ctl_inf, dec)
-              
+
               res_uni <- design_uni(ocRef_uni$pc + ocRef_uni$delta, ocRef_uni$pc)
               res_inf <- design_inf(ocRef_inf$pc + ocRef_inf$delta, ocRef_inf$pc)
-              
+
               expect_true(all(abs(100 * (res_uni - ocRef_uni$ref)) < 2.5))
               expect_true(all(abs(100 * (res_inf - ocRef_inf$ref)) < 2.5))
           })
@@ -305,7 +305,7 @@ p_test <- seq(0.1, 0.9, by=0.1)
 test_that("Binary type I error rate", { skip_on_cran(); test_scenario(design_binary_eps(p_test, p_test), alpha) })
 
 ## 22 Nov 2017: disabled test as we trigger always calculation of the
-## boundaries as of now. 
+## boundaries as of now.
 ## test_that("Binary results cache expands", {
 ##               design_binary_eps <- oc2S(beta_prior, beta_prior, 100, 100, dec, eps=1E-3)
 ##               design_binary_eps(theta1=0.99, theta2=0.8)
@@ -330,7 +330,7 @@ test_that("Poisson type I error rate", { skip_on_cran(); test_scenario(design_po
 test_that("Poisson crticial value, lower.tail=TRUE", { skip_on_cran(); test_critical_discrete(design_poisson, dec, posterior_poisson, 90) })
 test_that("Poisson crticial value, lower.tail=FALSE", { skip_on_cran(); test_critical_discrete(design_poissonB, decB, posterior_poisson, 90) })
 ## 22 Nov 2017: disabled test as we trigger always calculation of the
-## boundaries as of now. 
+## boundaries as of now.
 ##test_that("Poisson results cache expands", {
 ##              design_poisson  <- oc2S(gamma_prior, gamma_prior, 100, 100, dec)
 ##              design_poisson(theta1=1, theta2=c(0.7,1))

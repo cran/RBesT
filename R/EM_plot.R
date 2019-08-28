@@ -36,10 +36,13 @@
 #' print(pl$mixdens)
 #' print(pl$mix)
 #'
-#' \dontrun{
+#' \donttest{
 #' # a number of additional plots are generated in verbose mode
-#' options(RBesT.verbose=TRUE)
+#' .user_option <- options(RBesT.verbose=TRUE)
 #' pl_all <- plot(bfit)
+#'
+#' # recover previous user options
+#' options(.user_option)
 #'
 #' names(pl_all)
 #' # [1] "a"   "b"   "w"   "m"   "N"   "Lm"  "lN"  "Lw"  "lli" "mixdens" "mix"

@@ -53,8 +53,8 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
     }
 
     if(verbose) {
-        cat("EM for gamma mixture model.\n")
-        cat("Initial estimates:\n")
+        message("EM for gamma mixture model.\n")
+        message("Initial estimates:\n")
         print(mixEst)
     }
 
@@ -153,7 +153,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         }
         if(is.na(eps.converged)) eps.converged <- 0
         if(verbose) {
-            cat("Iteration ", iter, ": log-likelihood = ", lliCur, "; Dlli = ", Dlli, "; converged = ", eps.converged, " / ", Npar, "\n", sep="")
+            message("Iteration ", iter, ": log-likelihood = ", lliCur, "; Dlli = ", Dlli, "; converged = ", eps.converged, " / ", Npar, "\n", sep="")
         }
         if(checkTol & Dlli < tol) {
             break

@@ -81,7 +81,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
     lli <- array(-20, dim=c(N,Nc))
 
     if(verbose) {
-        cat("EM multi-variate normal with Nc =", Nc, ":\n")
+        message("EM multi-variate normal with Nc =", Nc, ":\n")
     }
 
     while(iter < Niter.max) {
@@ -115,7 +115,7 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
         }
         if(is.na(eps.converged)) eps.converged <- 0
         if(verbose)
-            cat("Iteration ", iter, ": log-likelihood = ", lliCur, "; Dlli = ", Dlli, "; converged = ", eps.converged, " / ", Npar, "\n", sep="")
+            message("Iteration ", iter, ": log-likelihood = ", lliCur, "; Dlli = ", Dlli, "; converged = ", eps.converged, " / ", Npar, "\n", sep="")
         if(checkTol & Dlli < tol) {
             break
         }

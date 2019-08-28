@@ -32,18 +32,4 @@ function will by default calculate the summaries over the margin of
 the largest dimension. For the case of a vector and a matrix, the
 function will transpose the results for better readabiliy.
 }
-\examples{
-\dontrun{
-x1 <- rnorm(100)
-SimSum(x1)
-
-x2 <- matrix(rnorm(100), ncol=5)
-SimSum(x2)
-
-x3 <- array(rnorm(5*10*3), dim=c(5,10,3))
-SimSum(x3)
-SimSum(x3, margin=2)
-}
-
-}
 \keyword{internal}

@@ -9,9 +9,13 @@ ess(mix, method = c("elir", "moment", "morita"), ...)
 \arguments{
 \item{mix}{Prior (mixture of conjugate distributions).}
 
-\item{method}{Selects the used method. Can be either \code{elir} (default), \code{moment} or \code{morita}.}
+\item{method}{Selects the used method. Can be either \code{elir}
+(default), \code{moment} or \code{morita}.}
 
 \item{...}{Optional arguments applicable to specific methods.}
+}
+\value{
+Returns the ESS of the prior as floating point number.
 }
 \description{
 Calculates the Effective Sample Size (ESS) for a mixture prior. The
@@ -22,8 +26,7 @@ equivalent to.
 The ESS is calculated using either the expected local
     information ratio (elir) \emph{Neuenschwander et
     al. (submitted)}, the moments approach or the method by
-    \emph{Morita et al. (2008)}. The moments based method is the
-    default method and provides conservative estimates of the ESS.
+    \emph{Morita et al. (2008)}.
 
 The elir approach is the only ESS which fulfills predictive
 consistency. The predictive consistency of the ESS requires that
@@ -31,8 +34,9 @@ the ESS of a prior is the same as averaging the posterior ESS after
 a fixed amount of events over the prior predictive distribution
 from which the number of forward simulated events is
 subtracted. The elir approach results in ESS estimates which are
-neither conservative nor liberal. See the example section for a
-demonstration of predictive consistency.
+neither conservative nor liberal whereas the moments method yields
+conservative and the morita method liberal results. See the example
+section for a demonstration of predictive consistency.
 
 For the moments method the mean and standard deviation of the
 mixture are calculated and then approximated by the conjugate
@@ -43,7 +47,10 @@ for a step-wise calculation in the beta mixture case.
 The Morita method used here evaluates the mixture prior at the mode
 instead of the mean as proposed originally by Morita. The method
 may lead to very optimistic ESS values, especially if the mixture
-contains many components.
+contains many components. The calculation of the Morita approach
+here follows the approach presented in Neuenschwander B. et all
+(2019) which avoids the need for a minimization and does not
+restrict the ESS to be an integer.
 }
 \section{Supported Conjugate Prior-Likelihood Pairs}{
 
@@ -85,7 +92,7 @@ round(sum(ab_matched))
 ess(bmix, method="morita")
 
 # Predictive consistency of elir
-\dontrun{
+\donttest{
 n_forward <- 1E2
 bmixPred <- preddist(bmix, n=n_forward)
 pred_samp <- rmix(bmixPred, 1E3)
@@ -122,5 +129,5 @@ Determining the effective sample size of a parametric prior.
 
 Neuenschwander B, Weber S, Schmidli H, O'Hagen A.
 Predictively Consistent Prior Effective Sample Sizes.
-\emph{submitted}
+\emph{pre-print} 2019; arXiv:1907.04185
 }

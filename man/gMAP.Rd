@@ -347,6 +347,11 @@ parameters.
 }
 
 \examples{
+## Setting up dummy sampling for fast execution of example
+## Please use 4 chains and 20x more warmup & iter in practice
+.user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100,
+                            RBesT.MC.chains=2, RBesT.MC.thin=1)
+
 # Binary data example 1
 
 # Mean response rate is ~0.25. For binary endpoints
@@ -360,10 +365,7 @@ map_AS <- gMAP(cbind(r, n-r) ~ 1 | study,
                family=binomial,
                data=AS,
                tau.dist="HalfNormal", tau.prior=1,
-               beta.prior=2,
-               ## ensure fast example runtime (use defaults)
-               ## please ignore the warning of less than 1000 draws
-               warmup=500, iter=1000, chains=2, thin=1)
+               beta.prior=2)
 print(map_AS)
 
 # obtain numerical summaries
@@ -373,7 +375,7 @@ names(map_sum)
 # [1] "tau"        "beta"       "theta.pred" "theta"
 map_sum$theta.pred
 
-\dontrun{
+\donttest{
 # graphical model checks (returns list of ggplot2 plots)
 map_checks <- plot(map_AS)
 # forest plot with shrinkage estimates
@@ -394,7 +396,7 @@ coef(map_AS)
 map_mix <- mixfit(map_AS, Nc=2)
 plot(map_mix)$mix
 
-\dontrun{
+\donttest{
 # optionally select number of components automatically via AIC
 map_automix <- automixfit(map_AS)
 plot(map_automix)$mix
@@ -427,6 +429,9 @@ tau_cat <- c(pooling=0
 diff(2*pnorm(tau_cat * s, 0, tau_prior_sd))
 # Cumulative probabilities as 1-F
 1 - 2*(pnorm(tau_cat * s, 0, tau_prior_sd) - 0.5)
+
+## Recover user set sampling defaults
+options(.user_mc_options)
 
 }
 \references{

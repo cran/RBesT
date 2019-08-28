@@ -8,7 +8,16 @@ theme_set(theme_bw())
 knitr::opts_chunk$set(
     fig.width = 1.62*4,
     fig.height = 4
-)
+    )
+## setup up fast sampling when run on CRAN
+is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
+## NOTE: for running this vignette locally, please uncomment the
+## following line:
+## is_CRAN <- FALSE
+.user_mc_options <- list()
+if (is_CRAN) {
+    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
+}
 
 ## ----ia data summary-----------------------------------------------------
 ia <- data.frame(n=c(12, 14),
@@ -85,4 +94,7 @@ ggplot(data = out, aes(x = diff_pct, y = cp)) + geom_line() +
 
 ## ----session, echo=FALSE, eval=TRUE--------------------------------------
 sessionInfo()
+
+## ----include=FALSE-------------------------------------------------------
+options(.user_mc_options)
 

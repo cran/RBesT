@@ -147,12 +147,12 @@ example("ess", package="RBesT", echo=FALSE, ask=FALSE, verbose=FALSE)
 
 test_that("conjugate beta case matches canonical formula", {
               expect_equal(a+b, ess(prior, "moment"))
-              expect_equal(a+b, ess(prior, "morita"))
+              expect_equal(a+b, round(ess(prior, "morita")))
               expect_equal(a+b, ess(prior, "elir"))
           })
 
 test_that("moment matching for beta mixtures is correct", {
-              expect_equal(ess(bmix, method="moment"), round(sum(ab_matched)))
+              expect_equal(ess(bmix, method="moment"), sum(ab_matched))
           })
 
 test_that("normal mixtures have reference scale used correctly", {
@@ -203,14 +203,14 @@ test_that("gamma 1-component density gives canonical results", {
               e1m <- ess(guni1, "moment")
               e2m <- ess(guni2, "moment")
               expect_true(e1m != e2m)
-              expect_true(guni1[3,1] == e1m)
-              expect_true(guni2[2,1] == e2m)
+              expect_equal(guni1[3,1], e1m)
+              expect_equal(guni2[2,1], e2m)
 
-              e1b <- ess(guni1, "morita")
-              e2b <- ess(guni2, "morita")
+              e1b <- round(ess(guni1, "morita"))
+              e2b <- round(ess(guni2, "morita"))
               expect_true(e1b != e2b)
-              expect_true(guni1[3,1] == e1b)
-              expect_true(guni2[2,1] == e2b)
+              expect_equal(guni1[3,1], e1b)
+              expect_equal(guni2[2,1], e2b)
 
               e1r <- ess(guni1, "elir")
               e2r <- ess(guni2, "elir")

@@ -66,7 +66,7 @@ library(ggplot2)
 plot(bm) + geom_histogram(data=data.frame(x=rmix(bm, 1000)),
                           aes(y=..density..), bins=50, alpha=0.4)
 
-\dontrun{
+\donttest{
 # note: we can also use bayesplot for histogram plots with a density ...
 library(bayesplot)
 mh <- mcmc_hist(data.frame(x=rmix(bm, 1000)), freq=FALSE) +

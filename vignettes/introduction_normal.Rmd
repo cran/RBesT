@@ -23,10 +23,10 @@ is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
 ## NOTE: for running this vignette locally, please uncomment the
 ## following line:
 ## is_CRAN <- FALSE
+.user_mc_options <- list()
 if (is_CRAN) {
-    options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
+    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
-
 ```
 
 # Introduction
@@ -120,11 +120,6 @@ map <- automixfit(map_mcmc)
 print(map)
 ## check accuracy of mixture fit
 plot(map)$mix
-
-## choose the number of components manually
-map_2 <- mixfit(map_mcmc, Nc = 2)
-print(map_2)
-plot(map_2)$mix
 ```
 
 ## Effective Sample Size (ESS)
@@ -135,21 +130,14 @@ effectively equivalent to a certain number of control patients. This
 is called the effective sample size (ESS) and can be calculated in
 RBesT with the **`ess`** function.
 
-Note, however, that various methods to calculate ESS have been
-proposed, and that they can give fairly different answers. The default
-moment-based approach yields conservative ESS, while the Morita et. al
-[4] approach normally gives an over optimistic ESS. From
-experience, a realistic ESS can be obtained by applying the Morita et. al
-method to a MAP approximation with few mixture components.
-
-In the study protocol of this Crohn's disease data example, the
-moment-based ESS of 20 was used to reduce the planned sample size of
-the control group.
+In the study protocol of this Crohn's disease data example, the very
+conservative moment-based ESS of 20 was used to reduce the planned
+sample size of the control group.
 
 ```{r ESS}
-ess(map)
-ess(map,   method="morita")
-ess(map_2, method="morita")
+round(ess(map))                  ## default elir method
+round(ess(map, method="morita"))
+round(ess(map, method="moment"))
 ```
 
 ## Robustification of MAP Prior
@@ -165,12 +153,13 @@ confidence about the validitiy of the model assumptions, i.e. the
 possibility of a non-exchangable control group to be enrolled per
 inclusion/exclusion criteria in the current trial as compared to the
 historical control group population. Note that robustification
-decreases the ESS (numbers not shown).
+decreases the ESS.
 
 ```{r ROBUST}
 ## add a 20% non-informative mixture component
 map_robust <- robustify(map, weight=0.2, mean=-50)
 print(map_robust)
+round(ess(map_robust)) 
 ```
 
 
@@ -363,3 +352,7 @@ poc(post_act, post_pbo)
 sessionInfo()
 ```
 
+
+```{r,include=FALSE}
+options(.user_mc_options)
+```

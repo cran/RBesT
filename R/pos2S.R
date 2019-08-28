@@ -20,7 +20,7 @@
 #' known (point-wise) true parameter values a distribution is
 #' specified for each parameter.
 #'
-#' Calling the \code{pos2S} function calculates the decision boundary 
+#' Calling the \code{pos2S} function calculates the decision boundary
 #' \eqn{D_1(y_2)} and returns a function which can be used to evaluate the
 #' PoS for different predictive distributions. It is evaluated as
 #'
@@ -39,7 +39,7 @@
 #' decision function is evaluated to 1. All other aspects of the
 #' calculation are as for the 2-sample operating characteristics, see
 #' \code{\link{oc2S}}.
-#' 
+#'
 #' @return Returns a function which when called with two arguments
 #' \code{mix1} and \code{mix2} will return the frequencies at
 #' which the decision function is evaluated to 1. Each argument is
@@ -60,7 +60,7 @@
 #' # example interim outcome
 #' postP_interim <- postmix(priorP, n=10, m=-50)
 #' postT_interim <- postmix(priorT, n=20, m=-80)
-#' 
+#'
 #' # assume that mean -50 / -80 were observed at the interim for
 #' # placebo control(n=10) / active treatment(n=20) which gives
 #' # the posteriors
@@ -71,7 +71,7 @@
 #' pos_final <- pos2S(postP_interim, postT_interim, 20, 30, successCrit)
 #'
 #' pos_final(postP_interim, postT_interim)
-#' 
+#'
 #' @export
 pos2S <- function(prior1, prior2, n1, n2, decision, ...) UseMethod("pos2S")
 #' @export
@@ -91,7 +91,7 @@ pos2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
     lower.tail <- attr(decision, "lower.tail")
 
     approx_method <- !missing(eps)
-    
+
     design_fun <- function(mix1, mix2) {
 
         ## for each 0:n1 of the possible outcomes, calculate the
@@ -103,7 +103,7 @@ pos2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
 
         assert_that(inherits(pred_mix1, "betaBinomialMix"))
         assert_that(inherits(pred_mix2, "betaBinomialMix"))
-        
+
         ## now get the decision boundary in the needed range
         lim1 <- c(0,n1)
         lim2 <- c(0,n2)
@@ -117,7 +117,7 @@ pos2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
 
         boundary <- crit_y1(lim2[1]:lim2[2], lim1=lim1)
         res <- rep(-Inf, times=length(boundary))
-        
+
         for(i in lim2[1]:lim2[2]) {
             y2ind <- i - lim2[1] + 1
             if(boundary[y2ind] == -1) {
@@ -155,7 +155,7 @@ pos2S.normMix <- function(prior1, prior2, n1, n2, decision, sigma1, sigma2, eps=
     }
     assert_number(sigma1, lower=0)
     sigma(prior1) <- sigma1
-    
+
     if(missing(sigma2)) {
         sigma2 <- RBesT::sigma(prior2)
         message("Using default prior 2 reference scale ", sigma2)
@@ -186,7 +186,7 @@ pos2S.normMix <- function(prior1, prior2, n1, n2, decision, sigma1, sigma2, eps=
         crit_y1(lim2, lim1)
 
         ##return(list(crit=crit_y1, m1=pred_dtheta1_mean, m2=pred_dtheta2_mean))
-        
+
         if(n2 == 0) {
             mean_prior2 <- summary(prior2, probs=c())["mean"]
             return(pmix(pred_mix1_mean, crit_y1(mean_prior2), lower.tail=lower.tail))
@@ -210,6 +210,9 @@ pos2S.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1e-6, ...) {
     lower.tail <- attr(decision, "lower.tail")
 
     design_fun <- function(mix1, mix2) {
+        assert_that(likelihood(mix1) == "poisson")
+        assert_that(likelihood(mix2) == "poisson")
+
         ## get the predictive of the sum
         pred_mix1_sum <- preddist(mix1, n=n1)
         pred_mix2_sum <- preddist(mix2, n=n2)
@@ -219,7 +222,7 @@ pos2S.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1e-6, ...) {
 
         lim1 <- qmix(pred_mix1_sum, c(eps/2, 1-eps/2))
         lim2 <- qmix(pred_mix2_sum, c(eps/2, 1-eps/2))
-        
+
         ## force lower limit of lim1 to be 0 such that we will get and
         ## answer in most cases; performance wise it should be ok as
         ## we run a O(log(N)) search

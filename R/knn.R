@@ -7,7 +7,7 @@
 #' @param verbose allows print out of progress information; in verbose mode the cluster memberships are added to the output
 #' @param tol smaller changes than tol in the objective function indicate convergence, if missing chosen automatically to be 1/5 of the smallest sample variance per dimension
 #' @param maxIter maximum number of admissible iterations
-#' 
+#'
 #' @keywords internal
 knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
 {
@@ -38,7 +38,7 @@ knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
         pEst <- init$p
         muEst <- init$mu
     }
-    
+
     ## init 1-of-K coding matrix indicating cluster membership
     Kresp <- matrix(1:K,nrow=N,ncol=K,byrow=TRUE)
 
@@ -47,17 +47,17 @@ knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
 
     iter <- 1
     J <- Inf
-  
+
     if(verbose) {
-        cat("K nearest neighbors clustering with K =", K, ":\n")
+        message("K nearest neighbors clustering with K =", K, ":\n")
     }
-    
+
     while(iter < Niter.max) {
         Jprev <- J
 
         ## "E" step, i.e. find for each data point the cluster with the
         ## smallest euclidean distance
-    
+
         for(i in seq(K))
             DM[,i] <- rowSums(scale(X, muEst[i,], FALSE)^2)
 
@@ -73,10 +73,10 @@ knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
 
         ## functional to be minimized
         J <- sum( (X - resp %*% muEst)^2 )
-        delta <- Jprev - J 
-        
+        delta <- Jprev - J
+
         if(verbose)
-            cat("Iteration", iter, ": J =", J, "; delta =", delta, "\n")
+            message("Iteration", iter, ": J =", J, "; delta =", delta, "\n")
         if(delta < tol) {
             break
         }
@@ -87,6 +87,6 @@ knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
 
     res <- list(center=muEst, p=colMeans(resp), J=J, delta=delta, niter=iter)
     res$cluster <- apply(resp==1, 1, which)
-    
+
     invisible(res)
-}    
+}

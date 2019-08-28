@@ -1,6 +1,6 @@
 #' @rdname mix
 #' @name mix
-#' 
+#'
 #' @title Mixture Distributions
 #'
 #' @description Density, cumulative distribution function, quantile
@@ -66,7 +66,7 @@
 #' gives the sampled component indicator.
 #'
 #' @template conjugate_pairs
-#' 
+#'
 #' @seealso \code{\link{plot.mix}}
 #' @family mixdist
 #'
@@ -80,8 +80,8 @@
 #' plot(bm[[c(2,3),rescale=TRUE]])
 #'
 #' summary(bm)
-#' 
-#' 
+#'
+#'
 NULL
 
 
@@ -155,7 +155,7 @@ dmix.normMix  <- function(mix, x, log=FALSE) dmix_impl(dnorm,  mix, x, log)
 #' @export
 dmix.betaBinomialMix <- function(mix, x, log=FALSE) dmix_impl(Curry(dBetaBinomial, n=attr(mix, "n")),  mix, x, log)
 
-## internal redefinition of negative binomial 
+## internal redefinition of negative binomial
 ##.dnbinomAB <- function(x, a, b, n=1, log=FALSE) dnbinom(x, size=a, prob=(b/n)/((b/n)+1), log=log)
 .dnbinomAB <- function(x, a, b, n=1, log=FALSE) dnbinom(x, size=a, prob=b/(b+n), log=log)
 #' @export
@@ -207,7 +207,7 @@ pmix.betaBinomialMix <- function(mix, q, lower.tail = TRUE, log.p=FALSE) {
      return(p)
 }
 
-## internal redefinition of negative binomial 
+## internal redefinition of negative binomial
 ##.pnbinomAB <- function(q, a, b, lower.tail = TRUE, log.p = FALSE ) pnbinom(q, size=a, prob=b/(b+1), lower.tail = lower.tail, log.p = log.p )
 .pnbinomAB <- function(q, a, b, n=1, lower.tail = TRUE, log.p = FALSE ) pnbinom(q, size=a, prob=b/(b+n), lower.tail = lower.tail, log.p = log.p )
 #' @export
@@ -231,7 +231,7 @@ qmix_impl <- function(quant, mix, p, lower.tail = TRUE, log.p=FALSE) {
     ## first get the support of the mixture, i.e. the 99.9% CI of each
     ## mixture or lower, if the requested quantile is more in the
     ## tails
-    eps <- 1e-6
+    eps <- 1E-1
     plow <- if(log.p) min(c(eps, exp(p), (1-exp(p)))) / 2 else min(c(eps, p, (1-p))) / 2
     phigh <- 1-plow
     qlow <- mixlink(mix, min(quant(rep.int(plow, Nc), mix[2,], mix[3,])))
@@ -239,18 +239,23 @@ qmix_impl <- function(quant, mix, p, lower.tail = TRUE, log.p=FALSE) {
     if(is.infinite(qlow )) qlow  <- -sqrt(.Machine$double.xmax)
     if(is.infinite(qhigh)) qhigh <-  sqrt(.Machine$double.xmax)
     res <- rep.int(NA, length(p))
+    pboundary <- pmix(mix, c(qlow, qhigh), lower.tail=lower.tail, log.p=log.p)
     for(i in seq_along(p)) {
         ## take advantage of the monotonicity of the CDF function such
         ## that we can use a gradient based method to find the root
-        o <- optimise(function(x) { (pmix(mix,x,lower.tail=lower.tail,log.p=log.p) - p[i])^2 }, c(qlow, qhigh))
-        res[i] <- o$minimum
-        if(o$objective > 1E-3) {
-            ## in that case fall back to binary search which is more robust
-            u <- uniroot(function(x) { pmix(mix,x,lower.tail=lower.tail,log.p=log.p) - p[i] }, c(qlow, qhigh))
-            res[i] <- u$root
-            if(u$estim.prec > 1E-3)
-                warning("Quantile ", p[i], " possibly imprecise.\nEstimated precision= ", u$estim.prec, ".\nRange = ", qlow, " to ", qhigh, "\n")
-        }
+        ## 13th Aug 2019: disabled for now; unreliable in rare cases
+        ##o <- optimise(function(x) { (pmix(mix,x,lower.tail=lower.tail,log.p=log.p) - p[i])^2 }, c(qlow, qhigh))
+        ##res[i] <- o$minimum
+        ##if(o$objective > 1E-3) {
+        u <- uniroot(function(x) { pmix(mix,x,lower.tail=lower.tail,log.p=log.p) - p[i] },
+                     c(qlow, qhigh),
+                     f.lower=pboundary[1] - p[i],
+                     f.upper=pboundary[2] - p[i],
+                     extendInt="upX")
+        res[i] <- u$root
+        if(u$estim.prec > 1E-3)
+            warning("Quantile ", p[i], " possibly imprecise.\nEstimated precision= ", u$estim.prec, ".\nRange = ", qlow, " to ", qhigh, "\n")
+        ##}
     }
     res
 }
@@ -274,7 +279,7 @@ qmix.betaBinomialMix  <- function(mix, p, lower.tail = TRUE, log.p=FALSE) {
     ind
 }
 
-## internal redefinition of negative binomial 
+## internal redefinition of negative binomial
 ##.qnbinomAB <- function(p, a, b, lower.tail = TRUE, log.p = FALSE ) qnbinom(p, size=a, prob=b/(b+1), lower.tail = lower.tail, log.p = log.p )
 .qnbinomAB <- function(p, a, b, n=1, lower.tail = TRUE, log.p = FALSE ) qnbinom(p, size=a, prob=b/(b+n), lower.tail = lower.tail, log.p = log.p )
 #' @export
@@ -296,7 +301,7 @@ qmix.gammaPoissonMix <- function(mix, p, lower.tail = TRUE, log.p=FALSE) {
     if(log.p) p <- exp(p)
     ind <- findInterval(p, dist)
     if(!lower.tail) ind <- qhigh - ind
-    ind 
+    ind
 }
 
 
@@ -328,7 +333,7 @@ rmix.betaBinomialMix  <- function(mix, n) {
     samp
 }
 
-## internal redefinition of negative binomial 
+## internal redefinition of negative binomial
 ##.rnbinomAB <- function(n, a, b) rnbinom(n, size=a, prob=b/(b+1))
 .rnbinomAB <- function(N, a, b, n=1) rnbinom(N, size=a, prob=b/(b+n))
 #' @export

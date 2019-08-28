@@ -19,7 +19,7 @@ with either Poisson (\code{value="poisson"}) or Exponential (\code{value="exp"})
 Read and set the likelihood distribution corresponding to the conjugate prior distribution.
 }
 \details{
-If the prior and posterior distributions are in the same family, then the prior distribution 
+If the prior and posterior distributions are in the same family, then the prior distribution
 is called a conjugate prior for the likelihood function.
 }
 \section{Supported Conjugate Prior-Likelihood Pairs}{

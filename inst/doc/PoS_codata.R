@@ -2,9 +2,11 @@
 if(!require(RBesT)) {
     ## in case RBesT is not yet installed, please
     ## install RBesT from CRAN
-    install.packages("RBesT")
-    ## and also ensure that required packages are available
-    install.packages(c("bayesplot", "knitr", "dplyr", "purrr", "ggplot2"))
+    stop("RBesT R package is not installed. Please use install.packages to install.")
+    ## example call to install.packages
+    ## install.packages("RBesT")
+    ## the following packages are recommended as well
+    ## install.packages(c("bayesplot", "knitr", "dplyr", "purrr", "ggplot2"))
 }
 library(RBesT)
 library(knitr)
@@ -23,8 +25,9 @@ is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
 ## NOTE: for running this vignette locally, please uncomment the
 ## following line:
 ## is_CRAN <- FALSE
+.user_mc_options <- list()
 if (is_CRAN) {
-    options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
+    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
 
 ## ------------------------------------------------------------------------
@@ -262,4 +265,7 @@ interim_pos_A(interim_A_allcombined_2)
 
 ## ------------------------------------------------------------------------
 sessionInfo()
+
+## ----include=FALSE-------------------------------------------------------
+options(.user_mc_options)
 

@@ -14,13 +14,13 @@
 #' }
 #' @references Baeten D. et. al, \emph{The Lancet}, 2013, (382), 9906, p 1705
 #'
+#' @template example-start
 #' @examples
 #' set.seed(34563)
 #' map_AS <- gMAP(cbind(r, n-r) ~ 1 | study,
 #'                family=binomial,
 #'                data=AS,
 #'                tau.dist="HalfNormal", tau.prior=1,
-#'                beta.prior=2,
-#'                ## ensure fast example runtime
-#'                thin=1, chains=1)
+#'                beta.prior=2)
+#' @template example-stop
 "AS"

@@ -21,15 +21,21 @@ outcome is change from baseline in Crohn's Disease Activity Index
 from baseline endpoint is approximately 88.
 }
 \examples{
+## Setting up dummy sampling for fast execution of example
+## Please use 4 chains and 20x more warmup & iter in practice
+.user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100,
+                            RBesT.MC.chains=2, RBesT.MC.thin=1)
+
 set.seed(546346)
 map_crohn <- gMAP(cbind(y, y.se) ~ 1 | study,
                   family=gaussian,
                   data=transform(crohn, y.se=88/sqrt(n)),
                   weights=n,
                   tau.dist="HalfNormal", tau.prior=44,
-                  beta.prior=cbind(0,88),
-                  ## ensure fast example runtime
-                  thin=1, chains=1)
+                  beta.prior=cbind(0,88))
+## Recover user set sampling defaults
+options(.user_mc_options)
+
 }
 \references{
 Hueber W. et. al, \emph{Gut}, 2012, 61(12):1693-1700

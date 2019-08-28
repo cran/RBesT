@@ -12,10 +12,10 @@ is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
 ## NOTE: for running this vignette locally, please uncomment the
 ## following line:
 ## is_CRAN <- FALSE
+.user_mc_options <- list()
 if (is_CRAN) {
-    options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
+    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
-
 
 ## ----data----------------------------------------------------------------
 dat <- crohn
@@ -50,20 +50,16 @@ print(map)
 ## check accuracy of mixture fit
 plot(map)$mix
 
-## choose the number of components manually
-map_2 <- mixfit(map_mcmc, Nc = 2)
-print(map_2)
-plot(map_2)$mix
-
 ## ----ESS-----------------------------------------------------------------
-ess(map)
-ess(map,   method="morita")
-ess(map_2, method="morita")
+round(ess(map))                  ## default elir method
+round(ess(map, method="morita"))
+round(ess(map, method="moment"))
 
 ## ----ROBUST--------------------------------------------------------------
 ## add a 20% non-informative mixture component
 map_robust <- robustify(map, weight=0.2, mean=-50)
 print(map_robust)
+round(ess(map_robust)) 
 
 ## ----rules---------------------------------------------------------------
 ## dual decision criteria
@@ -174,4 +170,7 @@ poc(post_act, post_pbo)
 
 ## ----session-------------------------------------------------------------
 sessionInfo()
+
+## ----include=FALSE-------------------------------------------------------
+options(.user_mc_options)
 

@@ -13,10 +13,10 @@ is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
 ## NOTE: for running this vignette locally, please uncomment the
 ## following line:
 ## is_CRAN <- FALSE
+.user_mc_options <- list()
 if (is_CRAN) {
-    options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
+    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
-
 
 ## ----cache=TRUE,echo=FALSE,include=FALSE,message=FALSE-------------------
 
@@ -42,7 +42,7 @@ OC_adaptBinary2S <- function(N1, Ntarget, Nmin, M, ctl.prior, treat.prior, pc, p
     r1 <- 0:N1
     ESSstage1 <- vector("double", N1+1)
     for(r in r1)
-        ESSstage1[r+1] <- ess(postmix(ctl.prior, r=r, n=N1), method="morita")
+        ESSstage1[r+1] <- round(ess(postmix(ctl.prior, r=r, n=N1), method="morita"))
 
     ## number of patients enrolled in stage 2
     N2 <- pmax(Ntarget-ESSstage1, Nmin)
@@ -101,7 +101,7 @@ resMix <- foreach(i=cases.mix, .combine=rbind) %do% {
 resFix <- foreach(i=cases.fix, .combine=rbind) %do% {
     design <- subset(cases, prior==i)
     prior <- map[[i]]
-    Nc <- Ntarget - ess(prior, method="morita")
+    Nc <- Ntarget - round(ess(prior, method="morita"))
     design_calc <- oc2S(unif, prior, M, Nc, dec)
     cbind(design, power=design_calc(design$pc+design$delta, design$pc), samp=Nc)
 }
@@ -116,7 +116,7 @@ powerMix <- foreach(i=cases.mix, .combine=rbind) %do% {
 
 powerFix <- foreach(i=cases.fix, .combine=rbind) %do% {
     prior <- map[[i]]
-    Nc <- Ntarget - ess(prior, method="morita")
+    Nc <- Ntarget - round(ess(prior, method="morita"))
     design_calc <- oc2S(unif, prior, M, Nc, dec)
     cbind(P, prior=i, power=design_calc(P$pt, P$pc), samp=Nc)
     ##cbind(P, prior=i, power=OC_binary2S(Nc, M, prior, unif, P$pc, P$pt, dec), samp=Nc)
@@ -165,7 +165,7 @@ est <- foreach(case=names(map), .combine=rbind) %do% {
     r1 <- 0:N1
     ESSstage1 <- c()
     for(r in r1) {
-        ESSstage1 <- c(ESSstage1, ess(postmix(prior, r=r, n=N1), method="morita", loc="mode"))
+        ESSstage1 <- c(ESSstage1, round(ess(postmix(prior, r=r, n=N1), method="morita", loc="mode")))
     }
 
     ## number of patients enrolled in stage 2
@@ -282,4 +282,7 @@ qplot(r, sd, data=post, colour=prior, shape=prior) + coord_cartesian(ylim=c(0,0.
 
 
 sessionInfo()
+
+## ----include=FALSE-------------------------------------------------------
+options(.user_mc_options)
 

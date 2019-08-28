@@ -26,14 +26,14 @@
 #' distribution of the parameter \eqn{\theta}. The distribution
 #' \eqn{p(\theta)} is a mixture distribution and given as the
 #' \code{mix} argument to the function.
-#' 
+#'
 #' @return Returns a function that takes as single argument
 #' \code{mix}, which is the mixture distribution of the control
 #' parameter. Calling this function with a mixture distribution then
 #' calculates the PoS.
 #'
 #' @family design1S
-#' 
+#'
 #' @examples
 #'
 #' # non-inferiority example using normal approximation of log-hazard
@@ -54,10 +54,10 @@
 #' # of PoS after having observed 20 events with a HR of 0.8.
 #' # We first need the posterior at the interim ...
 #' post_ia <- postmix(flat_prior, m=log(0.8), n=20)
-#' 
+#'
 #' # dual criterion
 #' decComb <- decision1S(c(1-alpha, 0.5), c(theta_ni, theta_c), lower.tail=TRUE)
-#' 
+#'
 #' # ... and we would like to know the PoS for a successful
 #' # trial at the end when observing 10 more events
 #' pos_ia <- pos1S(post_ia, 10, decComb)
@@ -65,8 +65,8 @@
 #' # our knowledge at the interim is just the posterior at
 #' # interim such that the PoS is
 #' pos_ia(post_ia)
-#' 
-#' 
+#'
+#'
 #' @export
 pos1S <- function(prior, n, decision, ...) UseMethod("pos1S")
 #' @export
@@ -79,12 +79,12 @@ pos1S.betaMix <- function(prior, n, decision, ...) {
 
     crit <- decision1S_boundary(prior, n, decision)
     lower.tail <- attr(decision, "lower.tail")
-    
+
     design_fun <- function(mix) {
         pred_dtheta <- preddist(mix, n=n)
         pmix(pred_dtheta, crit, lower.tail=lower.tail)
     }
-    design_fun 
+    design_fun
 }
 
 #' @templateVar fun pos1S
@@ -99,11 +99,11 @@ pos1S.normMix <- function(prior, n, decision, sigma, eps=1e-6, ...) {
         message("Using default prior reference scale ", sigma)
     }
     assert_number(sigma, lower=0)
-    
+
     sigma(prior) <- sigma
 
     crit <- decision1S_boundary(prior, n, decision, sigma, eps)
-    
+
     ## check where the decision is 1, i.e. left or right
     lower.tail <- attr(decision, "lower.tail")
 
@@ -111,7 +111,7 @@ pos1S.normMix <- function(prior, n, decision, sigma, eps=1e-6, ...) {
         pred_dtheta_mean <- preddist(mix, n=n, sigma=sigma)
         pmix(pred_dtheta_mean, crit, lower.tail=lower.tail)
     }
-    design_fun 
+    design_fun
 }
 
 #' @templateVar fun pos1S
@@ -123,8 +123,9 @@ pos1S.gammaMix <- function(prior, n, decision, eps=1e-6, ...) {
     lower.tail <- attr(decision, "lower.tail")
 
     design_fun <- function(mix) {
+        assert_that(likelihood(prior) == "poisson")
         pred_dtheta_sum <- preddist(mix, n=n)
         pmix(pred_dtheta_sum, crit, lower.tail=lower.tail)
     }
-    design_fun 
+    design_fun
 }

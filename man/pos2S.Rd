@@ -68,7 +68,7 @@ The calculation is analogous to the operating characeristics
 known (point-wise) true parameter values a distribution is
 specified for each parameter.
 
-Calling the \code{pos2S} function calculates the decision boundary 
+Calling the \code{pos2S} function calculates the decision boundary
 \eqn{D_1(y_2)} and returns a function which can be used to evaluate the
 PoS for different predictive distributions. It is evaluated as
 

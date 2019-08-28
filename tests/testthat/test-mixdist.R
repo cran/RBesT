@@ -27,6 +27,7 @@ nm <- mixnorm(rob=c(0.2, 0, 2), inf=c(0.8, 2, 2), sigma=5)
 norm <- mixnorm(c(1, 0, sqrt(2)), sigma=1)
 
 normMix <- mixnorm(c(0.2, 0, 2), c(0.8, 2, 2), sigma=1)
+normMixWeak <- mixnorm(c(0.2, 0, 2), c(0.8, 2, 2), c(0, 0, 1), sigma=1)
 
 pmix_lower_tail_test <- function(mix, N=Nsamp_quant) {
     ## sample some random quantiles
@@ -69,6 +70,7 @@ test_that("Beta mixture quantile function is correct", mix_simul_test(betaMix, e
 
 test_that("Normal quantile function is correct", mix_simul_test(norm, eps, c(-1, 0)))
 test_that("Normal mixture quantile function is correct", mix_simul_test(normMix, eps, c(4, 1)))
+test_that("Normal mixture with very weak component quantile function is correct", mix_simul_test(normMixWeak, eps, c(4, 1)))
 
 test_that("Gamma quantile function is correct", mix_simul_test(gamma, eps, c(2, 7)))
 test_that("Gamma mixture quantile function is correct", mix_simul_test(gammaMix, eps, c(2, 7), ptest = seq(0.2, 0.8, by=0.1)))

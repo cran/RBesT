@@ -57,7 +57,7 @@
 #' mdn <- qmix(bmPred,0.5)
 #' mdn
 #' d <- dmix(bmPred,x=0:10)
-#' \dontrun{
+#' \donttest{
 #' n.sim <- 100000
 #' r <-  rmix(bmPred,n.sim)
 #' d
@@ -119,7 +119,7 @@ preddist.normMix <- function(mix, n=1, sigma, ...) {
 #' for a Gamma. Only Poisson likelihoods are supported.
 #' @export
 preddist.gammaMix <- function(mix, n=1, ...) {
-    assert_that(likelihood(mix) == "poisson")
+    assert_set_equal(likelihood(mix), "poisson")
     attr(mix, "n") <- n
     class(mix) <- c(switch(likelihood(mix),
                            poisson="gammaPoissonMix",

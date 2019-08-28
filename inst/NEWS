@@ -1,3 +1,27 @@
+August 28th, 2019 (1.5-3)
+
+* Fix vignette MAP for variances (missing definition)
+
+August 28th, 2019 (1.5-2)
+
+* Speedup example run time
+* Avoid use of cat in functions and use message instead
+* Replace dontrun in examples with donttest
+* Require NOT_CRAN=true for tests to run
+
+August 28th, 2019 (1.5-1)
+
+* Work around compiler warning with clang on fedora platform
+
+August 15th, 2019 (1.5-0)
+
+* Fix indirect comparisons to work with normal/Poisson/binomial
+  (inexact) to allow for n2=0 in oc2S calls.
+* Make mixture quantile function more robust to work with very flat
+  mixture priors.
+* Align ESS Morita calculations with Neuenschwander B. et al.,
+  _pre-print_ 2019; arXiv:1907.04185
+
 July 27th, 2019 (1.4-0)
 
 * Introduce elir ESS method as new default for ESS

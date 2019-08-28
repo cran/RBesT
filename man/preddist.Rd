@@ -105,7 +105,7 @@ plot(bmPred)
 mdn <- qmix(bmPred,0.5)
 mdn
 d <- dmix(bmPred,x=0:10)
-\dontrun{
+\donttest{
 n.sim <- 100000
 r <-  rmix(bmPred,n.sim)
 d

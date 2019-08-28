@@ -21,14 +21,20 @@ according to the Assessment of SpondyloArthritis international
 Society criteria for improvement (ASAS20) at week 6.
 }
 \examples{
+## Setting up dummy sampling for fast execution of example
+## Please use 4 chains and 20x more warmup & iter in practice
+.user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100,
+                            RBesT.MC.chains=2, RBesT.MC.thin=1)
+
 set.seed(34563)
 map_AS <- gMAP(cbind(r, n-r) ~ 1 | study,
                family=binomial,
                data=AS,
                tau.dist="HalfNormal", tau.prior=1,
-               beta.prior=2,
-               ## ensure fast example runtime
-               thin=1, chains=1)
+               beta.prior=2)
+## Recover user set sampling defaults
+options(.user_mc_options)
+
 }
 \references{
 Baeten D. et. al, \emph{The Lancet}, 2013, (382), 9906, p 1705
