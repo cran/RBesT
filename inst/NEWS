@@ -1,3 +1,9 @@
+October 22nd, 2019 (1.5-4)
+
+* Now really fix n2=0 case for 2S design functions for indirect
+  comparisons
+* Update package structure to new rstantools 2.0 system
+
 August 28th, 2019 (1.5-3)
 
 * Fix vignette MAP for variances (missing definition)

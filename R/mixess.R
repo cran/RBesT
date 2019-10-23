@@ -7,13 +7,13 @@
 #' @param mix Prior (mixture of conjugate distributions).
 #' @param method Selects the used method. Can be either \code{elir}
 #'     (default), \code{moment} or \code{morita}.
-# @param s For \code{morita} method large constant to ensure that the
-#     prior scaled by this value is vague (default 100); see Morita
-#     et al. (2008) for details.
-# @param eps Probability mass left out from the numerical integration
-#     of the expected information for the Poisson-Gamma case of
-#     Morita method (defaults to 1E-4).
-# @param sigma reference scale.
+#' @param s For \code{morita} method large constant to ensure that the
+#'     prior scaled by this value is vague (default 100); see Morita
+#'     et al. (2008) for details.
+#' @param eps Probability mass left out from the numerical integration
+#'     of the expected information for the Poisson-Gamma case of
+#'     Morita method (defaults to 1E-4).
+#' @param sigma reference scale.
 #' @param ... Optional arguments applicable to specific methods.
 #'
 #' @details The ESS is calculated using either the expected local
@@ -193,7 +193,7 @@ weighted_lir <- function(mix, info, fisher_inverse) {
 # based on
 # Morita, Thall, Mueller (MTM) 2008 Biometrics
 # only difference: evaluated at mode of prior rather than at mean; and the flattened prior are derived with respect to the scale of 1 instead of being relative to the input scale
-#' @describeIn ess
+#' @describeIn ess ESS for beta mixtures.
 #' @export
 ess.betaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100) {
 
@@ -295,7 +295,7 @@ binomialInfo <- function(r,theta,n) {
 }
 
 
-#' @describeIn ess
+#' @describeIn ess ESS for gamma mixtures.
 #' @export
 ess.gammaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100, eps=1E-4) {
 
@@ -396,7 +396,7 @@ expInfo <- function(y,theta) {
 }
 
 
-#' @describeIn ess
+#' @describeIn ess ESS for normal mixtures.
 #' @export
 ess.normMix <- function(mix, method=c("elir", "moment", "morita"), ..., sigma, s=100) {
 

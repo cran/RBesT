@@ -1,5 +1,5 @@
-#include /chunks/license.stan
-#include /chunks/copyright_novartis.stan
+#include /include/license.stan
+#include /include/copyright_novartis.stan
 
 // gMAP Stan Analysis
 data {

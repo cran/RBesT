@@ -337,3 +337,44 @@ test_that("Poisson crticial value, lower.tail=FALSE", { skip_on_cran(); test_cri
 ##              expect_true(sum(is.na(design_poisson(y2=70:90)) ) == 4)
 ##              expect_true(sum(is.na(design_poisson(theta1=c(0.01, 1), y2=70:90)) ) == 0)
 ##          })
+
+
+test_that("Normal OC 2-sample case works for n2=0, crohn-1", {
+    crohn_sigma <- 88
+
+    map <- mixnorm(c(0.6,-50,19), c(0.4,-50, 42), sigma=crohn_sigma)
+
+    ## add a 20% non-informative mixture component
+    map_robust <- robustify(map, weight=0.2, mean=-50, sigma=88)
+
+    poc <- decision2S(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
+
+    weak_prior <- mixnorm(c(1,-50,1), sigma=crohn_sigma, param = 'mn')
+    n_act <- 40
+    ##n_pbo <- 20
+
+    design_noprior_b  <- oc2S(weak_prior, map, n_act, 0, poc,
+                              sigma1=crohn_sigma, sigma2=crohn_sigma)
+
+    expect_numeric(design_noprior_b(-20, -30), lower=0, upper=1, any.missing=FALSE)
+})
+
+test_that("Normal OC 2-sample case works for n2=0, crohn-2", {
+    crohn_sigma <- 88
+
+    map <- mixnorm(c(1.0,-50,19), sigma=crohn_sigma)
+
+    ## add a 20% non-informative mixture component
+    map_robust <- robustify(map, weight=0.2, mean=-50, sigma=88)
+
+    poc <- decision2S(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
+
+    weak_prior <- mixnorm(c(1,-50,1), sigma=crohn_sigma, param = 'mn')
+    n_act <- 40
+    ##n_pbo <- 20
+
+    design_noprior_b  <- oc2S(weak_prior, map, n_act, 0, poc,
+                              sigma1=crohn_sigma, sigma2=crohn_sigma)
+
+    expect_numeric(design_noprior_b(-20, -30), lower=0, upper=1, any.missing=FALSE)
+})

@@ -3,6 +3,7 @@
 \docType{package}
 \name{RBesT-package}
 \alias{RBesT-package}
+\alias{RBesT}
 \title{R Bayesian Evidence Synthesis Tools}
 \description{
 The RBesT tools are designed to support in the derivation of
@@ -53,3 +54,6 @@ Option \tab Default \tab Description \cr
 See \code{NEWS} file.
 }
 
+\references{
+Stan Development Team (2019). RStan: the R interface to Stan. R package version 2.19.2. https://mc-stan.org
+}

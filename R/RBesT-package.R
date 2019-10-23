@@ -4,7 +4,7 @@
 #' parametric informative priors, asses design characeristics and
 #' perform analyses. Supported endpoints include normal, binary and
 #' Poisson.
-#' 
+#'
 #' For introductory material, please refer to the vignettes which include
 #'
 #' \itemize{
@@ -13,7 +13,7 @@
 #' \item Customizing RBesT Plots
 #' \item Robust MAP, advanced usage
 #' }
-#' 
+#'
 #' The main function of the package is \code{\link{gMAP}}. See it's
 #' help page for a detailed description of the statistical model.
 #'
@@ -43,13 +43,16 @@
 #' @section Version History:
 #'
 #' See \code{NEWS} file.
-#' 
+#'
+#' @references
+#' Stan Development Team (2019). RStan: the R interface to Stan. R package version 2.19.2. https://mc-stan.org
+#'
 #' @name RBesT-package
+#' @aliases RBesT
 #' @docType package
-#' @useDynLib RBesT, .registration = TRUE 
+#' @useDynLib RBesT, .registration = TRUE
 #' @import methods
-#' @importMethodsFrom rstan sampling extract get_sampler_params summary
-#' @importFrom rstan stanc_builder
+#' @importFrom rstan sampling extract get_sampler_params summary
 #' @import stats
 #' @importFrom utils capture.output modifyList
 #' @import assertthat

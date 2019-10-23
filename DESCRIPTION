@@ -7,8 +7,8 @@ Description: Tool-set to support Bayesian evidence synthesis.  This
     cases). Please refer to Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
     <doi:10.1111/biom.12242> for details on the methodology.
-Version: 1.5-3
-Date: 2019-08-28
+Version: 1.5-4
+Date: 2019-10-22
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -16,23 +16,25 @@ Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Baldur", "Magnusson", email="baldur.magnusson@novartis.com", role="ctb")
             ,person("Yue", "Li", email="yue-1.li@novartis.com", role="ctb")
             ,person("Satrajit", "Roychoudhury", email="satrajit.roychoudhury@novartis.com", role="ctb")
-            ,person("Trustees of", "Columbia University", role="cph", comment="src/init.cpp, tools/make_cc.R, R/stanmodels.R, src/Makevars, src/Makevars.win")
+            ,person("Trustees of", "Columbia University", role="cph", comment="R/stanmodels.R, configure, configure.win")
 	    )
 Depends: R (>= 3.4.0), Rcpp (>= 0.12.0), methods
-Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.18.1),
+Imports: assertthat, mvtnorm, Formula, checkmate, rstan (>= 2.19.2),
         bayesplot (>= 1.4.0), ggplot2, dplyr, stats, utils
-LinkingTo: StanHeaders (>= 2.18.0), rstan (>= 2.18.1), BH (>= 1.66.0),
+LinkingTo: StanHeaders (>= 2.19.0), rstan (>= 2.19.2), BH (>= 1.69.0),
         Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0)
 License: GPL (>= 3)
 LazyData: true
+Biarch: true
 NeedsCompilation: yes
 Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, tidyverse,
-        purrr, rstanarm (>= 2.17.2), scales, tools, broom, tidyr
+        purrr, rstanarm (>= 2.17.2), scales, tools, broom, tidyr,
+        rstantools (>= 2.0.0)
 VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
 Encoding: UTF-8
 RoxygenNote: 6.1.1
-Packaged: 2019-08-28 15:45:57 UTC; 
+Packaged: 2019-10-23 15:41:28 UTC; weberse2
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -40,8 +42,8 @@ Author: Novartis Pharma AG [cph],
   Baldur Magnusson [ctb],
   Yue Li [ctb],
   Satrajit Roychoudhury [ctb],
-  Trustees of Columbia University [cph] (src/init.cpp, tools/make_cc.R,
-    R/stanmodels.R, src/Makevars, src/Makevars.win)
+  Trustees of Columbia University [cph] (R/stanmodels.R, configure,
+    configure.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2019-08-28 16:20:02 UTC
+Date/Publication: 2019-10-23 16:40:02 UTC

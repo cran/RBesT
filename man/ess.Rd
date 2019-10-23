@@ -2,9 +2,21 @@
 % Please edit documentation in R/mixess.R
 \name{ess}
 \alias{ess}
+\alias{ess.betaMix}
+\alias{ess.gammaMix}
+\alias{ess.normMix}
 \title{Effective Sample Size for a Conjugate Prior}
 \usage{
 ess(mix, method = c("elir", "moment", "morita"), ...)
+
+\method{ess}{betaMix}(mix, method = c("elir", "moment", "morita"), ...,
+  s = 100)
+
+\method{ess}{gammaMix}(mix, method = c("elir", "moment", "morita"), ...,
+  s = 100, eps = 1e-04)
+
+\method{ess}{normMix}(mix, method = c("elir", "moment", "morita"), ...,
+  sigma, s = 100)
 }
 \arguments{
 \item{mix}{Prior (mixture of conjugate distributions).}
@@ -13,6 +25,16 @@ ess(mix, method = c("elir", "moment", "morita"), ...)
 (default), \code{moment} or \code{morita}.}
 
 \item{...}{Optional arguments applicable to specific methods.}
+
+\item{s}{For \code{morita} method large constant to ensure that the
+prior scaled by this value is vague (default 100); see Morita
+et al. (2008) for details.}
+
+\item{eps}{Probability mass left out from the numerical integration
+of the expected information for the Poisson-Gamma case of
+Morita method (defaults to 1E-4).}
+
+\item{sigma}{reference scale.}
 }
 \value{
 Returns the ESS of the prior as floating point number.
@@ -52,6 +74,15 @@ here follows the approach presented in Neuenschwander B. et all
 (2019) which avoids the need for a minimization and does not
 restrict the ESS to be an integer.
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{betaMix}: ESS for beta mixtures.
+
+\item \code{gammaMix}: ESS for gamma mixtures.
+
+\item \code{normMix}: ESS for normal mixtures.
+}}
+
 \section{Supported Conjugate Prior-Likelihood Pairs}{
 
 

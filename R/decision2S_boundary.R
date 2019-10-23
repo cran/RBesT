@@ -7,13 +7,13 @@
 #' the outcome in the second sample \eqn{y_2}. At the decision
 #' boundary, the decision function will change between 0 (failure) and
 #' 1 (success) for the respective outcomes.
-#' 
+#'
 #' @template args-boundary2S
 #'
 #' @details For a 2 sample design the specification of the priors, the
 #' sample sizes and the decision function, \eqn{D(y_1,y_2)}, uniquely
 #' defines the decision boundary
-#' 
+#'
 #' \deqn{D_1(y_2) = \max_{y_1}\{D(y_1,y_2) = 1\},}{D_1(y_2) = max_{y_1}{D(y_1,y_2) = 1},}
 #'
 #' which is the critical value of \eqn{y_{1,c}} conditional on the
@@ -33,7 +33,7 @@
 #' critical value \eqn{y_{1,c}} for which the defined design will
 #' change the decision from 0 to 1 (or vice versa, depending on the
 #' decision function).
-#' 
+#'
 #' @family design2S
 #'
 #' @examples
@@ -49,7 +49,7 @@
 #'
 #' # success criterion boundary
 #' successBoundary <- decision2S_boundary(priorP, priorT, 10, 20, successCrit)
-#' 
+#'
 #' # futility criterion boundary
 #' futilityBoundary <- decision2S_boundary(priorP, priorT, 10, 20, futilityCrit)
 #'
@@ -62,7 +62,7 @@
 #' # around the critical value the decision for futility changes
 #' futilityCrit(postmix(priorP, m=y1c+1E-3, n=10), postmix(priorT, m=-10, n=20))
 #' futilityCrit(postmix(priorP, m=y1c-1E-3, n=10), postmix(priorT, m=-10, n=20))
-#' 
+#'
 #' @export
 decision2S_boundary <- function(prior1, prior2, n1, n2, decision, ...) UseMethod("decision2S_boundary")
 #' @export
@@ -81,7 +81,7 @@ decision2S_boundary.betaMix <- function(prior1, prior2, n1, n2, decision, eps, .
 
     if(!missing(eps))
         assert_number(eps, lower=0, upper=0.1, finite=TRUE)
-    
+
     cond_decisionDist <- function(post2cond) {
         fn <- function(m1) {
             ## Note: Subtracting from the decision 0.25 leads to
@@ -111,7 +111,11 @@ decision2S_boundary.betaMix <- function(prior1, prior2, n1, n2, decision, eps, .
         clim1 <<- lim1
         for(y2 in lim2[1]:lim2[2]) {
             ## find decision point
-            decFun <- cond_decisionDist(postmix(prior2, r=y2, n=n2))
+            if(n2 == 0) {
+                decFun <- cond_decisionDist(prior2)
+            } else {
+                decFun <- cond_decisionDist(postmix(prior2, r=y2, n=n2))
+            }
             ind_llim <- decFun(lim1[1])
             ind_ulim <- decFun(lim1[2])
             y2ind <- y2 - lim2[1] + 1
@@ -141,12 +145,12 @@ decision2S_boundary.betaMix <- function(prior1, prior2, n1, n2, decision, eps, .
 
     if(full_boundary)
         update_boundary(c(0, n1), c(0, n2))
-    
+
     decision_boundary <- function(y2, lim1) {
         ## check if we need to recalculate the decision grid for the
         ## case of enabled approximate method
         assert_integerish(y2, lower=0, upper=n2, any.missing=FALSE)
-        
+
         if(!full_boundary) {
             if(missing(lim1)) {
                 ## if not hint is given we search the full sample
@@ -220,14 +224,18 @@ solve_boundary2S_normMix <- function(decision, mix1, mix2, n1, n2, lim1, lim2, d
         }
         Vectorize(fn)
     }
-    
+
     Neval <- length(grid)
     #cat("Calculating boundary from", lim2[1], "to", lim2[2], "with", Neval, "points\n")
     tol <- min(delta2/100, .Machine$double.eps^0.25)
     ##cat("Using tolerance", tol, "\n")
     crit <- rep(NA, times=Neval)
     for(i in 1:Neval) {
-        post2 <- postmix(mix2, m=grid[i], se=sigma2/sqrt(n2))
+        if(n2 == 0) {
+            post2  <- mix2
+        } else {
+            post2 <- postmix(mix2, m=grid[i], se=sigma2/sqrt(n2))
+        }
         ind_fun <- cond_decisionStep(post2)
         dec_bounds <- ind_fun(lim1)
         ## if decision function is not different at boundaries, lim1
@@ -244,7 +252,7 @@ solve_boundary2S_normMix <- function(decision, mix1, mix2, n1, n2, lim1, lim2, d
         ## last boundary limits to not shrink too fast
         lim1 <- c(mean(lim1[1], y1c - 2*scale1), mean(y1c + 2*scale1, lim1[2]))
     }
-    
+
     cbind(grid, crit)
 }
 
@@ -265,7 +273,7 @@ decision2S_boundary.normMix <- function(prior1, prior2, n1, n2, decision, sigma1
     }
     assert_number(sigma1, lower=0)
     assert_number(sigma2, lower=0)
-    
+
     sem1 <- sigma1 / sqrt(n1)
     sem2 <- sigma2 / sqrt(n2)
 
@@ -302,7 +310,7 @@ decision2S_boundary.normMix <- function(prior1, prior2, n1, n2, decision, sigma1
 
     ## the boundary function depends only on the samples sizes n1, n2,
     ## the priors and the decision, but not the assumed truths
-    
+
     clim2 <- c(Inf, -Inf)
 
     ## the boundary function which gives conditional on the second
@@ -317,8 +325,6 @@ decision2S_boundary.normMix <- function(prior1, prior2, n1, n2, decision, sigma1
 
         lim2 <- range(y2)
 
-        ##cat("Boundaries", lim2, "cached", clim2,"\n")
-        
         ## check if boundary function must be recomputed
         if(lim2[1] < clim2[1] | lim2[2] > clim2[2]) {
             ## note: the <<- assignment is needed to set the variable in the enclosure
@@ -364,7 +370,7 @@ decision2S_boundary.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1
     # only the second n2 argument may be 0
     assert_that(n1 >  0)
     assert_that(n2 >= 0)
-    
+
     cond_decisionStep <- function(post2) {
         fn <- function(m1) {
             decision(postmix(prior1, n=n1, m=m1/n1), post2) - 0.25
@@ -377,7 +383,7 @@ decision2S_boundary.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1
     boundary <- NA
     grid <- NA
     lower.tail <- attr(decision, "lower.tail")
-    
+
     decision_boundary <- function(y2, lim1) {
 
         if(missing(lim1)) {
@@ -402,7 +408,11 @@ decision2S_boundary.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1
             Neval <- length(grid)
             boundary <<- rep(NA, Neval)
             for(i in 1:Neval) {
-                cond_dec <- cond_decisionStep(postmix(prior2, n=n2, m=grid[i]/n2))
+                if(n2 == 0) {
+                    cond_dec <- cond_decisionStep(prior2)
+                } else {
+                    cond_dec <- cond_decisionStep(postmix(prior2, n=n2, m=grid[i]/n2))
+                }
                 low  <- cond_dec(lim1[1])
                 high <- cond_dec(lim1[2])
                 if(low < 0 & high < 0) {
