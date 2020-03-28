@@ -27,6 +27,9 @@ reg <- makeExperimentRegistry(file.dir = tempfile("sbc_"),
                               source="sbc_tools.R"
                               )
 
+## resources of each job: Less than 55min, 2000MB RAM and 1 cores
+job_resources <- list(walltime=55, memory=2000, ncpus=1)
+
 if(FALSE) {
     ## for debugging here
     removeProblems("dense")
@@ -73,12 +76,23 @@ summarizeExperiments()
 if(FALSE) {
     ## used for debugging
     job1 <- testJob(1)
+    job1
+
     job2 <- testJob(6)
     job3 <- testJob(11)
 
     job <- makeJob(1)
 
-    fit_rbest(problem_data_dense, job, job$instance )
+    debug(fit_rbest)
+
+    res  <- fit_rbest(dense_data, job, job$instance )
+    res
+
+    data <- dense_data
+    instance  <- job$instance
+
+    job1
+
 }
 
 
@@ -89,7 +103,7 @@ ids <- getJobTable()
 ids[, chunk:=chunk(job.id, 600)]
 
 #' Once things run fine let's submit this work to the cluster.
-submitJobs(ids)
+submitJobs(ids, job_resources)
 
 #' Wait for results.
 waitForJobs()
@@ -104,9 +118,7 @@ assert_that(nrow(findErrors()) == 0)
 calibration_data <- ijoin(
     ## grab job parameters
     unwrap(getJobPars()),
-    unwrap(reduceResultsDataTable(fun=function(x) c(rank=as.list(x$rank),
-                                                    list(n_divergent=x$n_divergent,
-                                                         min_Neff=ceiling(x$min_Neff))) ))
+    unwrap(reduceResultsDataTable())
 )
 
 calibration_data[,algorithm:=NULL]

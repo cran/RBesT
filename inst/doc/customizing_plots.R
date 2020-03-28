@@ -1,5 +1,5 @@
 ## ----setup, include=FALSE------------------------------------------------
-suppressPackageStartupMessages(library(tidyverse))
+##suppressPackageStartupMessages(library(tidyverse))
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 1.62*4, fig.height = 4)
 ## setup up fast sampling when run on CRAN
@@ -10,8 +10,9 @@ if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
 ## ------------------------------------------------------------------------
 # Load required libraries
 library(RBesT)
-library(tidyverse)
 library(ggplot2)
+library(dplyr)
+library(tidyr)
 library(bayesplot)
 
 # Default settings for bayesplot

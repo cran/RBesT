@@ -32,7 +32,7 @@ kable(hdata, digits=2)
 hdata <- mutate(hdata,
                 alpha=df/2,
                 beta=alpha/sd^2,
-                logvar_mean=digamma(alpha) - log(beta),
+                logvar_mean=log(sd^2 * alpha) - digamma(alpha),
                 logvar_var=psigamma(alpha,1))
 
 ## ----results="asis",echo=FALSE-------------------------------------------

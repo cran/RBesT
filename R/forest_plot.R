@@ -121,6 +121,7 @@ forest_plot <- function(x,
         ylab(xlab_str) +
         scale_linetype_discrete("Model") +
         theme(axis.line.y=element_blank(), axis.ticks.y=element_blank()) +
+        bayesplot::bayesplot_theme_get() +
         bayesplot::xaxis_title(FALSE) +
         coord_flip() +
         bayesplot::legend_none()

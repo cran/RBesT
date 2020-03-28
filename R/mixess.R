@@ -177,6 +177,16 @@ weighted_lir <- function(mix, info, fisher_inverse) {
     Vectorize(fn)
 }
 
+## not used ATM as there have been numerical issues
+weighted_lir_link <- function(mix, info, fisher_inverse, link) {
+    dlink(mix) <- link_map[[link]]
+    fn  <- function(x) {
+        x_orig  <- mixinvlink(mix, x)
+        dmix(mix, x) * info(mix, x_orig) * fisher_inverse(x_orig)
+    }
+    Vectorize(fn)
+}
+
 ## function to calculate the gradient of the log mixture
 ## mixLogGrad <- function(mix, x, dens, gradl) {
 ##     p <- mix[1,]
@@ -200,8 +210,14 @@ ess.betaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100) {
     method <- match.arg(method)
 
     if(method == "elir") {
-        elir <- integrate(weighted_lir(mix, betaMixInfo, bernoulliFisherInfo_inverse), 0, 1)
-        return(elir$value)
+        if(!test_numeric(mix[2,], lower=1, finite=TRUE, any.missing=FALSE) ||
+           !test_numeric(mix[3,], lower=1, finite=TRUE, any.missing=FALSE)) {
+            stop("At least one parameter of the beta mixtures is less than 1.\n",
+                 "This leads to an ill-defined elir ess since the defining integral diverges.\n",
+                 "Consider constraining all parameters to be greater than 1 (use constrain_gt1=TRUE argument for EM fitting functions).")
+        }
+        elir <- .integrate(weighted_lir(mix, betaMixInfo, bernoulliFisherInfo_inverse), 0, 1)
+        return(elir)
     }
 
     ## simple and conservative moment matching
@@ -304,9 +320,9 @@ ess.gammaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100, 
 
     if(method == "elir") {
         if(lik == "poisson")
-            return(integrate(weighted_lir(mix, gammaMixInfo, poissonFisherInfo_inverse), 0, Inf)$value)
+            return(.integrate(weighted_lir(mix, gammaMixInfo, poissonFisherInfo_inverse), 0, Inf))
         if(lik == "exp")
-            return(integrate(weighted_lir(mix, gammaMixInfo, expFisherInfo_inverse), 0, Inf)$value)
+            return(.integrate(weighted_lir(mix, gammaMixInfo, expFisherInfo_inverse), 0, Inf))
     }
 
     ## simple and conservative moment matching
@@ -415,7 +431,7 @@ ess.normMix <- function(mix, method=c("elir", "moment", "morita"), ..., sigma, s
     sigmaSq <- sigma^2
 
     if(method == "elir") {
-        return(tauSq * integrate(weighted_lir(mix, normMixInfo, normStdFisherInfo_inverse), -Inf, Inf)$value)
+        return(tauSq * .integrate(weighted_lir(mix, normMixInfo, normStdFisherInfo_inverse), -Inf, Inf))
     }
 
     ## simple and conservative moment matching

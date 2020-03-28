@@ -18,28 +18,29 @@ simulate_fake <- function(data, job, family, mean_mu, sd_mu, sd_tau, samp_sd, ..
     Ng <- rl$lengths
     mu <- rnorm(1, mean_mu, sd_mu)
     tau <- abs(rnorm(1, 0, sd_tau))
-    alpha_g <- rnorm(G, mu, tau)
+    theta <- rnorm(G, mu, tau)
     family <- get(family, mode = "function", envir = parent.frame())
     inv_link <- family()$linkinv
-    theta <- inv_link(rep(alpha_g, times=Ng))
+    alpha <- inv_link(rep(theta, times=Ng))
     likelihood <- family()$family
     if (likelihood == "binomial") {
-        r <- rbinom(N, 1, theta)
+        r <- rbinom(N, 1, alpha)
         y <- as.numeric(tapply(r, data$group, sum))
         fake <- data.frame(r=y, nr=Ng-y, group=1:G)
     }
     if (likelihood == "poisson") {
-        count <- rpois(N, theta)
+        count <- rpois(N, alpha)
         y <- as.numeric(tapply(count, data$group, sum))
         fake <- data.frame(y=y, n=Ng, group=1:G)
     }
     if (likelihood == "gaussian") {
-        y_i <- rnorm(N, theta, samp_sd)
+        y_i <- rnorm(N, alpha, samp_sd)
         y <- as.numeric(tapply(y_i, data$group, mean))
         fake <- data.frame(y=y, y_se=samp_sd/sqrt(Ng), group=1:G)
     }
     list(fake=fake,
-         draw=c(mu=mu, tau=tau))
+         draw=c(mu=mu, tau=tau),
+         draw_theta=theta)
 }
 
 #'
@@ -52,6 +53,8 @@ simulate_fake <- function(data, job, family, mean_mu, sd_mu, sd_tau, samp_sd, ..
 fit_rbest <- function(data, job, instance, ...) {
     fake <- instance$fake
     draw <- instance$draw
+    draw_theta <- instance$draw_theta
+    Ng <- length(draw_theta)
 
     pars <- job$pars$prob.pars
     prior_mean_mu <- pars$mean_mu
@@ -72,6 +75,7 @@ fit_rbest <- function(data, job, instance, ...) {
                 chains=2)
 
     params <- c("beta[1]", "tau[1]")
+    params_group <- paste0("theta[", 1:Ng, "]")
 
     sampler_params <- rstan::get_sampler_params(fit$fit, inc_warmup=FALSE)
     n_divergent <- sum(sapply(sampler_params, function(x) sum(x[,'divergent__'])) )
@@ -80,11 +84,14 @@ fit_rbest <- function(data, job, instance, ...) {
     min_Neff <- ceiling(min(fit_sum[params, "n_eff"], na.rm=TRUE))
 
     post <- as.matrix(fit)[,params]
+    post_group <- as.matrix(fit)[,params_group]
     S <- nrow(post)
     ## thin down to 1023 draws so that we get 1024 bins
-    post <- post[round(seq(1, S, length=1024-1)),]
+    idx  <- round(seq(1, S, length=1024-1))
+    post <- post[idx,]
+    post_group <- post_group[idx,]
     colnames(post) <- c("mu", "tau")
-    list(rank=colSums(sweep(post, 2, draw) < 0), min_Neff=min_Neff, n_divergent=n_divergent)
+    unlist(list(rank=c(colSums(sweep(post, 2, draw) < 0), colSums(sweep(post_group, 2, draw_theta) < 0)), min_Neff=min_Neff, n_divergent=n_divergent))
 }
 
 scale_ranks <- function(Nbins, scale=1) {

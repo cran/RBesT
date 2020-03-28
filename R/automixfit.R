@@ -72,7 +72,7 @@ automixfit <- function(sample, Nc=seq(1, 4), k=6, thresh=-Inf, verbose=FALSE, ..
         aic <- c(aic, ic)
         delta <- icLast - ic
         if(verbose)
-            cat("Components", curNc, ": AIC", ic, "; deltaAIC =", delta, "\n")
+            message("Components", curNc, ": AIC", ic, "; deltaAIC =", delta, "\n")
         models <- c(models, list(run))
         if(delta < thresh)
             break

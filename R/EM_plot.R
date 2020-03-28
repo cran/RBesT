@@ -117,10 +117,26 @@ plot.EM <- function(x, size=1.25, link=c("identity", "logit", "log"), ...) {
 
     pl$mixdens <- bayesplot::mcmc_dens(samp) + bayesplot::facet_text(FALSE) +
         stat_function(inherit.aes=FALSE, fun=dmix, args=list(mix=x), size=size, n=n_fun) +
-            ggtitle("Parametric Mixture (black line) and Kernel Estimate of Sample Density", subtitle=subtitle)
+        ggtitle("Parametric Mixture (black line) and Kernel Estimate of Sample Density", subtitle=subtitle) +
+        bayesplot::xaxis_title(FALSE)
+
+    cols <- bayesplot::color_scheme_get(i=1:6)
+
+    pl$mixecdf <- ggplot(samp, aes_string(x="Sample")) +
+        stat_ecdf(geom="area", size=0, fill=cols$light) +
+        stat_ecdf(geom="step", size=size, colour=cols$mid) +
+        stat_function(fun=pmix, args=list(mix=x), size=size, n=n_fun) +
+        ggtitle("Estimated Cumulative Density from Parametric Mixture (black line) and Sample", subtitle=subtitle) +
+        bayesplot::bayesplot_theme_get() +
+        bayesplot::yaxis_title(FALSE) +
+        bayesplot::xaxis_title(FALSE) +
+        bayesplot::facet_text(FALSE)
+
     pl$mix <- bayesplot::mcmc_hist(samp, binwidth=diff(interval)/50, freq=FALSE) + bayesplot::facet_text(FALSE) +
         stat_function(inherit.aes=FALSE, fun=dmix, args=list(mix=x), size=size, n=n_fun) +
-            ggtitle("Parametric Mixture Density (black line) and Histogram of Sample", subtitle=subtitle)
+        ggtitle("Parametric Mixture Density (black line) and Histogram of Sample", subtitle=subtitle) +
+        bayesplot::xaxis_title(FALSE)
+
     pl
 }
 

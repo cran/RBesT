@@ -1,10 +1,17 @@
 
 ## EM for Beta Mixture Models (BMM) with Nc components
 
-EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol, Neps, eps=c(w=0.005,a=0.005,b=0.005))
+EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol, Neps, eps=c(w=0.005,a=0.005,b=0.005), constrain_gt1)
 {
     N <- length(x)
     assert_that(N+Nc >= Ninit)
+
+    if(missing(constrain_gt1)) {
+        message("Since version 1.6-0 of RBesT the EM for beta mixtures constrains a > 1 & b > 1 by default.\nUse constrain_gt1=FALSE for an unconstrained fit. To avoid this message use constrain_gt1=TRUE.\nIn a future version the new default will be used without this message.")
+        constrain_gt1 <- TRUE
+    }
+
+    assert_logical(constrain_gt1, any.missing=FALSE, len=1)
 
     ## check data for 0 and 1 values which are problematic, but may be
     ## valid, depending on a and b. Moving these to eps or 1-eps
@@ -67,18 +74,27 @@ EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, t
         mixEst <- mix_init
     }
 
-    if(verbose) {
-        message("EM for beta mixture model.\n")
-        message("Initial estimates:\n")
-        print(mixEst)
-    }
-
     ## mixEst parametrization during fitting
     mixEstPar <- mixEst
     mixEstPar[1,] <- logit(mixEst[1,,drop=FALSE])
     mixEstPar[2,] <- log(mixEst[2,])
     mixEstPar[3,] <- log(mixEst[3,])
     rownames(mixEstPar) <-  c("w", "la", "lb")
+
+    ## constrain to a>=1 & b>=1 if requested... thus we subtract 1
+    if(constrain_gt1) {
+        mixEstPar[2,]  <- log(pmax(mixEst[2,] - 1, rep(1E-8, times=Nc)))
+        mixEstPar[3,]  <- log(pmax(mixEst[3,] - 1, rep(1E-8, times=Nc)))
+
+        mixEst[2,]  <- 1 + exp(mixEstPar[2,])
+        mixEst[3,]  <- 1 + exp(mixEstPar[3,])
+    }
+
+    if(verbose) {
+        message("EM for beta mixture model.\n")
+        message("Initial estimates:\n")
+        print(mixEst)
+    }
 
     ## in case tolerance is not specified, then this criteria is
     ## ignored
@@ -123,6 +139,8 @@ EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, t
     bmm_ml <- function(c1,c2) {
         function(par) {
             ab <- exp(par)
+            if(constrain_gt1)
+                ab <- 1 + ab
             s <- digamma(sum(ab))
             eq1 <- digamma(ab[1]) - s
             eq2 <- digamma(ab[2]) - s
@@ -133,6 +151,8 @@ EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, t
     bmm_ml_grad  <- function(c1,c2) {
         function(par) {
             ab <- exp(par)
+            if(constrain_gt1)
+                ab <- 1 + ab
             n <- sum(ab)
             s <- digamma(n)
             eq1 <- digamma(ab[1]) - s
@@ -212,14 +232,22 @@ EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, t
         ## now solve for new alpha and beta estimates jointly for each
         ## component
         for(i in 1:Nc) {
-            theta <- c(log(mixEst[2:3,i]))
+            if(constrain_gt1) {
+                theta <- c(log(mixEst[2:3,i] - 1))
+            } else {
+                theta <- c(log(mixEst[2:3,i]))
+            }
             ##Lest <- optim(theta, bmm_ml(c1[i], c2[i]), gr=bmm_ml_grad(c1[i], c2[i]), method="BFGS", control=list(maxit=500))
             ## Default would be Nelder-Mead
             Lest <- optim(theta, bmm_ml(c1[i], c2[i]))
             if(Lest$convergence != 0 & Lest$value > 1E-4) {
                 warning("Warning: Component", i, "in iteration", iter, "had convergence problems!")
             }
-            mixEst[2:3,i] <- exp(Lest$par)
+            if(constrain_gt1) {
+                mixEst[2:3,i] <- 1+pmax(exp(Lest$par), c(1E-8, 1E-8))
+            } else {
+                mixEst[2:3,i] <- exp(Lest$par)
+            }
         }
 
         mixEstPar[1,] <- logit(mixEst[1,,drop=FALSE])

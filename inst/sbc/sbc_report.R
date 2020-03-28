@@ -130,6 +130,8 @@ plot_binned <- function(count, rank, group) {
 }
 
 
+library(purrr)
+
 B <- calibration$B
 S <- calibration$S
 
@@ -137,64 +139,84 @@ calibration_binned <- calibration$data %>%
     unite(family, sd_tau, col="group", sep="/") %>%
     group_by(problem, group)
 
+calibration_binned  <- calibration_binned %>%
+    gather(starts_with("count"), key="parameter", value="count") %>%
+    mutate(parameter=sub("^count.", "", parameter))
+
+## filter out cases where count == 0 for all entries of the parameters
+## (happens due the way data is processed for the sparse cases)
+
+calibration_binned  <- calibration_binned %>%
+    group_by(problem, group, parameter) %>%
+    mutate(all_zero=all(count == 0)) %>%
+    ungroup() %>%
+    subset(!all_zero) %>%
+    mutate(all_zero=NULL)
+
 calibration_dense <- subset(calibration_binned, problem=="dense")
 calibration_sparse <- subset(calibration_binned, problem=="sparse")
 
-pl_dense_mu <- with(calibration_dense, plot_binned(count.mu, rank, group))
-pl_dense_tau <- with(calibration_dense, plot_binned(count.tau, rank, group))
+pl_dense  <- calibration_dense %>%
+    split(.$parameter) %>%
+    map(~ plot_binned(.$count, .$rank, .$group))
 
-pl_sparse_mu <- with(calibration_sparse, plot_binned(count.mu, rank, group))
-pl_sparse_tau <- with(calibration_sparse, plot_binned(count.tau, rank, group))
+pl_sparse  <- calibration_sparse %>%
+    split(.$parameter) %>%
+    map(~ plot_binned(.$count, .$rank, .$group))
+
 
 #'
 #' ## Dense Scenario, $\mu$
 #'
-print(pl_dense_mu$hist)
-print(pl_dense_mu$ecdf_diff)
+print(pl_dense$mu$hist)
+print(pl_dense$mu$ecdf_diff)
 
 
 #'
 #' ## Dense Scenario, $\tau$
 #'
 
-print(pl_dense_tau$hist)
-print(pl_dense_tau$ecdf_diff)
+print(pl_dense$tau$hist)
+print(pl_dense$tau$ecdf_diff)
 
 #'
 #' ## Sparse Scenario, $\mu$
 #'
 
-print(pl_sparse_mu$hist)
-print(pl_sparse_mu$ecdf_diff)
+print(pl_sparse$mu$hist)
+print(pl_sparse$mu$ecdf_diff)
 
 #'
 #' ## Sparse Scenario, $\tau$
 #'
 
-print(pl_sparse_tau$hist)
-print(pl_sparse_tau$ecdf_diff)
+print(pl_sparse$tau$hist)
+print(pl_sparse$tau$ecdf_diff)
 
 #'
 #' ## $\chi^2$ Statistic, $\mu$
 #'
 
-chisq.mu  <- calibration_binned %>%
-    do( tidy(chisq.test(.$count.mu))[,c(1,3,2)] ) %>%
-    rename(df=parameter) %>%
+chisq  <- calibration_binned %>%
+    group_by(problem, group, parameter) %>%
+    group_map( ~cbind(case=.y, tidy(chisq.test(.$count))[,c(1,3,2)]) ) %>%
+    bind_rows() %>%
+    rename(df=parameter, problem=case.problem, group=case.group, parameter=case.parameter) %>%
     separate(group, into=c("likelihood", "sd_tau"), sep="/")
 
-kable(chisq.mu, digits=3)
+kable(subset(chisq, parameter=="mu"), digits=3)
 
 #'
 #' ## $\chi^2$ Statistic, $\tau$
 #'
 
-chisq.tau  <- calibration_binned %>%
-    do( tidy(chisq.test(.$count.tau))[,c(1,3,2)] ) %>%
-    rename(df=parameter) %>%
-    separate(group, into=c("likelihood", "sd_tau"), sep="/")
+kable(subset(chisq, parameter=="tau"), digits=3)
 
-kable(chisq.tau, digits=3)
+#'
+#' ## $\chi^2$ Statistic, group estimates $\theta$
+#'
+
+kable(subset(chisq, parameter!="tau" & parameter!="mu"), digits=3)
 
 #'
 #' ## Session Info

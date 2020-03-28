@@ -85,7 +85,10 @@ plot.mix <- function(x, prob=0.99, fun=dmix, log=FALSE, comp=TRUE, size=1.25, ..
     }
     n_fun <- 501
     opts <- list(geom=plot_geom, fun = plot_fun, args=list(mix=x, log=log), n=n_fun, size=size)
-    pl <- ggplot(data.frame(x=interval), aes(x)) + do.call(stat_function, opts)
+    pl <- ggplot(data.frame(x=interval), aes(x)) +
+        do.call(stat_function, opts) +
+        bayesplot::bayesplot_theme_get()
+
     if(funStr=="dmix") {
         pl <- pl + ylab("density") + xlab("parameter")
     } else if(funStr=="pmix") {

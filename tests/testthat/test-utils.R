@@ -151,6 +151,18 @@ test_that("conjugate beta case matches canonical formula", {
               expect_equal(a+b, ess(prior, "elir"))
           })
 
+test_that("ess elir for beta mixtures gives a warning for a<1 & b<1 densities", {
+    unconstrain1 <- mixbeta(c(0.95, 10, 5), c(0.05, 0.9, 2))
+    unconstrain2 <- mixbeta(c(0.95, 10, 5), c(0.05, 2, 0.9))
+
+    expect_error(ess(unconstrain1, "elir"), "At least one parameter of the beta mixtures is less than 1")
+    expect_error(ess(unconstrain2, "elir"), "At least one parameter of the beta mixtures is less than 1")
+
+    ## this one can trigger errors if the integration is not setup properly
+    constrained  <- mixbeta(c(0.48, 1, 11), c(0.34, 6.9, 173), c(0.18, 1.0, 1.13))
+    expect_numeric(ess(constrained, "elir"), lower=0, finite=TRUE, any.missing=FALSE, len=1)
+})
+
 test_that("moment matching for beta mixtures is correct", {
               expect_equal(ess(bmix, method="moment"), sum(ab_matched))
           })

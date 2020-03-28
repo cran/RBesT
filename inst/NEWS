@@ -1,3 +1,22 @@
+March 27th, 2020 (1.6-0)
+
+* fix CI system issues
+* fix issues with normal decision2S_boundary when boundaries are grown
+* add demo for 2S OC simulation code for time-to-event endpoint with
+  constant hazard assumption
+* drop tidyverse dependency
+* expand SBC checks to include group specifc estimates
+* stop setting the ggplot2 default theme when loading package. All
+  plots now use the bayesplot theme which can be modified with
+  bayesplot_theme_* functions. See ?bayesplot::bayesplot_theme_get.
+* correct transformation issue in MAP for variances vignette - thanks
+  to Ping Chen
+* allow for constrained fitting of beta mixtures which have a & b
+  parameters greater than 1. This is the new default behavior which
+  the function will inform about. The informational message will be
+  removed in a future release.
+* introduced new mixecdf plot as diagnostic for EM fits
+
 October 22nd, 2019 (1.5-4)
 
 * Now really fix n2=0 case for 2S design functions for indirect

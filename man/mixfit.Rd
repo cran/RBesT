@@ -50,6 +50,7 @@ Parameters of EM fitting functions
 \item{tol}{Defines a convergence criteria as an upper bound for the change in the log-likelihood, i.e. once the derivative (with respect to iterations) of the log-likelihood falls below \code{tol}, the function declares convergence and stops.}
 \item{eps}{Must be a triplet of numbers which set the desired accuracy of the inferred parameters per mixture component. See below for a description of the parameters used during EM. EM is stopped once a running mean of the absolute difference between the last successive \code{Neps} estimates is below the given \code{eps} for all parameters. Defaults to 5E-3 for each parameter.}
 \item{Neps}{Number of iterations used for the running mean of parameter estimates to test for convergence. Defaults to 5.}
+\item{constrain_gt1}{Logical value controlling if the Beta EM constrains all parameters a & b to be greater than 1. By default constraints are turned on (new since 1.6-0).}
 }
 
 By default the EM convergence is declared when
@@ -61,7 +62,8 @@ The parameters per component \eqn{k} used internally during fitting
 are for the different EM procedures:
 \describe{
 \item{normal}{\eqn{logit(w_k), \mu_k, \log(\sigma_k)}}
-\item{beta}{\eqn{logit(w_k), logit(\mu_k), \log(n_k)}}
+\item{beta}{\eqn{logit(w_k), \log(a_k), \log(b_k)}}
+\item{constrained beta}{\eqn{logit(w_k), \log(a_k-1), \log(b_k-1)}}
 \item{gamma}{\eqn{logit(w_k), \log(\alpha_k), \log(\beta_k)}}
 }
 
@@ -110,7 +112,8 @@ names(bfit.check)
 
 # check convergence of parameters
 bfit.check$mix
-bfit.check$mixens
+bfit.check$mixdens
+bfit.check$mixecdf
 
 # obtain the log-likelihood
 logLik(bfit)

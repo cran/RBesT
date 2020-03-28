@@ -1,6 +1,8 @@
 ## ---- include=FALSE------------------------------------------------------
 library(foreach)
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
 library(RBesT)
 library(knitr)
 theme_set(theme_bw())
