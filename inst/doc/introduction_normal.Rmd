@@ -2,12 +2,12 @@
 title: "RBesT for a Normal Endpoint"
 author: "Yue Li"
 date: "`r Sys.Date()`"
-output: html_vignette
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RBest for a Normal Endpoint}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{RBest for a Normal Endpoint}
--->
   
 ```{r init, include=FALSE}
 library(RBesT)

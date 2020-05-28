@@ -1,3 +1,9 @@
+May 28th, 2020 (1.6-1)
+
+* stabilize elir ESS integration by integrating per mixture component
+* comply with forthcoming and stricter stanc3 Stan transpiler
+* address some warnings from ggplot2 3.3.0
+
 March 27th, 2020 (1.6-0)
 
 * fix CI system issues

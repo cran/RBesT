@@ -24,35 +24,39 @@ dlink <- function(object) {
     attr(object, "link")
 }
 
-dlink_new <- function(name, link, inv, Jinv_orig, lJinv_orig) {
-    if (is.character(link)) 
+dlink_new <- function(name, link, inv, Jinv_orig, lJinv_orig, lJinv_link) {
+    if (is.character(link))
         link <- match.fun(link)
-    if (is.character(inv)) 
+    if (is.character(inv))
         inv <- match.fun(inv)
-    if (is.character(Jinv_orig)) 
+    if (is.character(Jinv_orig))
         Jinv_orig <- match.fun(Jinv_orig)
-    if (is.character(lJinv_orig)) 
+    if (is.character(lJinv_orig))
         lJinv_orig <- match.fun(lJinv_orig)
+    if (is.character(lJinv_link))
+        lJinv_link <- match.fun(lJinv_link)
 
     structure(list(name=name, link=link, invlink=inv,
                    Jinv_orig=Jinv_orig,
-                   lJinv_orig=lJinv_orig), class="dlink")
+                   lJinv_orig=lJinv_orig,
+                   lJinv_link=lJinv_link), class="dlink")
 }
 
 identity_dlink <- dlink_new("identity",
                             identity, identity,
-                            Curry(fill, value=1), Curry(fill, value=0))
+                            Curry(fill, value=1), Curry(fill, value=0), Curry(fill, value=0))
 
 logit_Jinverse_orig <- function(mu) mu * (1-mu)
 logit_lJinverse_orig <- function(mu) log(mu) + log1p(-mu)
+logit_lJinverse_link <- function(l) log_inv_logit(l) + log_inv_logit(-l)
 
 logit_dlink <- dlink_new("logit",
                          binomial()$linkfun, binomial()$linkinv,
-                         logit_Jinverse_orig, logit_lJinverse_orig)
+                         logit_Jinverse_orig, logit_lJinverse_orig, logit_lJinverse_link)
 
 log_dlink <- dlink_new("log",
                        log, exp,
-                       identity, log)
+                       identity, log, identity)
 
 link_map <- list(identity=identity_dlink,
                  logit=logit_dlink,

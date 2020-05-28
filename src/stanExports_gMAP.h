@@ -49,7 +49,7 @@ private:
         std::vector<int> r;
         std::vector<int> r_n;
         std::vector<int> count;
-        vector_d offset;
+        vector_d log_offset;
         int n_groups;
         std::vector<int> group_index;
         int n_tau_strata;
@@ -178,14 +178,14 @@ public:
                 check_greater_or_equal(function__, "count[i_0__]", count[i_0__], 0);
             }
             current_statement_begin__ = 31;
-            validate_non_negative_index("offset", "H", H);
-            context__.validate_dims("data initialization", "offset", "vector_d", context__.to_vec(H));
-            offset = Eigen::Matrix<double, Eigen::Dynamic, 1>(H);
-            vals_r__ = context__.vals_r("offset");
+            validate_non_negative_index("log_offset", "H", H);
+            context__.validate_dims("data initialization", "log_offset", "vector_d", context__.to_vec(H));
+            log_offset = Eigen::Matrix<double, Eigen::Dynamic, 1>(H);
+            vals_r__ = context__.vals_r("log_offset");
             pos__ = 0;
-            size_t offset_j_1_max__ = H;
-            for (size_t j_1__ = 0; j_1__ < offset_j_1_max__; ++j_1__) {
-                offset(j_1__) = vals_r__[pos__++];
+            size_t log_offset_j_1_max__ = H;
+            for (size_t j_1__ = 0; j_1__ < log_offset_j_1_max__; ++j_1__) {
+                log_offset(j_1__) = vals_r__[pos__++];
             }
             current_statement_begin__ = 34;
             context__.validate_dims("data initialization", "n_groups", "int", context__.to_vec());
@@ -889,7 +889,7 @@ public:
                 current_statement_begin__ = 202;
                 if (as_bool(logical_eq(link, 3))) {
                     current_statement_begin__ = 202;
-                    lp_accum__.add(poisson_log_log<propto__>(count, add(offset, theta)));
+                    lp_accum__.add(poisson_log_log<propto__>(count, add(log_offset, theta)));
                 }
             }
         } catch (const std::exception& e) {

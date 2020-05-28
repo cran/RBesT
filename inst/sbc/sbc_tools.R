@@ -81,7 +81,11 @@ fit_rbest <- function(data, job, instance, ...) {
     n_divergent <- sum(sapply(sampler_params, function(x) sum(x[,'divergent__'])) )
 
     fit_sum <- rstan::summary(fit$fit)$summary
-    min_Neff <- ceiling(min(fit_sum[params, "n_eff"], na.rm=TRUE))
+    samp_diags <- fit_sum[params, c("n_eff", "Rhat")]
+    min_Neff <- ceiling(min(samp_diags[, "n_eff"], na.rm=TRUE))
+    max_Rhat <- max(samp_diags[, "Rhat"], na.rm=TRUE)
+
+    lp_ess  <- as.numeric(rstan::monitor(as.array(fit$fit, pars="lp__"), print=FALSE)[1, c("Bulk_ESS", "Tail_ESS")])
 
     post <- as.matrix(fit)[,params]
     post_group <- as.matrix(fit)[,params_group]
@@ -91,7 +95,12 @@ fit_rbest <- function(data, job, instance, ...) {
     post <- post[idx,]
     post_group <- post_group[idx,]
     colnames(post) <- c("mu", "tau")
-    unlist(list(rank=c(colSums(sweep(post, 2, draw) < 0), colSums(sweep(post_group, 2, draw_theta) < 0)), min_Neff=min_Neff, n_divergent=n_divergent))
+    unlist(list(rank=c(colSums(sweep(post, 2, draw) < 0), colSums(sweep(post_group, 2, draw_theta) < 0)),
+                min_Neff = min_Neff,
+                n_divergent = n_divergent,
+                max_Rhat = max_Rhat,
+                lp_ess_bulk = lp_ess[1],
+                lp_ess_tail = lp_ess[2]))
 }
 
 scale_ranks <- function(Nbins, scale=1) {
@@ -109,3 +118,58 @@ scale_ranks <- function(Nbins, scale=1) {
     }
 }
 
+## Submits to batchtools cluster with fault tolerance, i.e.
+## resubmitting failed jobs max_num_tries times
+auto_submit <- function(jobs, registry, resources=list(), max_num_tries = 10) {
+  all_unfinished_jobs <- jobs
+
+  num_unfinished_jobs <- nrow(all_unfinished_jobs)
+  num_all_jobs <- num_unfinished_jobs
+  remaining_tries <- max_num_tries
+  all_jobs_finished <- FALSE
+  while (remaining_tries > 0 && !all_jobs_finished) {
+    remaining_tries <- remaining_tries - 1
+
+    message("Submitting jobs at ", Sys.time())
+    # Once things run fine let's submit this work to the cluster.
+    submitJobs(all_unfinished_jobs, resources=resources)
+    # Wait for results.
+    waitForJobs()
+    message("Finished waiting for jobs at ", Sys.time())
+
+    # Check status:
+    print(getStatus())
+
+    # Ensure that all jobs are done
+    if (nrow(findNotDone()) != 0) {
+      not_done_jobs <- findNotDone()
+      print(getErrorMessages(not_done_jobs))
+      ##browser()
+      ##invisible(readline(prompt="Press [enter] to continue"))
+
+      message("Some jobs did not complete. Please check the batchtools registry ", registry$file.dir)
+      all_unfinished_jobs <- inner_join(not_done_jobs, all_unfinished_jobs)
+
+      if (num_unfinished_jobs == nrow(all_unfinished_jobs) &&  nrow(all_unfinished_jobs) > 0.25 * num_all_jobs)
+      {
+        # Unfinished job count did not change -> retrying will probably not help. Abort!
+        warning("Error: unfinished job count is not decreasing. Aborting job retries.")
+        remaining_tries <- 0
+      }
+
+      if (num_unfinished_jobs == nrow(jobs))
+      {
+        # All jobs errored -> retrying will probably not help. Abort!
+        warning("Error: all jobs errored. Aborting job retries.")
+        remaining_tries <- 0
+      }
+
+      num_unfinished_jobs <- nrow(all_unfinished_jobs)
+      message("Trying to resubmit jobs. Remaining tries: ", remaining_tries, " / ", max_num_tries)
+    } else {
+      all_jobs_finished <- TRUE
+    }
+  }
+
+  invisible(all_jobs_finished)
+}

@@ -20,7 +20,14 @@ color_scheme_set("blue")
 theme_set(theme_default(base_size=12))
 
 # Load example gMAP object
-example(crohn)
+set.seed(546346)
+map_crohn <- gMAP(cbind(y, y.se) ~ 1 | study,
+                  family=gaussian,
+                  data=transform(crohn, y.se=88/sqrt(n)),
+                  weights=n,
+                  tau.dist="HalfNormal", tau.prior=44,
+                  beta.prior=cbind(0,88))
+
 print(map_crohn)
 
 ## ------------------------------------------------------------------------

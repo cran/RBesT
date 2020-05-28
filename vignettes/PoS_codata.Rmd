@@ -4,17 +4,19 @@ subtitle: "Use of Co-Data in Clinical Trails with RBesT"
 author: "Sebastian Weber"
 date: "`r Sys.Date()`"
 output:
+  rmarkdown::html_vignette:
+    toc: true
   html_vignette:
     toc: true
   pdf_document:
     toc: true
   word_document:
     toc: true
+vignette: >
+  %\VignetteIndexEntry{Probability of Success with Co-Data (advanced)}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{Probability of Success with Co-Data (advanced)}
--->
 
 ```{r, include=FALSE}
 if(!require(RBesT)) {

@@ -13,7 +13,7 @@
 
 <meta name="author" content="Yue Li" />
 
-<meta name="date" content="2020-03-27" />
+<meta name="date" content="2020-05-28" />
 
 <title>Probability of Success at an Interim Analysis</title>
 
@@ -304,14 +304,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Probability of Success at an Interim Analysis</h1>
 <h4 class="author">Yue Li</h4>
-<h4 class="date">2020-03-27</h4>
+<h4 class="date">2020-05-28</h4>
 
 
 
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{Probability of Success at an Interim Analysis}
--->
 <p>At different stages of drug development, there are questions about how likely a study will be successful given previously collected data within the trial itself or data from other earlier trials. For example given Ph2a (PoC, proof of concept) and Ph2b (DRF, dose range finding) studies, how likely a new Ph3 study would be successful is of great interest. Another example, at an interim analysis (IA) of a PoC study, one would also be interested to understand the probability of success at the end of the study given the partial data observed. <strong><code>pos1S()</code></strong> and <strong><code>pos2S()</code></strong> are constructed to calculate predictive probabilities for this purpose to inform quantitative decision making. This vignette shows an example from an IA in a PoC study, where <strong><code>pos2S()</code></strong> was used to explore the probability of success for the final analysis given the interim data.</p>
 <p>The primary endpoint for this study is log transformed facial lesion count, assumed to be normally distributed. Decrease in the lesion count upon treatment is considered improvement in the patients. Below is the summary statistics of this primary endpoint by group at the interim.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">ia &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">n=</span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">14</span>),</a>
@@ -436,7 +432,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## 
 ## other attached packages:
 ## [1] scales_1.0.0    ggplot2_3.2.1   purrr_0.3.3     dplyr_0.8.3    
-## [5] bayesplot_1.7.0 knitr_1.25      RBesT_1.6-0     Rcpp_1.0.2     
+## [5] bayesplot_1.7.0 knitr_1.25      RBesT_1.6-1     Rcpp_1.0.2     
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] highr_0.8          plyr_1.8.4         pillar_1.4.2      

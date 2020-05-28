@@ -2,12 +2,12 @@
 title: "Customizing RBesT plots"
 author: "Baldur Magnusson"
 date: "`r Sys.Date()`"
-output: html_vignette
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Customizing RBesT plots}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{Customizing RBesT plots}
--->
 
 # Introduction
 
@@ -47,7 +47,14 @@ color_scheme_set("blue")
 theme_set(theme_default(base_size=12))
 
 # Load example gMAP object
-example(crohn)
+set.seed(546346)
+map_crohn <- gMAP(cbind(y, y.se) ~ 1 | study,
+                  family=gaussian,
+                  data=transform(crohn, y.se=88/sqrt(n)),
+                  weights=n,
+                  tau.dist="HalfNormal", tau.prior=44,
+                  beta.prior=cbind(0,88))
+
 print(map_crohn)
 ```
 

@@ -418,11 +418,11 @@ gMAP <- function (formula,
     ## todo: offset right now only taken care of for poisson
     ## regression, should be handled for all cases
     if(missing(offset))
-        offset <- model.offset(model.part(f, data = mf, rhs = 1, terms = TRUE))
+        log_offset <- model.offset(model.part(f, data = mf, rhs = 1, terms = TRUE))
     else
-        offset <- model.offset(mf)
-    if(is.null(offset)) offset <- rep(0, H)
-    offset <- array(offset)
+        log_offset <- model.offset(mf)
+    if(is.null(log_offset)) log_offset <- rep(0, H)
+    log_offset <- array(log_offset)
 
     ## first define dummy data for all cases, which get overwritten for
     ## the case calculated below
@@ -505,9 +505,9 @@ gMAP <- function (formula,
     if(family$family == "poisson") {
         assert_that(family$link == "log")
         count <- y
-        sigma_guess <- 1/exp(mean(log(y + 0.5) - offset))
+        sigma_guess <- 1/exp(mean(log(y + 0.5) - log_offset))
         if(n.groups.obs > 1) {
-            tau_guess <- max(sigma_guess/10, sd( tapply(log(y + 0.5) - offset, group.index, mean) ) )
+            tau_guess <- max(sigma_guess/10, sd( tapply(log(y + 0.5) - log_offset, group.index, mean) ) )
         } else {
             tau_guess <- sigma_guess
         }
@@ -562,7 +562,7 @@ gMAP <- function (formula,
         theta_resp.strat <- switch(family$family,
                                    gaussian = cbind(y, y_se ,y - z * y_se,y + z * y_se),
                                    binomial = cbind(r/r_n, sqrt(r/(r_n) * (1-r/r_n) / r_n), BinaryExactCI(r, r_n, alpha, drop=FALSE) ),
-                                   poisson = cbind(count/exp(offset), sqrt(count/exp(2*offset)), do.call(cbind, lapply(c(low=alpha/2, high=1-alpha/2), qgamma, shape=count + 0.5 * (count == 0), rate=exp(offset))))
+                                   poisson = cbind(count/exp(log_offset), sqrt(count/exp(2*log_offset)), do.call(cbind, lapply(c(low=alpha/2, high=1-alpha/2), qgamma, shape=count + 0.5 * (count == 0), rate=exp(log_offset))))
                                    )
         dimnames(theta_resp.strat) <- list(ulabels,c("mean","se",paste0(c(100 * alpha/2, 100 *(1-alpha/2)), "%" )))
         theta_resp.strat
@@ -572,9 +572,9 @@ gMAP <- function (formula,
 
     ## pooled estimates via glm fit
     fit.pooled <- if(family$family == "gaussian") {
-        glm.fit(X, y, weights=as.vector(1/y_se^2), offset=offset, family=family)
+        glm.fit(X, y, weights=as.vector(1/y_se^2), offset=log_offset, family=family)
     } else {
-        glm.fit(X, model.response(mf), weights=as.vector(weights), offset=as.vector(offset), family=family)
+        glm.fit(X, model.response(mf), weights=as.vector(weights), offset=as.vector(log_offset), family=family)
     }
     theta.pooled <- fit.pooled$fitted.values
     theta_resp.pooled <- family$linkinv(fit.pooled$fitted.values)
@@ -734,7 +734,7 @@ gMAP <- function (formula,
     fitData <- list("H", "X", "mX", "link",
                     "y", "y_se",
                     "r", "r_n",
-                    "count", "offset",
+                    "count", "log_offset",
                     "tau_prior_dist",
                     "re_dist", "re_dist_t_df",
                     "group.index", "n.groups",
@@ -868,7 +868,7 @@ gMAP <- function (formula,
                 group.factor=group.factor,
                 tau.strata.factor=tau.strata.factor,
                 data = data,
-                offset = offset,
+                log_offset = log_offset,
                 est_strat=est_strat,
                 fit=fit,
                 fit.data=dataL

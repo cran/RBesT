@@ -19,7 +19,7 @@ data {
 
   // count data, link=log=3
   int<lower=0> count[H];
-  vector[H]    offset;
+  vector[H]    log_offset;
 
   // exchangeability cluster mapping
   int<lower=1> n_groups;
@@ -125,7 +125,7 @@ transformed data {
     }
   }
   if(prior_PD)
-    print("Info: Sampling from prior predictive distribution.")
+    print("Info: Sampling from prior predictive distribution.");
 }
 parameters {
   vector[mX]           beta_raw;
@@ -190,7 +190,7 @@ model {
   if(!prior_PD) {
     if(link == 1) y     ~ normal(              theta, y_se);
     if(link == 2) r     ~ binomial_logit(r_n,  theta);
-    if(link == 3) count ~ poisson_log(offset + theta);
+    if(link == 3) count ~ poisson_log(log_offset + theta);
   }
 }
 generated quantities {

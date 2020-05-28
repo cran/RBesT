@@ -170,6 +170,13 @@ mixInfo <- function(mix, x, dens, gradl, hessl) {
 }
 
 ## local information ratio (which we integrate over the prior)
+lir <- function(mix, info, fisher_inverse) {
+    fn  <- function(x) {
+        info(mix, x) * fisher_inverse(x)
+    }
+    Vectorize(fn)
+}
+
 weighted_lir <- function(mix, info, fisher_inverse) {
     fn  <- function(x) {
         dmix(mix, x) * info(mix, x) * fisher_inverse(x)
@@ -216,7 +223,7 @@ ess.betaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100) {
                  "This leads to an ill-defined elir ess since the defining integral diverges.\n",
                  "Consider constraining all parameters to be greater than 1 (use constrain_gt1=TRUE argument for EM fitting functions).")
         }
-        elir <- .integrate(weighted_lir(mix, betaMixInfo, bernoulliFisherInfo_inverse), 0, 1)
+        elir <- integrate_density(lir(mix, betaMixInfo, bernoulliFisherInfo_inverse), mix)
         return(elir)
     }
 
@@ -320,9 +327,9 @@ ess.gammaMix <- function(mix, method=c("elir", "moment", "morita"), ..., s=100, 
 
     if(method == "elir") {
         if(lik == "poisson")
-            return(.integrate(weighted_lir(mix, gammaMixInfo, poissonFisherInfo_inverse), 0, Inf))
+            return(integrate_density(lir(mix, gammaMixInfo, poissonFisherInfo_inverse), mix))
         if(lik == "exp")
-            return(.integrate(weighted_lir(mix, gammaMixInfo, expFisherInfo_inverse), 0, Inf))
+            return(integrate_density(lir(mix, gammaMixInfo, expFisherInfo_inverse), mix))
     }
 
     ## simple and conservative moment matching
@@ -431,7 +438,7 @@ ess.normMix <- function(mix, method=c("elir", "moment", "morita"), ..., sigma, s
     sigmaSq <- sigma^2
 
     if(method == "elir") {
-        return(tauSq * .integrate(weighted_lir(mix, normMixInfo, normStdFisherInfo_inverse), -Inf, Inf))
+        return(tauSq * integrate_density(lir(mix, normMixInfo, normStdFisherInfo_inverse), mix))
     }
 
     ## simple and conservative moment matching

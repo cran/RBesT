@@ -84,9 +84,10 @@ plot.mix <- function(x, prob=0.99, fun=dmix, log=FALSE, comp=TRUE, size=1.25, ..
         plot_geom <- "line"
     }
     n_fun <- 501
-    opts <- list(geom=plot_geom, fun = plot_fun, args=list(mix=x, log=log), n=n_fun, size=size)
-    pl <- ggplot(data.frame(x=interval), aes(x)) +
-        do.call(stat_function, opts) +
+
+    num_comp <- ncol(x)
+    pl <- ggplot(data.frame(x=interval), aes(x=x)) +
+        stat_function(geom=plot_geom, fun = plot_fun, args=list(mix=x, log=log), n=n_fun, size=size) +
         bayesplot::bayesplot_theme_get()
 
     if(funStr=="dmix") {
@@ -97,10 +98,11 @@ plot.mix <- function(x, prob=0.99, fun=dmix, log=FALSE, comp=TRUE, size=1.25, ..
         pl <- pl + ylab("quantile") + xlab("cumulative density")
     }
     if(funStr=="dmix" & comp) {
-        for(i in seq(ncol(x))) {
-            pl <- pl + do.call(stat_function, list(data=data.frame(x=interval, g=factor(i)), aes_string(colour="g"), fun=plot_fun, geom=plot_geom, args=list(mix=x[[i]], log=log), n=n_fun, linetype=I(2), size=size))
+        comp_df <- list()
+        for(i in seq(num_comp)) {
+            pl <- pl + stat_function(geom=plot_geom, mapping=aes_(colour=factor(i)), fun=plot_fun, args=list(mix=x[[i]], log=log), n=n_fun, linetype=I(2), size=size)
         }
-        pl <- pl + scale_colour_discrete("Comp. [%]", labels=paste(colnames(x), " ", format(100*x[1,],digits=1,nsmall=1), sep=""))
+        pl <- pl + scale_colour_manual("Comp. [%]", values=2:(num_comp+1), labels=paste0(colnames(x), " ", format(100*x[1,],digits=1,nsmall=1)))
     }
     pl
 }

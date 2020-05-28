@@ -139,10 +139,10 @@ dmix_impl <- function(dens, mix, x, log) {
     ## as nc components which we sum together with a fast colSums call.
     ox <- rep(mixinvlink(mix, x), each=Nc)
     Nx <- length(x)
+    log_dens  <- apply(matrix(log(mix[1,]) + rep(mixlJinv_link(mix, x), times=Nc) + dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=TRUE), nrow=Nc), 2, log_sum_exp)
     if(!log)
-        return(.colSums(matrix(mix[1,] * mixJinv_orig(mix, ox) *dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=FALSE), nrow=Nc), Nc, length(x)))
-    ## log version is slower, but numerically more stable
-    apply(matrix(log(mix[1,]) + mixlJinv_orig(mix, ox) + dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=TRUE), nrow=Nc), 2, log_sum_exp)
+        return(exp(log_dens))
+    return(log_dens)
 }
 
 #' @export
@@ -363,3 +363,6 @@ mixJinv_orig <- function(mix, x)
 
 mixlJinv_orig <- function(mix, x)
     attr(mix, "link")$lJinv_orig(x)
+
+mixlJinv_link <- function(mix, l)
+    attr(mix, "link")$lJinv_link(l)

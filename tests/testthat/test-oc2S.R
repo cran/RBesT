@@ -296,6 +296,28 @@ test_that("Binary case, no decision change (reversed), lower.tail=TRUE, critical
 test_that("Binary case, no decision change (reversed), lower.tail=FALSE, critical value", { skip_on_cran(); expect_equal_each(design_upper_rev(y2=0:20), -1) })
 test_that("Binary case, no decision change (reversed), lower.tail=TRUE, frequency=0",  { skip_on_cran(); expect_equal_each(design_lower_rev(p_test, p_test), 1.0) })
 test_that("Binary case, no decision change (reversed), lower.tail=FALSE, frequency=1",  { skip_on_cran(); expect_equal_each(design_upper_rev(p_test, p_test), 0.0) })
+test_that("Binary case, log-link", {
+    skip_on_cran()
+    success <- decision2S(pc=c(0.90, 0.50), qc=c(log(1), log(0.50)), lower.tail=TRUE, link="log")
+    prior_pbo <- mixbeta(inf1=c(0.60, 19, 29), inf2=c(0.30, 4, 5), rob=c(0.10, 1, 1))
+    prior_trt <- mixbeta(c(1, 1/3, 1/3))
+    n_trt <- 50
+    n_pbo <- 20
+    design_suc <- oc2S(prior_trt, prior_pbo, n_trt, n_pbo, success)
+    theta <- seq(0,1,by=0.1)
+    expect_numeric(design_suc(theta, theta), lower=0, upper=1, finite=TRUE, any.missing=FALSE)
+})
+test_that("Binary case, logit-link", {
+    skip_on_cran()
+    success <- decision2S(pc=c(0.90, 0.50), qc=c(log(1), log(0.50)), lower.tail=TRUE, link="logit")
+    prior_pbo <- mixbeta(inf1=c(0.60, 19, 29), inf2=c(0.30, 4, 5), rob=c(0.10, 1, 1))
+    prior_trt <- mixbeta(c(1, 1/3, 1/3))
+    n_trt <- 50
+    n_pbo <- 20
+    design_suc <- oc2S(prior_trt, prior_pbo, n_trt, n_pbo, success)
+    theta <- seq(0,1,by=0.1)
+    expect_numeric(design_suc(theta, theta), lower=0, upper=1, finite=TRUE, any.missing=FALSE)
+})
 
 ## check approximate method
 

@@ -2,13 +2,12 @@
 title: "Probability of Success at an Interim Analysis"
 author: "Yue Li"
 date: "`r Sys.Date()`"
-output: html_vignette
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Probability of Success at an Interim Analysis}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{Probability of Success at an Interim Analysis}
--->
-
   
 ```{r init, include=FALSE}
 library(ggplot2)

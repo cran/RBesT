@@ -163,6 +163,11 @@ test_that("ess elir for beta mixtures gives a warning for a<1 & b<1 densities", 
     expect_numeric(ess(constrained, "elir"), lower=0, finite=TRUE, any.missing=FALSE, len=1)
 })
 
+test_that("ess elir for normal mixtures returns correct values", {
+    mix <- mixnorm( inf1=c(0.5026,-191.1869,127.4207),inf2=c(0.2647,-187.5895,31.6130),inf3=c(0.2326,-184.7445,345.3849), sigma=270.4877)
+    expect_gt(ess(mix), 0)
+})
+
 test_that("moment matching for beta mixtures is correct", {
               expect_equal(ess(bmix, method="moment"), sum(ab_matched))
           })

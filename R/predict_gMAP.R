@@ -1,7 +1,7 @@
 #' Predictions from gMAP analyses
 #'
 #' @name predict.gMAP
-#' 
+#'
 #' @description
 #' Produces a sample of the predictive distribution.
 #'
@@ -21,7 +21,7 @@
 #' to \code{\link{predict.glm}} and the example below.
 #'
 #' @seealso \code{\link{gMAP}}, \code{\link{predict.glm}}
-#' 
+#'
 #' @examples
 #' # create a fake data set with a covariate
 #' trans_cov <- transform(transplant, country=cut(1:11, c(0,5,8,Inf), c("CH", "US", "DE")))
@@ -44,15 +44,15 @@
 #'
 #' # extract sample as matrix
 #' samp <- as.matrix(pred_cov)
-#' 
+#'
 #' # predictive distribution for each input data item (if the input studies were new ones)
 #' pred_cov_pred <- predict(map, trans_cov)
 #' pred_cov_pred
-#' 
+#'
 #'
 #' # a summary function returns the results as matrix
 #' summary(pred_cov)
-#' 
+#'
 #' # obtain a prediction for new data with specific covariates
 #' pred_new <- predict(map, data.frame(country="CH", study=12))
 #' pred_new
@@ -68,7 +68,7 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
     if (missing(newdata)) {
         posterior_predict <- TRUE
         X <- model.matrix(f, mf, rhs=1)
-        offset <- object$offset
+        log_offset <- object$log_offset
     } else {
         posterior_predict <- FALSE
         Terms <- delete.response(tt)
@@ -77,12 +77,12 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
         if (!is.null(cl <- attr(Terms, "dataClasses")))
             .checkMFClasses(cl, m)
         X <- model.matrix(Terms, m, contrasts.arg = attr(model.matrix(f, mf, rhs=1), "contrasts"))
-        offset <- rep(0, nrow(X))
+        log_offset <- rep(0, nrow(X))
         if (!is.null(off.num <- attr(tt, "offset")))
-            for (i in off.num) offset <- offset + eval(attr(tt,
+            for (i in off.num) log_offset <- log_offset + eval(attr(tt,
                                                             "variables")[[i + 1]], newdata)
         if (!is.null(object$call$offset))
-            offset <- offset + eval(object$call$offset, newdata)
+            log_offset <- log_offset + eval(object$call$offset, newdata)
     }
 
     if(missing(thin)) {
@@ -101,15 +101,15 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
         if(n.pred==1)
             pred <- array(pred, dim=c(1,dim(pred)))
     }
-        
+
     sub_ind <- seq(1,n.iter,by=thin)
-    
+
     pred <- t(matrix(pred[,sub_ind,], nrow=n.pred))
 
     if(!posterior_predict) {
         ## in case we make a prediction unconditional on the fitted
         ## data, we draw random effects here
-        
+
         S <- nrow(pred)
         ## sample random effects
         tau <- as.vector(rstan::extract(object$fit, inc_warmup=FALSE, permuted=FALSE, pars=paste0("tau[", object$tau.strata.pred, "]"))[sub_ind,,])
@@ -123,7 +123,7 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
         ## ... and add it to predictions
         pred <- pred + re
     }
-    
+
     if(type == "response")
         pred <- object$family$linkinv(pred)
 

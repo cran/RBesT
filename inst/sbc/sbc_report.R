@@ -3,6 +3,8 @@
 #' author: "Sebastian Weber"
 #' date: "`r date()`"
 #' output: html_vignette
+#' params:
+#'   include_plots: FALSE
 #' ---
 #'
 #+ include=FALSE
@@ -15,6 +17,7 @@ library(broom)
 library(ggplot2)
 theme_set(theme_bw())
 source("sbc_tools.R")
+library(purrr)
 
 knitr::opts_chunk$set(
     fig.width = 1.62*4,
@@ -100,6 +103,9 @@ md5sum("calibration.rds")
 #'
 
 calibration <- readRDS("calibration.rds")
+include_plots <- TRUE
+if("params" %in% ls())
+    include_plots <- params$include_plots
 
 # The summary function we use here scales down the $L+1=1024$ bins to
 # smaller number of rank bins. This improves the number of counts
@@ -129,8 +135,6 @@ plot_binned <- function(count, rank, group) {
     pl
 }
 
-
-library(purrr)
 
 B <- calibration$B
 S <- calibration$S
@@ -164,35 +168,19 @@ pl_sparse  <- calibration_sparse %>%
     split(.$parameter) %>%
     map(~ plot_binned(.$count, .$rank, .$group))
 
-
+#' # SBC results
 #'
-#' ## Dense Scenario, $\mu$
-#'
-print(pl_dense$mu$hist)
-print(pl_dense$mu$ecdf_diff)
-
-
-#'
-#' ## Dense Scenario, $\tau$
+#' ## Sampler Diagnostics Overview
 #'
 
-print(pl_dense$tau$hist)
-print(pl_dense$tau$ecdf_diff)
+kable(calibration$sampler_diagnostics)
 
 #'
-#' ## Sparse Scenario, $\mu$
+#' Note: Large Rhat is defined as exceeding 1.2.
 #'
 
-print(pl_sparse$mu$hist)
-print(pl_sparse$mu$ecdf_diff)
-
 #'
-#' ## Sparse Scenario, $\tau$
-#'
-
-print(pl_sparse$tau$hist)
-print(pl_sparse$tau$ecdf_diff)
-
+#' # Summary Statistics
 #'
 #' ## $\chi^2$ Statistic, $\mu$
 #'
@@ -217,6 +205,9 @@ kable(subset(chisq, parameter=="tau"), digits=3)
 #'
 
 kable(subset(chisq, parameter!="tau" & parameter!="mu"), digits=3)
+
+#+ results="asis", include=include_plots, eval=include_plots
+spin_child("sbc_report_plots.R")
 
 #'
 #' ## Session Info
