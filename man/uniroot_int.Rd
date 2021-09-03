@@ -4,8 +4,14 @@
 \alias{uniroot_int}
 \title{Find root of univariate function of integers}
 \usage{
-uniroot_int(f, interval, ..., f.lower = f(interval[1], ...),
-  f.upper = f(interval[2], ...), maxIter = 1000)
+uniroot_int(
+  f,
+  interval,
+  ...,
+  f.lower = f(interval[1], ...),
+  f.upper = f(interval[2], ...),
+  maxIter = 1000
+)
 }
 \description{
 Uses a bisectioning algorithm to search the give interval for a

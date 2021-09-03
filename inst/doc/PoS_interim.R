@@ -1,4 +1,4 @@
-## ----init, include=FALSE-------------------------------------------------
+## ----init, include=FALSE------------------------------------------------------
 library(ggplot2)
 library(scales)
 library(knitr)
@@ -19,7 +19,7 @@ if (is_CRAN) {
     .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
 
-## ----ia data summary-----------------------------------------------------
+## ----ia data summary----------------------------------------------------------
 ia <- data.frame(n=c(12, 14),
                  median_count=c(20.5, 21),
                  mean_count=c(23.3, 27),
@@ -30,16 +30,16 @@ ia <- data.frame(n=c(12, 14),
 sd_log_pooled <- with(ia, sqrt(sum(sd_log^2*(n-1))/(sum(n)-2)))
 kable(ia)
 
-## ----rules, eval=TRUE----------------------------------------------------
+## ----rules, eval=TRUE---------------------------------------------------------
 n <- 21 # planned total n per arm
 rules <- decision2S(c(0.9, 0.5), c(0,-0.357), lower.tail = TRUE)
 print(rules)
 
-## ----rules2, echo=FALSE, eval=TRUE---------------------------------------
+## ----rules2, echo=FALSE, eval=TRUE--------------------------------------------
 rule1 <- decision2S(0.9, 0, lower.tail = TRUE)
 rule2 <- decision2S(0.5, -0.357, lower.tail = TRUE)
 
-## ----ia------------------------------------------------------------------
+## ----ia-----------------------------------------------------------------------
 priorP <- priorT <- mixnorm(c(1, log(20), 1), sigma = 0.47, param = 'mn')
 ## posterior at IA data
 postT_interim <- postmix(priorT, m=ia["active","mean_log"], se=ia["active","se_log"])
@@ -47,7 +47,7 @@ postP_interim <- postmix(priorP, m=ia["placebo","mean_log"], se=ia["placebo","se
 pmixdiff(postT_interim, postP_interim, 0)
 pmixdiff(postT_interim, postP_interim,-0.357)
 
-## ----pp------------------------------------------------------------------
+## ----pp-----------------------------------------------------------------------
 pos_final <- pos2S(
   postT_interim,
   postP_interim,
@@ -58,10 +58,10 @@ pos_final <- pos2S(
   sigma2 = sd_log_pooled
   )
 
-## ----ppout---------------------------------------------------------------
+## ----ppout--------------------------------------------------------------------
 pos_final(postT_interim, postP_interim)
 
-## ----oc, fig.height=4,fig.width=4*1.62-----------------------------------
+## ----oc, fig.height=4,fig.width=4*1.62----------------------------------------
 ia_oc <- oc2S(
     postT_interim,
     postP_interim,
@@ -92,9 +92,9 @@ ggplot(data = out, aes(x = diff_pct, y = cp)) + geom_line() +
              x = 'True percentage difference from placebo in lesion count',
              title = 'Conditional power at interim for success at final analysis')
 
-## ----session, echo=FALSE, eval=TRUE--------------------------------------
+## ----session, echo=FALSE, eval=TRUE-------------------------------------------
 sessionInfo()
 
-## ----include=FALSE-------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 options(.user_mc_options)
 

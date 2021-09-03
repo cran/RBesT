@@ -1,3 +1,8 @@
+September 3rd, 2021 (1.6-2)
+
+* link against RcppParallel to align with new Stan requirements
+* address CRAN comments
+
 May 28th, 2020 (1.6-1)
 
 * stabilize elir ESS integration by integrating per mixture component

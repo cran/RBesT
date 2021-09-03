@@ -1,4 +1,4 @@
-## ----init, include=FALSE-------------------------------------------------
+## ----init, include=FALSE------------------------------------------------------
 library(RBesT)
 library(ggplot2)
 theme_set(theme_bw())
@@ -17,15 +17,15 @@ if (is_CRAN) {
     .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
 
-## ----data----------------------------------------------------------------
+## ----data---------------------------------------------------------------------
 dat <- crohn
 crohn_sigma <- 88
 dat$y.se <- crohn_sigma/sqrt(dat$n)
 
-## ----dataprint,results="asis",echo=FALSE---------------------------------
+## ----dataprint,results="asis",echo=FALSE--------------------------------------
 kable(dat)
 
-## ----gMAP----------------------------------------------------------------
+## ----gMAP---------------------------------------------------------------------
 library(RBesT)
 set.seed(1234)
 map_mcmc <- gMAP(cbind(y, y.se) ~ 1 | study, 
@@ -44,30 +44,30 @@ names(pl)
 ## forest plot with model estimates
 print(pl$forest_model)
 
-## ----EM------------------------------------------------------------------
+## ----EM-----------------------------------------------------------------------
 map <- automixfit(map_mcmc)
 print(map)
 ## check accuracy of mixture fit
 plot(map)$mix
 
-## ----ESS-----------------------------------------------------------------
+## ----ESS----------------------------------------------------------------------
 round(ess(map))                  ## default elir method
 round(ess(map, method="morita"))
 round(ess(map, method="moment"))
 
-## ----ROBUST--------------------------------------------------------------
+## ----ROBUST-------------------------------------------------------------------
 ## add a 20% non-informative mixture component
 map_robust <- robustify(map, weight=0.2, mean=-50)
 print(map_robust)
 round(ess(map_robust)) 
 
-## ----rules---------------------------------------------------------------
+## ----rules--------------------------------------------------------------------
 ## dual decision criteria
 ## pay attention to "lower.tail" argument and the order of active and pbo
 poc <- decision2S(pc=c(0.95,0.5), qc=c(0,-50), lower.tail=TRUE)
 print(poc)
 
-## ----design_options------------------------------------------------------
+## ----design_options-----------------------------------------------------------
 ## set up prior for active group
 weak_prior <- mixnorm(c(1,-50,1), sigma=crohn_sigma, param = 'mn')
 n_act <- 40
@@ -85,7 +85,7 @@ design_nonrob_ub  <- oc2S(weak_prior, map, n_act, n_pbo, poc,
 design_rob_ub     <- oc2S(weak_prior, map_robust, n_act, n_pbo, poc,
                           sigma1=crohn_sigma, sigma2=crohn_sigma)
 
-## ----typeI---------------------------------------------------------------
+## ----typeI--------------------------------------------------------------------
 # the range for true values
 cfb_truth <- seq(-120, -40, by=1)
 
@@ -109,7 +109,7 @@ qplot(cfb_truth, typeI, data=ocI, colour=design, geom="line", main="Type I Error
             coord_cartesian(ylim=c(0,0.2)) +
   theme(legend.justification=c(1,1),legend.position=c(0.95,0.85))
 
-## ----power---------------------------------------------------------------
+## ----power--------------------------------------------------------------------
 delta <- seq(-80,0,by=1)
 m <- summary(map)["mean"]
 cfb_truth1 <- m + delta   # active for 1
@@ -143,7 +143,7 @@ qplot(delta, power, data=ocP, colour=design, geom="line", main="Power") +
   theme(legend.justification=c(1,1),legend.position=c(0.95,0.85))
  
 
-## ----final---------------------------------------------------------------
+## ----final--------------------------------------------------------------------
 ## one can either use summary data or individual data. See ?postmix.
 y.act <- -29.15
 y.act.se <- 16.69
@@ -168,9 +168,9 @@ print(p1>0.95 & p2>0.5)
 poc(post_act, post_pbo)
 
 
-## ----session-------------------------------------------------------------
+## ----session------------------------------------------------------------------
 sessionInfo()
 
-## ----include=FALSE-------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 options(.user_mc_options)
 

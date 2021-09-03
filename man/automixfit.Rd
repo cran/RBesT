@@ -4,8 +4,7 @@
 \alias{automixfit}
 \title{Automatic Fitting of Mixtures of Conjugate Distributions to a Sample}
 \usage{
-automixfit(sample, Nc = seq(1, 4), k = 6, thresh = -Inf,
-  verbose = FALSE, ...)
+automixfit(sample, Nc = seq(1, 4), k = 6, thresh = -Inf, verbose = FALSE, ...)
 }
 \arguments{
 \item{sample}{Sample to be fitted by a mixture distribution.}

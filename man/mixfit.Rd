@@ -10,8 +10,7 @@
 \usage{
 mixfit(sample, type = c("norm", "beta", "gamma"), thin, ...)
 
-\method{mixfit}{default}(sample, type = c("norm", "beta", "gamma"), thin,
-  ...)
+\method{mixfit}{default}(sample, type = c("norm", "beta", "gamma"), thin, ...)
 
 \method{mixfit}{gMAP}(sample, type, thin, ...)
 
@@ -128,6 +127,7 @@ Likelihood from Incomplete Data via the EM Algorithm. \emph{Journal
 of the Royal Statistical Society, Series B} 1977; 39 (1): 1-38.
 }
 \seealso{
-Other EM: \code{\link{plot.EM}}
+Other EM: 
+\code{\link{plot.EM}()}
 }
 \concept{EM}

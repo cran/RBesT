@@ -4,12 +4,14 @@
 \name{transplant}
 \alias{transplant}
 \title{Transplant.}
-\format{A data frame with 4 rows and 3 variables:
+\format{
+A data frame with 4 rows and 3 variables:
 \describe{
   \item{study}{study}
   \item{n}{study size}
   \item{r}{number of events}
-}}
+}
+}
 \usage{
 transplant
 }

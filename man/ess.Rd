@@ -9,14 +9,11 @@
 \usage{
 ess(mix, method = c("elir", "moment", "morita"), ...)
 
-\method{ess}{betaMix}(mix, method = c("elir", "moment", "morita"), ...,
-  s = 100)
+\method{ess}{betaMix}(mix, method = c("elir", "moment", "morita"), ..., s = 100)
 
-\method{ess}{gammaMix}(mix, method = c("elir", "moment", "morita"), ...,
-  s = 100, eps = 1e-04)
+\method{ess}{gammaMix}(mix, method = c("elir", "moment", "morita"), ..., s = 100, eps = 1e-04)
 
-\method{ess}{normMix}(mix, method = c("elir", "moment", "morita"), ...,
-  sigma, s = 100)
+\method{ess}{normMix}(mix, method = c("elir", "moment", "morita"), ..., sigma, s = 100)
 }
 \arguments{
 \item{mix}{Prior (mixture of conjugate distributions).}

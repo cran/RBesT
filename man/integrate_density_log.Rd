@@ -9,8 +9,13 @@ the inverse distribution function must be used. The integral solved
 is int_x dmix(mix,x) integrand(x) where integrand must be given as
 log and we integrate over the support of mix.}
 \usage{
-integrate_density_log(log_integrand, mix, Lplower = -Inf,
-  Lpupper = Inf, eps = 1e-09)
+integrate_density_log(
+  log_integrand,
+  mix,
+  Lplower = -Inf,
+  Lpupper = Inf,
+  eps = 1e-09
+)
 }
 \arguments{
 \item{log_integrand}{function to integrate over which must return the log(f)}

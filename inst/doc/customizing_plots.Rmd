@@ -21,7 +21,7 @@ For more general information on plotting in R, we recommend the
 following resources:
 
 - [bayesplot](https://CRAN.R-project.org/package=bayesplot) - library on which the `RBesT` plotting functionality is built
-- [ggplot2](http://ggplot2.tidyverse.org/reference/) - powerful library for graphics in R
+- [ggplot2](https://ggplot2.tidyverse.org/reference/) - powerful library for graphics in R
 - [R Cookbook - Graphs](http://www.cookbook-r.com/Graphs/) - general reference for R and graphics in R
 
 ```{r setup, include=FALSE}

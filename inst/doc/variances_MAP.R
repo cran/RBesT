@@ -1,4 +1,4 @@
-## ---- include=FALSE------------------------------------------------------
+## ---- include=FALSE-----------------------------------------------------------
 library(RBesT)
 library(dplyr)
 library(purrr)
@@ -21,24 +21,24 @@ if (is_CRAN) {
     .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
 
-## ----results="asis",echo=FALSE-------------------------------------------
+## ----results="asis",echo=FALSE------------------------------------------------
 hdata <- data.frame(study=1:6,
                     sd=c(12.11, 10.97, 10.94, 9.41, 10.97, 10.95),
                     df=c(597, 60, 548, 307, 906, 903)
                     )
 kable(hdata, digits=2)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 hdata <- mutate(hdata,
                 alpha=df/2,
                 beta=alpha/sd^2,
                 logvar_mean=log(sd^2 * alpha) - digamma(alpha),
                 logvar_var=psigamma(alpha,1))
 
-## ----results="asis",echo=FALSE-------------------------------------------
+## ----results="asis",echo=FALSE------------------------------------------------
 kable(hdata, digits=4)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 map_mc <- gMAP(cbind(logvar_mean, sqrt(logvar_var)) ~ 1 | study, data=hdata,
                tau.dist="HalfNormal", tau.prior=sqrt(2)/2,
                beta.prior=cbind(4.8, 100))
@@ -50,7 +50,7 @@ summary(map_mc)
 
 plot(map_mc)$forest_model
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 map_mc_post <- as.matrix(map_mc)
 sd_trans <- compose(sqrt, exp)
 mcmc_intervals(map_mc_post, regex_pars="theta", transformation=sd_trans)
@@ -63,7 +63,7 @@ plot(map_sigma)$mix
 ## 95% interval MAP for the sampling standard deviation
 summary(map_sigma)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 gamma_dist <- mixgamma(c(1, 18, 6))
 
 ## logGamma density
@@ -89,7 +89,7 @@ mcmc_hist(data.frame(logGamma=log(sim)), freq=FALSE, binwidth=0.1) +
     overlay_function(fun=dnorm, args=list(mean=m, sd=sqrt(v)), aes(linetype="NormalApprox"))
 
 
-## ----echo=FALSE----------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 qgammaLog <- function(p, a, b) {
     log(qgamma(p, a, b))
 }
@@ -182,9 +182,9 @@ ggplot(data.frame(nu=c(10, 100)), aes(nu)) +
                 scale_y_continuous(breaks=seq(0.05,0.25,by=0.025))
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 
-## ----include=FALSE-------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 options(.user_mc_options)
 

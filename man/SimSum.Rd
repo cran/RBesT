@@ -4,9 +4,13 @@
 \alias{SimSum}
 \title{Summarize Arrays}
 \usage{
-SimSum(x, min.max = FALSE, n.sim = FALSE, probs = c(0.025, 0.5,
-  0.975), margin = ifelse(is.null(dim(x) | length(dim(x)) == 1), 2,
-  length(dim(x))))
+SimSum(
+  x,
+  min.max = FALSE,
+  n.sim = FALSE,
+  probs = c(0.025, 0.5, 0.975),
+  margin = ifelse(is.null(dim(x) | length(dim(x)) == 1), 2, length(dim(x)))
+)
 }
 \arguments{
 \item{x}{Object to summarize which can be a numerical vector, matrix or a multi-dimensional array}

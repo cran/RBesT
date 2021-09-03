@@ -1,4 +1,4 @@
-## ---- include=FALSE------------------------------------------------------
+## ---- include=FALSE-----------------------------------------------------------
 library(RBesT)
 library(knitr)
 knitr::opts_chunk$set(
@@ -15,10 +15,10 @@ if (is_CRAN) {
     .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
 
-## ----results="asis",echo=FALSE-------------------------------------------
+## ----results="asis",echo=FALSE------------------------------------------------
 kable(AS)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(RBesT)
 set.seed(34563)
 map_mcmc <- gMAP(cbind(r, n-r) ~ 1 | study,
@@ -38,30 +38,30 @@ names(pl)
 ## forest plot with model estimates
 print(pl$forest_model)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 set.seed(36546)
 map_mcmc_sens <- update(map_mcmc, tau.prior=1/2)
 print(map_mcmc_sens)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 map <- automixfit(map_mcmc)
 print(map)
 plot(map)$mix
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 round(ess(map, method="elir"))   ## default method
 round(ess(map, method="moment"))
 round(ess(map, method="morita"))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## add a 20% non-informative mixture component
 map_robust <- robustify(map, weight=0.2, mean=1/2)
 print(map_robust)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 round(ess(map_robust))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 p_truth       <- seq(0.1,0.95,by=0.01)
 uniform_prior <- mixbeta(c(1,1,1))
 treat_prior   <- mixbeta(c(1,0.5,1)) # prior for treatment used in trial
@@ -85,7 +85,7 @@ library(ggplot2)
 theme_set(theme_bw()) # nice plotting theme
 qplot(p_truth, typeI, data=ocI, colour=prior, geom="line", main="Type I Error")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 delta <- seq(0,0.7,by=0.01)
 m <- summary(map)["mean"]
 p_truth1 <- m +   delta
@@ -103,7 +103,7 @@ ocP <- rbind(data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power
 qplot(delta, power, data=ocP, colour=prior, geom="line", main="Power")
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Critical values at which the decision flips are given conditional
 ## on the outcome of the second read-out; as we like to have this as a
 ## function of the treatment group outcome, we flip label 1 and 2
@@ -120,13 +120,13 @@ ocC <- rbind(data.frame(y2=treat_y2, y1_crit=crit_robust(treat_y2),    prior="ro
 
 qplot(y2, y1_crit, data=ocC, colour=prior, geom="step", main="Critical values y1(y2)")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## just positive
 decision(postmix(treat_prior, n=24, r=15), postmix(map, n=6, r=3))
 ## negative
 decision(postmix(treat_prior, n=24, r=14), postmix(map, n=6, r=4))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 r_placebo <- 1
 r_treat   <- 14
 
@@ -145,9 +145,9 @@ prob_smaller > 0.95
 ## alternativley we can use the decision object
 decision(post_treat, post_placebo)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 
-## ----include=FALSE-------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 options(.user_mc_options)
 

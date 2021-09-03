@@ -4,12 +4,14 @@
 \name{crohn}
 \alias{crohn}
 \title{Crohn's disease.}
-\format{A data frame with 4 rows and 3 variables:
+\format{
+A data frame with 4 rows and 3 variables:
 \describe{
   \item{study}{study}
   \item{n}{study size}
   \item{y}{mean CDAI change}
-}}
+}
+}
 \usage{
 crohn
 }

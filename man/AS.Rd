@@ -4,12 +4,14 @@
 \name{AS}
 \alias{AS}
 \title{Ankylosing Spondylitis.}
-\format{A data frame with 8 rows and 3 variables:
+\format{
+A data frame with 8 rows and 3 variables:
 \describe{
   \item{study}{study}
   \item{n}{study size}
   \item{r}{number of events}
-}}
+}
+}
 \usage{
 AS
 }

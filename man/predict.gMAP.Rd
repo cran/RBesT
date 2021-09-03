@@ -7,8 +7,15 @@
 \alias{as.matrix.gMAPpred}
 \title{Predictions from gMAP analyses}
 \usage{
-\method{predict}{gMAP}(object, newdata, type = c("response", "link"),
-  probs = c(0.025, 0.5, 0.975), na.action = na.pass, thin, ...)
+\method{predict}{gMAP}(
+  object,
+  newdata,
+  type = c("response", "link"),
+  probs = c(0.025, 0.5, 0.975),
+  na.action = na.pass,
+  thin,
+  ...
+)
 
 \method{print}{gMAPpred}(x, digits = 3, ...)
 

@@ -16,8 +16,7 @@ mn2beta(m, n, drop = TRUE)
 
 \method{summary}{betaMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 
-\method{summary}{betaBinomialMix}(object, probs = c(0.025, 0.5, 0.975),
-  ...)
+\method{summary}{betaBinomialMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 }
 \arguments{
 \item{...}{List of mixture components.}
@@ -78,8 +77,11 @@ print(bm4)
 
 }
 \seealso{
-Other mixdist: \code{\link{mixcombine}},
-  \code{\link{mixgamma}}, \code{\link{mixnorm}},
-  \code{\link{mix}}, \code{\link{plot.mix}}
+Other mixdist: 
+\code{\link{mixcombine}()},
+\code{\link{mixgamma}()},
+\code{\link{mixnorm}()},
+\code{\link{mix}},
+\code{\link{plot.mix}()}
 }
 \concept{mixdist}

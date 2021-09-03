@@ -11,11 +11,20 @@ oc2S(prior1, prior2, n1, n2, decision, ...)
 
 \method{oc2S}{betaMix}(prior1, prior2, n1, n2, decision, eps, ...)
 
-\method{oc2S}{normMix}(prior1, prior2, n1, n2, decision, sigma1, sigma2,
-  eps = 1e-06, Ngrid = 10, ...)
+\method{oc2S}{normMix}(
+  prior1,
+  prior2,
+  n1,
+  n2,
+  decision,
+  sigma1,
+  sigma2,
+  eps = 1e-06,
+  Ngrid = 10,
+  ...
+)
 
-\method{oc2S}{gammaMix}(prior1, prior2, n1, n2, decision, eps = 1e-06,
-  ...)
+\method{oc2S}{gammaMix}(prior1, prior2, n1, n2, decision, eps = 1e-06, ...)
 }
 \arguments{
 \item{prior1}{Prior for sample 1.}
@@ -142,7 +151,9 @@ Robust meta-analytic-predictive priors in clinical trials with historical contro
 \emph{Biometrics} 2014;70(4):1023-1032.
 }
 \seealso{
-Other design2S: \code{\link{decision2S_boundary}},
-  \code{\link{decision2S}}, \code{\link{pos2S}}
+Other design2S: 
+\code{\link{decision2S_boundary}()},
+\code{\link{decision2S}()},
+\code{\link{pos2S}()}
 }
 \concept{design2S}

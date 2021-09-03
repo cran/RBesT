@@ -122,7 +122,9 @@ Branson M. A proof of concept phase II non-inferiority
 criterion. \emph{Stat. in Med.}. 2011, 30:1618-1627
 }
 \seealso{
-Other design1S: \code{\link{decision1S_boundary}},
-  \code{\link{oc1S}}, \code{\link{pos1S}}
+Other design1S: 
+\code{\link{decision1S_boundary}()},
+\code{\link{oc1S}()},
+\code{\link{pos1S}()}
 }
 \concept{design1S}

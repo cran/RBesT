@@ -8,8 +8,7 @@
 \alias{summary.gammaPoissonMix}
 \title{The Gamma Mixture Distribution}
 \usage{
-mixgamma(..., param = c("ab", "ms", "mn"), likelihood = c("poisson",
-  "exp"))
+mixgamma(..., param = c("ab", "ms", "mn"), likelihood = c("poisson", "exp"))
 
 ms2gamma(m, s, drop = TRUE)
 
@@ -17,8 +16,7 @@ mn2gamma(m, n, likelihood = c("poisson", "exp"), drop = TRUE)
 
 \method{summary}{gammaMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 
-\method{summary}{gammaPoissonMix}(object, probs = c(0.025, 0.5, 0.975),
-  ...)
+\method{summary}{gammaPoissonMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 }
 \arguments{
 \item{...}{List of mixture components.}
@@ -95,8 +93,11 @@ gfmix <- mixgamma(rob1=c(0.15, mn2gamma(2, 1)), rob2=c(0.15, ms2gamma(2, 5)), in
 
 }
 \seealso{
-Other mixdist: \code{\link{mixbeta}},
-  \code{\link{mixcombine}}, \code{\link{mixnorm}},
-  \code{\link{mix}}, \code{\link{plot.mix}}
+Other mixdist: 
+\code{\link{mixbeta}()},
+\code{\link{mixcombine}()},
+\code{\link{mixnorm}()},
+\code{\link{mix}},
+\code{\link{plot.mix}()}
 }
 \concept{mixdist}

@@ -142,7 +142,9 @@ designC2_nL(theta_eval)
 
 }
 \seealso{
-Other design1S: \code{\link{decision1S_boundary}},
-  \code{\link{decision1S}}, \code{\link{pos1S}}
+Other design1S: 
+\code{\link{decision1S_boundary}()},
+\code{\link{decision1S}()},
+\code{\link{pos1S}()}
 }
 \concept{design1S}

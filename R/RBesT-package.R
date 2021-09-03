@@ -52,13 +52,15 @@
 #' @docType package
 #' @useDynLib RBesT, .registration = TRUE
 #' @import methods
+#' @import Rcpp
+#' @importFrom RcppParallel RcppParallelLibs CxxFlags
 #' @importFrom rstan sampling extract get_sampler_params summary
+#' @import rstantools
 #' @import stats
 #' @importFrom utils capture.output modifyList
 #' @import assertthat
 #' @import mvtnorm
 #' @import ggplot2
 #' @import Formula
-#' @import Rcpp
 #' @import checkmate
 NULL

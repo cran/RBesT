@@ -4,8 +4,7 @@
 \alias{plot.EM}
 \title{Diagnostic plots for EM fits}
 \usage{
-\method{plot}{EM}(x, size = 1.25, link = c("identity", "logit", "log"),
-  ...)
+\method{plot}{EM}(x, size = 1.25, link = c("identity", "logit", "log"), ...)
 }
 \arguments{
 \item{x}{EM fit}
@@ -47,7 +46,7 @@ customizations please use the \pkg{ggplot2} package directly. A
 description of the most common tasks can be found in the
 \href{http://www.cookbook-r.com/Graphs/}{R Cookbook} and a full
 reference of available commands can be found at the
-\href{http://ggplot2.tidyverse.org/reference/}{ggplot2 documentation
+\href{https://ggplot2.tidyverse.org/reference/}{ggplot2 documentation
 site}.
 }
 
@@ -75,6 +74,7 @@ names(pl_all)
 
 }
 \seealso{
-Other EM: \code{\link{mixfit}}
+Other EM: 
+\code{\link{mixfit}()}
 }
 \concept{EM}

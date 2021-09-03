@@ -1,4 +1,4 @@
-## ---- include=FALSE------------------------------------------------------
+## ---- include=FALSE-----------------------------------------------------------
 library(foreach)
 library(ggplot2)
 library(dplyr)
@@ -20,7 +20,7 @@ if (is_CRAN) {
     .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
 }
 
-## ----cache=TRUE,echo=FALSE,include=FALSE,message=FALSE-------------------
+## ----cache=TRUE,echo=FALSE,include=FALSE,message=FALSE------------------------
 
 ## the different priors
 map <- list()
@@ -128,7 +128,7 @@ power <- rbind(powerMix, powerFix)
 
 
 
-## ----echo=FALSE,message=FALSE--------------------------------------------
+## ----echo=FALSE,message=FALSE-------------------------------------------------
 ocAdapt <- powerTable[,-ncol(powerTable)] %>%
     unite(case, delta, prior) %>%
         transform(power=100*power) %>%
@@ -137,12 +137,12 @@ ocAdaptSamp <- powerTable[,- ( ncol(powerTable)-1 )] %>%
     unite(case, delta, prior) %>%
             spread(case, samp)
 
-## ----echo=FALSE,result="asis"--------------------------------------------
+## ----echo=FALSE,result="asis"-------------------------------------------------
 kable(ocAdapt, digits=1, caption="Type I error and power")
 
 kable(ocAdaptSamp, digits=1, caption="Sample size")
 
-## ----echo=FALSE----------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 qplot(pt-pc, power, data=power, geom=c("line"), colour=prior) +
     facet_wrap(~pc) +
     scale_y_continuous(breaks=seq(0,1,by=0.2)) +
@@ -152,11 +152,11 @@ qplot(pt-pc, power, data=power, geom=c("line"), colour=prior) +
                 geom_hline(yintercept=0.8, linetype=2) +
                     ggtitle("Prob. for alternative for different pc")
 
-## ----echo=FALSE----------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 plot(map$beta, prob=1)
 plot(map$mix50)
 
-## ----cache=TRUE,echo=FALSE,warning=FALSE---------------------------------
+## ----cache=TRUE,echo=FALSE,warning=FALSE--------------------------------------
 est <- foreach(case=names(map), .combine=rbind) %do% {
 
     ## prior to consider
@@ -228,11 +228,11 @@ est <- foreach(case=names(map), .combine=rbind) %do% {
     data.frame(p=pt, bias=bias, rMSE=rMSE, prior=case)
 }
 
-## ----echo=FALSE----------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 qplot(p, 100*bias, data=est, geom="line", colour=prior, main="Bias")
 qplot(p, 100*rMSE, data=est, geom="line", colour=prior, main="rMSE")
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 
 ## set seed to guarantee exact reproducible results
 set.seed(25445)
@@ -257,7 +257,7 @@ prior <- map_auto
 pl <- plot(prior)
 pl$mix + ggtitle("MAP prior for ulcerative colitis")
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 mapCol <- list(
     one = mixbeta(c(1,2.3,16)),
     two = mixbeta(c(0.77, 6.2, 50.8), c(1-0.77, 1.0, 4.7)),
@@ -268,7 +268,7 @@ mapCol <- c(mapCol, list(twoRob=robustify(mapCol$two, weight=0.1, mean=1/2),
                          )
             )
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 N <- 20
 post <- foreach(prior=names(mapCol), .combine=rbind) %do% {
     res <- data.frame(mean=rep(NA, N+1), sd=0, r=0:N)
@@ -285,6 +285,6 @@ qplot(r, sd, data=post, colour=prior, shape=prior) + coord_cartesian(ylim=c(0,0.
 
 sessionInfo()
 
-## ----include=FALSE-------------------------------------------------------
+## ----include=FALSE------------------------------------------------------------
 options(.user_mc_options)
 

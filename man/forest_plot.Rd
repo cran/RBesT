@@ -4,9 +4,15 @@
 \alias{forest_plot}
 \title{Forest Plot}
 \usage{
-forest_plot(x, prob = 0.95, est = c("both", "MAP", "Mean", "none"),
-  model = c("stratified", "both", "meta"), point_est = c("median",
-  "mean"), size = 1.25, alpha = 0.5)
+forest_plot(
+  x,
+  prob = 0.95,
+  est = c("both", "MAP", "Mean", "none"),
+  model = c("stratified", "both", "meta"),
+  point_est = c("median", "mean"),
+  size = 1.25,
+  alpha = 0.5
+)
 }
 \arguments{
 \item{x}{\code{\link{gMAP}} object.}
@@ -53,7 +59,7 @@ customizations please use the \pkg{ggplot2} package directly. A
 description of the most common tasks can be found in the
 \href{http://www.cookbook-r.com/Graphs/}{R Cookbook} and a full
 reference of available commands can be found at the
-\href{http://ggplot2.tidyverse.org/reference/}{ggplot2 documentation
+\href{https://ggplot2.tidyverse.org/reference/}{ggplot2 documentation
 site}.
 }
 

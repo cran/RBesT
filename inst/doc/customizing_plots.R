@@ -1,4 +1,4 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 ##suppressPackageStartupMessages(library(tidyverse))
 library(knitr)
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width = 1.62*4, fig.height = 4)
@@ -7,7 +7,7 @@ if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
     options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2)
 }
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Load required libraries
 library(RBesT)
 library(ggplot2)
@@ -30,13 +30,13 @@ map_crohn <- gMAP(cbind(y, y.se) ~ 1 | study,
 
 print(map_crohn)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 forest_plot(map_crohn)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 forest_plot(map_crohn, model="both") + legend_move("right")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # preview a color scheme
 color_scheme_view("mix-blue-red")
 # and now let's use it
@@ -45,26 +45,26 @@ forest_plot(map_crohn)
 color_scheme_set("gray")
 forest_plot(map_crohn)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 color_scheme_set("blue")
 forest_plot(map_crohn, size=0.5, alpha=0)
 
-## ---- fig.width=10, fig.height=6-----------------------------------------
+## ---- fig.width=10, fig.height=6----------------------------------------------
 # adjust the base font size
 theme_set(theme_default(base_size=16))
 forest_plot(map_crohn, model="both", est="MAP", size=1) + legend_move("right") +
   labs(title="Forest plot", subtitle="Results of Meta-Analytic-Predictive (MAP) analysis", 
        caption="Plot shows point estimates (posterior medians) with 95% intervals")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  ggsave("plot1.png", last_plot(), width=1.62*2.78, height=2.78, unit="in") # too small for the chosen font size
 #  ggsave("plot2.png", last_plot(), width=1.62*5.56, height=5.56, unit="in") # fits a single ppt slide quite well
 
-## ---- echo=FALSE---------------------------------------------------------
+## ---- echo=FALSE--------------------------------------------------------------
 theme_set(theme_default(base_size=12))
 forest_plot(map_crohn) + labs(title="Original forest plot")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Extract the data from the returned object
 fp_data <- forest_plot(map_crohn)$data
 print(fp_data, digits=2)
@@ -77,7 +77,7 @@ ggplot(fp_data, aes(x=study, y=median, ymin=low, ymax=up, linetype=model, shape=
   coord_flip() + theme_bw(base_size=12) + theme(legend.position="None") + 
   labs(x="", y="Response", title="Modified forest plot")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Define prior distributions
 prior_pbo <- mixbeta(inf1=c(0.60, 19, 29), inf2=c(0.30, 4, 5), rob=c(0.10, 1, 1))
 prior_trt <- mixbeta(c(1, 1/3, 1/3))
@@ -110,7 +110,7 @@ ggplot(outcomes, aes(x=y2, ymin=-o, ymax=suc+o)) + geom_linerange(size=4, colour
   labs(x="Events on placebo", y="Events on treatment", title="Study outcomes") + 
   coord_flip() + theme_bw(base_size=12)
 
-## ---- fig.width=8.5, fig.height=5.5--------------------------------------
+## ---- fig.width=8.5, fig.height=5.5-------------------------------------------
 # Define the grid of true event rates for which to evaluate OC
 p_trt <- seq(0, 0.5, length=200)
 p_pbo <- c(0.35, 0.40, 0.45, 0.50)
@@ -137,6 +137,6 @@ ggplot(oc, aes(x=p_trt, y=Probability, colour=Outcome, linetype=Outcome)) +
   labs(x="True event rate for treatment", y="Probability", title="Operating Characteristics") + 
   theme_bw(base_size=12) 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 

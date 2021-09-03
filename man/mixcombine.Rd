@@ -40,8 +40,11 @@ mixcombine(bm, unif, weight=c(9, 1))
 \seealso{
 \code{\link{robustify}}
 
-Other mixdist: \code{\link{mixbeta}},
-  \code{\link{mixgamma}}, \code{\link{mixnorm}},
-  \code{\link{mix}}, \code{\link{plot.mix}}
+Other mixdist: 
+\code{\link{mixbeta}()},
+\code{\link{mixgamma}()},
+\code{\link{mixnorm}()},
+\code{\link{mix}},
+\code{\link{plot.mix}()}
 }
 \concept{mixdist}
