@@ -4,11 +4,12 @@ Title: R Bayesian Evidence Synthesis Tools
 Description: Tool-set to support Bayesian evidence synthesis.  This
     includes meta-analysis, (robust) prior derivation from historical
     data, operating characteristics and analysis (1 and 2 sample
-    cases). Please refer to Neuenschwander et al. (2010)
+    cases). Please refer to Weber et al. (2021) <doi:10.18637/jss.v100.i19>
+    for details on applying this package while Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
-    <doi:10.1111/biom.12242> for details on the methodology.
-Version: 1.6-2
-Date: 2021-09-03
+    <doi:10.1111/biom.12242> explain details on the methodology.
+Version: 1.6-3
+Date: 2021-11-23
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -35,7 +36,7 @@ VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
 Encoding: UTF-8
 RoxygenNote: 7.1.1
-Packaged: 2021-09-03 10:13:57 UTC; 
+Packaged: 2021-11-23 23:14:46 UTC; 
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -47,4 +48,4 @@ Author: Novartis Pharma AG [cph],
     configure.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2021-09-03 12:30:11 UTC
+Date/Publication: 2021-11-24 16:40:02 UTC

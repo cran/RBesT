@@ -458,6 +458,10 @@ Schmidli H, Gsteiger S, Roychoudhury S, O'Hagan A, Spiegelhalter D,
 Neuenschwander B.  Robust meta-analytic-predictive priors in
 clinical trials with historical control information.
 \emph{Biometrics} 2014;70(4):1023-1032.
+
+Weber S, Li Y, Seaman III J.W., Kakizume T, Schmidli H. Applying
+Meta-Analytic Predictive Priors with the {R} {B}ayesian evidence
+synthesis tools. \emph{JSS} 2021; 100(19):1-32
 }
 \seealso{
 \code{\link{plot.gMAP}}, \code{\link{forest_plot}}, \code{\link{automixfit}}, \code{\link{predict.gMAP}}

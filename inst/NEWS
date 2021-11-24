@@ -1,3 +1,7 @@
+November 23rd, 2021 (1.6-3)
+
+* update references to JSS publication
+
 September 3rd, 2021 (1.6-2)
 
 * link against RcppParallel to align with new Stan requirements
