@@ -4,6 +4,7 @@
 \alias{mixnorm}
 \alias{sigma}
 \alias{mn2norm}
+\alias{print.normMix}
 \alias{summary.normMix}
 \alias{sigma.normMix}
 \alias{sigma<-}
@@ -13,6 +14,8 @@ mixnorm(..., sigma, param = c("ms", "mn"))
 
 mn2norm(m, n, sigma, drop = TRUE)
 
+\method{print}{normMix}(x, ...)
+
 \method{summary}{normMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 
 \method{sigma}{normMix}(object, ...)
@@ -20,24 +23,26 @@ mn2norm(m, n, sigma, drop = TRUE)
 sigma(object) <- value
 }
 \arguments{
-\item{...}{list of mixture components.}
+\item{...}{List of mixture components.}
 
-\item{sigma}{reference scale.}
+\item{sigma}{Reference scale.}
 
-\item{param}{determines how the parameters in the list are
+\item{param}{Determines how the parameters in the list are
 interpreted. See details.}
 
-\item{m}{vector of means}
+\item{m}{Vector of means}
 
-\item{n}{vector of sample sizes.}
+\item{n}{Vector of sample sizes.}
 
-\item{drop}{delete the dimensions of an array which have only one level.}
+\item{drop}{Delete the dimensions of an array which have only one level.}
 
-\item{object}{normal mixture object.}
+\item{x}{The mixture to print}
 
-\item{probs}{quantiles reported by the \code{summary} function.}
+\item{object}{Normal mixture object.}
 
-\item{value}{new value of the reference scale \code{sigma}.}
+\item{probs}{Quantiles reported by the \code{summary} function.}
+
+\item{value}{New value of the reference scale \code{sigma}.}
 }
 \value{
 Returns a normal mixture with the specified mixture
@@ -99,7 +104,6 @@ ess(nm)
 
 sigma(nm) <- 10
 ess(nm)
-
 }
 \seealso{
 Other mixdist: 

@@ -1,6 +1,5 @@
-#' @rdname mixbeta
 #' @name mixbeta
-#' 
+#'
 #' @title Beta Mixture Density
 #'
 #' @description The Beta mixture density and auxilary functions.
@@ -27,23 +26,23 @@
 #' \item{ms}{Mean and standard deviation, \eqn{m=a/(a+b)} and \eqn{s=\sqrt{\frac{m(1-m)}{1+n}}}, where \eqn{n=a+b} is the number of observations. Note that \eqn{s} must be less than \eqn{\sqrt{m(1-m)}}.}
 #' \item{mn}{Mean and number of observations, \eqn{n=a+b}.}
 #' }
-#' 
+#'
 #' @family mixdist
-#' 
-#' @return \code{mixbeta} returns a beta mixture with the specified mixture components. \code{ms2beta} and 
-#' \code{mn2beta} return the equivalent natural \code{a} and \code{b} parametrization given parameters \code{m}, 
+#'
+#' @return \code{mixbeta} returns a beta mixture with the specified mixture components. \code{ms2beta} and
+#' \code{mn2beta} return the equivalent natural \code{a} and \code{b} parametrization given parameters \code{m},
 #' \code{s}, or \code{n}.
-#' 
+#'
 #' @examples
 #' ## a beta mixture
 #' bm <- mixbeta(rob=c(0.2, 2, 10), inf=c(0.4, 10, 100), inf2=c(0.4, 30, 80))
-#' 
+#'
 #' # mean/standard deviation parametrization
 #' bm2 <- mixbeta(rob=c(0.2, 0.3, 0.2), inf=c(0.8, 0.4, 0.01), param="ms")
-#' 
+#'
 #' # mean/observations parametrization
 #' bm3 <- mixbeta(rob=c(0.2, 0.3, 5), inf=c(0.8, 0.4, 30), param="mn")
-#' 
+#'
 #' # even mixed is possible
 #' bm4 <- mixbeta(rob=c(0.2, mn2beta(0.3, 5)), inf=c(0.8, ms2beta(0.4, 0.1)))
 #'
@@ -51,9 +50,10 @@
 #' bm4
 #' print(bm4)
 #'
+NULL
 
-#' @export
 #' @rdname mixbeta
+#' @export
 mixbeta <- function(..., param=c("ab", "ms", "mn")) {
     mix <- mixdist3(...)
     param <- match.arg(param)
@@ -69,8 +69,8 @@ mixbeta <- function(..., param=c("ab", "ms", "mn")) {
     mix
 }
 
-#' @export
 #' @rdname mixbeta
+#' @export
 ms2beta <- function(m, s, drop=TRUE) {
     n <- m*(1-m)/s^2 - 1
     assert_that(all(n>=0))
@@ -79,8 +79,8 @@ ms2beta <- function(m, s, drop=TRUE) {
     ab
 }
 
-#' @export
 #' @rdname mixbeta
+#' @export
 mn2beta <- function(m, n, drop=TRUE) {
     assert_that(all(n>=0))
     ab <- cbind(a=n*m, b=n*(1-m))
@@ -88,22 +88,27 @@ mn2beta <- function(m, n, drop=TRUE) {
     ab
 }
 
-
+#' @rdname mixbeta
+#' @method print betaMix
+#' @param x The mixture to print
 #' @export
 print.betaMix <- function(x, ...) {
     cat("Univariate beta mixture\n")
     NextMethod()
 }
 
+#' @rdname mixbeta
+#' @method print betaBinomialMix
+#' @param x The mixture to print
 #' @export
-print.betaBinomialMix <- function(x, digits=NULL, ...) {
+print.betaBinomialMix <- function(x, ...) {
     cat("Univariate beta binomial mixture\nn = ", attr(x, "n"),"\n", sep="")
     NextMethod()
 }
 
+#' @rdname mixbeta
 #' @method summary betaMix
 #' @export
-#' @rdname mixbeta
 summary.betaMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     p <- object[1,]
     a <- object[2,]
@@ -123,9 +128,9 @@ summary.betaMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     c(mean=mmix, sd=sqrt(vmix), q)
 }
 
+#' @rdname mixbeta
 #' @method summary betaBinomialMix
 #' @export
-#' @rdname mixbeta
 summary.betaBinomialMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     n <- attr(object, "n")
     p <- object[1,]

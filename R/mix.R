@@ -137,9 +137,13 @@ dmix_impl <- function(dens, mix, x, log) {
     ## item appears nc times which allows easy vectorized calls to
     ## dgamma. Then we cast the result into a matrix with as many rows
     ## as nc components which we sum together with a fast colSums call.
-    ox <- rep(mixinvlink(mix, x), each=Nc)
     Nx <- length(x)
-    log_dens  <- apply(matrix(log(mix[1,]) + rep(mixlJinv_link(mix, x), times=Nc) + dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=TRUE), nrow=Nc), 2, log_sum_exp)
+    if(is.mixidentity_link(mix)) {
+        log_dens  <- matrixStats::colLogSumExps(matrix(log(mix[1,]) + dens(rep(x, each=Nc), rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=TRUE), nrow=Nc))
+    } else {
+        ox <- rep(mixinvlink(mix, x), each=Nc)
+        log_dens  <- matrixStats::colLogSumExps(matrix(log(mix[1,]) + rep(mixlJinv_link(mix, x), each=Nc) + dens(ox, rep(mix[2,], times=Nx), rep(mix[3,], times=Nx), log=TRUE), nrow=Nc))
+    }
     if(!log)
         return(exp(log_dens))
     return(log_dens)
@@ -174,9 +178,9 @@ pmix_impl <- function(dist, mix, q, lower.tail = TRUE, log.p=FALSE) {
     oq <- mixinvlink(mix, q)
     Nq <- length(q)
     if(!log.p)
-        return(.colSums(matrix(mix[1,] * dist(rep(oq, each=Nc), rep(mix[2,], times=Nq), rep(mix[3,], times=Nq), lower.tail=lower.tail, log.p=FALSE), nrow=Nc), Nc, length(q)))
+        return(matrixStats::colSums2(matrix(mix[1,] * dist(rep(oq, each=Nc), rep(mix[2,], times=Nq), rep(mix[3,], times=Nq), lower.tail=lower.tail, log.p=FALSE), nrow=Nc)))
     ## log version is slower, but numerically more stable
-    res <- apply(matrix(log(mix[1,]) + dist(rep(oq, each=Nc), rep(mix[2,], times=Nq), rep(mix[3,], times=Nq), lower.tail=lower.tail, log.p=TRUE), nrow=Nc), 2, log_sum_exp)
+    res <- matrixStats::colLogSumExps(matrix(log(mix[1,]) + dist(rep(oq, each=Nc), rep(mix[2,], times=Nq), rep(mix[3,], times=Nq), lower.tail=lower.tail, log.p=TRUE), nrow=Nc))
     return(res)
 }
 
@@ -366,3 +370,6 @@ mixlJinv_orig <- function(mix, x)
 
 mixlJinv_link <- function(mix, l)
     attr(mix, "link")$lJinv_link(l)
+
+is.mixidentity_link <- function(mix, l)
+    is.dlink_identity(attr(mix, "link"))

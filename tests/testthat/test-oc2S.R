@@ -405,7 +405,9 @@ test_that("Normal OC 2-sample avoids undefined behavior, example 1", {
     skip_on_cran()
 
     sigma_ref <- 3.2
-    map_ref <- mixnorm(c(0.51, -2.1, 0.39), c(0.42, -2.1, 0.995), c(0.06, -1.99, 2.32), sigma=sigma_ref)
+    ##map_ref <- mixnorm(c(0.51, -2.1, 0.39), c(0.42, -2.1, 0.995), c(0.06, -1.99, 2.32), sigma=sigma_ref)
+    ## chagned so that weights sum to 1
+    map_ref <- mixnorm(c(0.52, -2.1, 0.39), c(0.42, -2.1, 0.995), c(0.06, -1.99, 2.32), sigma=sigma_ref)
     prior_flat <- mixnorm(c(1, 0, 100), sigma=sigma_ref)
     alpha <- 0.05
     dec  <- decision2S(1-alpha, 0, lower.tail=FALSE)
@@ -416,6 +418,7 @@ test_that("Normal OC 2-sample avoids undefined behavior, example 1", {
 
     x <- seq(-2.6, -1.6, by=0.1)
     expect_numeric(design_map(x, x), lower=0, upper=1, any.missing=FALSE)
+    expect_silent(design_map(-3, -4))
     expect_numeric(design_map(-3, -4), lower=0, upper=1, any.missing=FALSE)
     expect_numeric(design_map(-3, 4), lower=0, upper=1, any.missing=FALSE)
     expect_numeric(design_map(-1.6, -1.6), lower=0, upper=1, any.missing=FALSE)

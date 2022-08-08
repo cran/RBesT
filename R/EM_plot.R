@@ -45,13 +45,14 @@
 #' options(.user_option)
 #'
 #' names(pl_all)
-#' # [1] "a"   "b"   "w"   "m"   "N"   "Lm"  "lN"  "Lw"  "lli" "mixdens" "mix"
+#' # [1] "mixdist" "a"   "b"   "w"   "m"   "N"   "Lm"  "lN"  "Lw"  "lli" "mixdens" "mixecdf" "mix"
 #' }
 #'
 #' @method plot EM
 #' @export
 plot.EM <- function(x, size=1.25, link=c("identity", "logit", "log"), ...) {
     pl <- list()
+    pl$mixdist <- plot.mix(x, size=size, ...)
     ## in verbose mode we output EM fit diagnostics
     if(getOption("RBesT.verbose", FALSE)) {
         ## these NULL assignments make R check happy

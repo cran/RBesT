@@ -1,8 +1,22 @@
 ---
-title: "RBesT for a Binary Endpoint"
+title: "Getting started with RBesT (binary)"
 author: "Sebastian Weber"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
+  html_vignette:
+    toc: true
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+  pdf_document:
+    toc: true
+  word_document:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{Getting started with RBesT (binary)}
   %\VignetteEncoding{UTF-8}
@@ -23,7 +37,7 @@ is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
 ## is_CRAN <- FALSE
 .user_mc_options <- list()
 if (is_CRAN) {
-    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
+    .user_mc_options <- options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2, RBesT.MC.thin=1, RBesT.MC.control=list(adapt_delta=0.9))
 }
 ```
 
@@ -87,7 +101,11 @@ estimates. For a standard forest plot without the shrinkage estimates
 please refer to the `forest_plot` function in RBesT.
 
 ```{r}
+# load R packages
 library(RBesT)
+library(ggplot2)
+theme_set(theme_bw()) # sets up plotting theme
+
 set.seed(34563)
 map_mcmc <- gMAP(cbind(r, n-r) ~ 1 | study,
                  data=AS,
@@ -174,13 +192,33 @@ control information.
 ## add a 20% non-informative mixture component
 map_robust <- robustify(map, weight=0.2, mean=1/2)
 print(map_robust)
-```
 
-Note that robustification does reduce the ESS.
-```{r}
 round(ess(map_robust))
 ```
 
+Adding a robust mixture component does reduce the ESS of the MAP prior
+to an extent which depends on the weight of the robust
+component. Selecting higher robust mixture weights leads to greater
+discounting of the informative MAP prior and vice versa. As a
+consequence the robust weight controls the degree of influence of the
+MAP prior within the final analysis. In some circumstances it can be
+helpful to graphically illustrate the relationship of the prior ESS as
+a function of the robust mixture component weight:
+
+```{r}
+ess_weight <- data.frame(weight=seq(0.05, 0.95, by=0.05), ess=NA)
+for(i in seq_along(ess_weight$weight)) {
+    ess_weight$ess[i] <- ess(robustify(map, ess_weight$weight[i], 0.5))
+}
+ess_weight <- rbind(ess_weight,
+                    data.frame(weight=c(0, 1),
+                               ess=c(ess(map), ess(mixbeta(c(1,1,1))))))
+
+qplot(weight, ess, data=ess_weight, geom=c("point", "line"),
+      main="ESS of robust MAP for varying weight of robust component") +
+    scale_x_continuous(breaks=seq(0,  1, by=0.1)) +
+    scale_y_continuous(breaks=seq(0, 40, by=5))
+```
 
 # Design Evaluation
 
@@ -199,14 +237,15 @@ ones to demonstrate the use of RBesT for design evaluation.
 
 ## Operating Characteristics
 
-We consider the 2-arm design of the actual Novartis
-trial in ankylosing spondylitis [2]. This trial tested 6 patients on
-placebo against 24 patients on experimental treatment. Success was
-declared whenever the condition
+We consider the 2-arm design of the actual Novartis trial in
+ankylosing spondylitis [2]. This trial tested 6 patients on placebo as
+control against 24 patients on an active experimental
+treatment. Success was declared whenever the condition
 
-$$\Pr(p_{treat} - p_{placebo} > 0) > 0.95$$
+$$\Pr(\theta_{active} - \theta_{control} > 0) > 0.95$$
 
-was met. A MAP prior was used for the placebo response rate
+was met for the response rates $\theta_{active}$ and
+$\theta_{control}$. A MAP prior was used for the placebo response rate
 parameter. Here we evaluate a few design options as an example.
 
 The operating characteristics are setup in RBesT in a stepwise manner:
@@ -229,28 +268,44 @@ case of a conflict between the trial data and the prior. Note, that in
 this example the MAP prior has a 95% interval of about 0.1 to 0.5.
 
 ```{r}
-p_truth       <- seq(0.1,0.95,by=0.01)
+theta         <- seq(0.1,0.95,by=0.01)
 uniform_prior <- mixbeta(c(1,1,1))
 treat_prior   <- mixbeta(c(1,0.5,1)) # prior for treatment used in trial
 lancet_prior  <- mixbeta(c(1,11,32)) # prior for control   used in trial
 decision      <- decision2S(0.95, 0, lower.tail=FALSE)
 
-design_uniform   <- oc2S(uniform_prior, uniform_prior, 24, 6, decision)
-design_nonrobust <- oc2S(treat_prior,   map          , 24, 6, decision)
-design_robust    <- oc2S(treat_prior,   map_robust   , 24, 6, decision)
+design_uniform   <- oc2S(uniform_prior, uniform_prior, 24,  6, decision)
+design_classic   <- oc2S(uniform_prior, uniform_prior, 24, 24, decision)
+design_nonrobust <- oc2S(treat_prior,   map          , 24,  6, decision)
+design_robust    <- oc2S(treat_prior,   map_robust   , 24,  6, decision)
 
-typeI_uniform   <- design_uniform(  p_truth, p_truth)
-typeI_nonrobust <- design_nonrobust(p_truth, p_truth)
-typeI_robust    <- design_robust(   p_truth, p_truth)
+typeI_uniform   <- design_uniform(  theta, theta)
+typeI_classic   <- design_classic(  theta, theta)
+typeI_nonrobust <- design_nonrobust(theta, theta)
+typeI_robust    <- design_robust(   theta, theta)
 
-ocI <- rbind(data.frame(p_truth=p_truth, typeI=typeI_robust,    prior="robust"),
-             data.frame(p_truth=p_truth, typeI=typeI_nonrobust, prior="non-robust"),
-             data.frame(p_truth=p_truth, typeI=typeI_uniform,   prior="uniform")
+ocI <- rbind(data.frame(theta=theta, typeI=typeI_robust,    prior="robust"),
+             data.frame(theta=theta, typeI=typeI_nonrobust, prior="non-robust"),
+             data.frame(theta=theta, typeI=typeI_uniform,   prior="uniform"),
+             data.frame(theta=theta, typeI=typeI_classic,   prior="uniform 24:24")
              )
 
-library(ggplot2)
-theme_set(theme_bw()) # nice plotting theme
-qplot(p_truth, typeI, data=ocI, colour=prior, geom="line", main="Type I Error")
+qplot(theta, typeI, data=ocI, colour=prior, geom="line", main="Type I Error")
+```
+
+Note that observing response rates greater that 50% is highly
+implausible based on the MAP analysis:
+
+```{r}
+summary(map)
+```
+
+Hence, it is resonable to restrict the response rates $\theta$ for
+which we evaluate the type I error to a a range of plausible values:
+
+```{r}
+qplot(theta, typeI, data=subset(ocI, theta < 0.5), colour=prior, geom="line",
+      main="Type I Error - response rate restricted to plausible range")
 ```
 
 ### Power
@@ -261,27 +316,48 @@ a design with non-informative priors for both arms.
 
 ```{r}
 delta <- seq(0,0.7,by=0.01)
-m <- summary(map)["mean"]
-p_truth1 <- m +   delta
-p_truth2 <- m + 0*delta
+mean_control <- summary(map)["mean"]
+theta_active  <- mean_control +   delta
+theta_control <- mean_control + 0*delta
 
-power_uniform   <- design_uniform(  p_truth1, p_truth2)
-power_nonrobust <- design_nonrobust(p_truth1, p_truth2)
-power_robust    <- design_robust(   p_truth1, p_truth2)
+power_uniform   <- design_uniform(  theta_active, theta_control)
+power_classic   <- design_classic(  theta_active, theta_control)
+power_nonrobust <- design_nonrobust(theta_active, theta_control)
+power_robust    <- design_robust(   theta_active, theta_control)
 
-ocP <- rbind(data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power=power_robust,    prior="robust"),
-             data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power=power_nonrobust, prior="non-robust"),
-             data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power=power_uniform,   prior="uniform")
+ocP <- rbind(data.frame(theta_active, theta_control, delta=delta, power=power_robust,    prior="robust"),
+             data.frame(theta_active, theta_control, delta=delta, power=power_nonrobust, prior="non-robust"),
+             data.frame(theta_active, theta_control, delta=delta, power=power_uniform,   prior="uniform"),
+             data.frame(theta_active, theta_control, delta=delta, power=power_classic,   prior="uniform 24:24")
              )
 
 qplot(delta, power, data=ocP, colour=prior, geom="line", main="Power")
 
 ```
 
+We see that with the MAP prior one reaches greater power at smaller
+differences $\delta$ in the response rate. For example, the $\delta$
+for which 80% power is reached can be found with:
+
+```{r}
+find_delta <- function(design, theta_control, target_power) {
+    uniroot(function(delta) { design(theta_control + delta, theta_control) - target_power },
+            interval=c(0, 1-theta_control))$root
+}
+
+target_effect <- data.frame(delta=c(find_delta(design_nonrobust, mean_control, 0.8),
+                                    find_delta(design_classic,   mean_control, 0.8),
+                                    find_delta(design_robust,    mean_control, 0.8),                                    
+                                    find_delta(design_uniform,   mean_control, 0.8)),
+                            prior=c("non-robust", "uniform 24:24", "robust", "uniform"))
+
+knitr::kable(target_effect, digits=3)
+```
+
 ### Data Scenarios
 
 An alternative approach to visualize the study design to
-non-statisticians is by considering data scenarios. They show the
+non-statisticians is by considering data scenarios. These show the
 decisions based on potential trial outcomes. The information needed
 are the critical values at which the decision criterion flips. In the
 2-sample case this means to calculate the decision boundary, see the

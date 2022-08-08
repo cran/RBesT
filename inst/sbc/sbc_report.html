@@ -16,6 +16,16 @@
 <title>Simulation based calibration for RBesT</title>
 
 
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
 
 
 
@@ -214,18 +224,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Simulation based calibration for RBesT</h1>
 <h4 class="author">Sebastian Weber</h4>
-<h4 class="date">Tue Nov 23 23:08:09 2021</h4>
+<h4 class="date">Mon Aug 8 11:57:32 2022</h4>
 
 
 
 <p>This report documents the results of a simulation based calibration (SBC) run for <code>RBesT</code>. The calibration data will be generated whenever relevant changes to the <code>gMAP</code> function were made. The calibration runs are performed for typical use cases of <code>gMAP</code>. These include the three likelihoods (binomial, gaussian &amp; Poisson), a sparse (<span class="math inline">\(2\)</span> trials) and dense (<span class="math inline">\(10\)</span> trials) data situation and finally a run with a very/less conservative prior choice for between-trial heterogeniety parameter.</p>
 <p>The calibration data presented here has been generated at and with the <code>RBesT</code> git version as:</p>
-<pre><code>## Created:  2021-09-03 08:43:14 UTC
-## git hash: 3b254d41091496843b68a39477b149202796a5f5
-## MD5:      8f363c657046968a77eee164222f45dd</code></pre>
+<pre><code>## Created:  2022-07-25 15:43:29 UTC
+## git hash: a9012f0d7bf708d5f2998048157da97f3921e166
+## MD5:      e085f208d722d6ce54f5e7cbb5bafe62</code></pre>
 <p>The MD5 hash of the calibration data file presented here must match the above listed MD5:</p>
-<pre><code>##                    calibration.rds 
-## &quot;8f363c657046968a77eee164222f45dd&quot;</code></pre>
+<pre><code>## /gitlab-runner/builds/53wtLnsi/0/SMC/BesT/inst/sbc/calibration.rds 
+##                                 &quot;e085f208d722d6ce54f5e7cbb5bafe62&quot;</code></pre>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>Simulation based calibration (SBC) is a necessary condition which must be met for any Bayesian analysis with proper priors. The details are presented in Talts, et. al (see <a href="https://arxiv.org/abs/1804.06788" class="uri">https://arxiv.org/abs/1804.06788</a>).</p>
@@ -259,14 +269,28 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1>SBC results</h1>
 <div id="sampler-diagnostics-overview" class="section level2">
 <h2>Sampler Diagnostics Overview</h2>
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="6%"></col>
+<col width="9%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+<col width="10%"></col>
+<col width="19%"></col>
+<col width="5%"></col>
+<col width="6%"></col>
+<col width="11%"></col>
+<col width="10%"></col>
+<col width="10%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">family</th>
-<th align="left">problem</th>
+<th align="left">data_scenario</th>
 <th align="right">sd_tau</th>
 <th align="right">N</th>
 <th align="right">total_divergent</th>
+<th align="right">total_divergent_sim_fraction</th>
 <th align="right">min_ess</th>
 <th align="right">max_Rhat</th>
 <th align="right">total_large_Rhat</th>
@@ -280,144 +304,156 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <td align="left">dense</td>
 <td align="right">0.5</td>
 <td align="right">10000</td>
-<td align="right">0</td>
-<td align="right">917</td>
-<td align="right">1.012595</td>
-<td align="right">0</td>
-<td align="right">407</td>
-<td align="right">244</td>
-</tr>
-<tr class="even">
-<td align="left">binomial</td>
-<td align="left">dense</td>
-<td align="right">1.0</td>
-<td align="right">10000</td>
-<td align="right">0</td>
-<td align="right">571</td>
-<td align="right">1.012849</td>
-<td align="right">0</td>
-<td align="right">388</td>
-<td align="right">391</td>
-</tr>
-<tr class="odd">
-<td align="left">binomial</td>
-<td align="left">sparse</td>
-<td align="right">0.5</td>
-<td align="right">10000</td>
-<td align="right">11</td>
-<td align="right">465</td>
-<td align="right">1.009765</td>
-<td align="right">0</td>
-<td align="right">390</td>
-<td align="right">261</td>
-</tr>
-<tr class="even">
-<td align="left">binomial</td>
-<td align="left">sparse</td>
-<td align="right">1.0</td>
-<td align="right">10000</td>
-<td align="right">11</td>
-<td align="right">162</td>
-<td align="right">1.012056</td>
-<td align="right">0</td>
-<td align="right">325</td>
-<td align="right">281</td>
-</tr>
-<tr class="odd">
-<td align="left">gaussian</td>
-<td align="left">dense</td>
-<td align="right">0.5</td>
-<td align="right">10000</td>
-<td align="right">0</td>
-<td align="right">395</td>
-<td align="right">1.015950</td>
-<td align="right">0</td>
-<td align="right">343</td>
-<td align="right">319</td>
-</tr>
-<tr class="even">
-<td align="left">gaussian</td>
-<td align="left">dense</td>
-<td align="right">1.0</td>
-<td align="right">10000</td>
-<td align="right">3</td>
-<td align="right">436</td>
-<td align="right">1.019491</td>
-<td align="right">0</td>
-<td align="right">317</td>
-<td align="right">271</td>
-</tr>
-<tr class="odd">
-<td align="left">gaussian</td>
-<td align="left">sparse</td>
-<td align="right">0.5</td>
-<td align="right">10000</td>
-<td align="right">1532</td>
-<td align="right">16</td>
-<td align="right">1.167858</td>
-<td align="right">0</td>
 <td align="right">41</td>
-<td align="right">31</td>
+<td align="right">0.004</td>
+<td align="right">173</td>
+<td align="right">1.013</td>
+<td align="right">0</td>
+<td align="right">196</td>
+<td align="right">169</td>
+</tr>
+<tr class="even">
+<td align="left">binomial</td>
+<td align="left">dense</td>
+<td align="right">1.0</td>
+<td align="right">10000</td>
+<td align="right">65</td>
+<td align="right">0.005</td>
+<td align="right">85</td>
+<td align="right">1.024</td>
+<td align="right">0</td>
+<td align="right">200</td>
+<td align="right">171</td>
+</tr>
+<tr class="odd">
+<td align="left">binomial</td>
+<td align="left">sparse</td>
+<td align="right">0.5</td>
+<td align="right">10000</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+<td align="right">343</td>
+<td align="right">1.013</td>
+<td align="right">0</td>
+<td align="right">153</td>
+<td align="right">163</td>
+</tr>
+<tr class="even">
+<td align="left">binomial</td>
+<td align="left">sparse</td>
+<td align="right">1.0</td>
+<td align="right">10000</td>
+<td align="right">7</td>
+<td align="right">0.001</td>
+<td align="right">251</td>
+<td align="right">1.018</td>
+<td align="right">0</td>
+<td align="right">189</td>
+<td align="right">130</td>
+</tr>
+<tr class="odd">
+<td align="left">gaussian</td>
+<td align="left">dense</td>
+<td align="right">0.5</td>
+<td align="right">10000</td>
+<td align="right">87</td>
+<td align="right">0.008</td>
+<td align="right">221</td>
+<td align="right">1.023</td>
+<td align="right">0</td>
+<td align="right">62</td>
+<td align="right">173</td>
+</tr>
+<tr class="even">
+<td align="left">gaussian</td>
+<td align="left">dense</td>
+<td align="right">1.0</td>
+<td align="right">10000</td>
+<td align="right">93</td>
+<td align="right">0.007</td>
+<td align="right">73</td>
+<td align="right">1.027</td>
+<td align="right">0</td>
+<td align="right">149</td>
+<td align="right">168</td>
+</tr>
+<tr class="odd">
+<td align="left">gaussian</td>
+<td align="left">sparse</td>
+<td align="right">0.5</td>
+<td align="right">10000</td>
+<td align="right">739</td>
+<td align="right">0.036</td>
+<td align="right">8</td>
+<td align="right">1.265</td>
+<td align="right">1</td>
+<td align="right">33</td>
+<td align="right">133</td>
 </tr>
 <tr class="even">
 <td align="left">gaussian</td>
 <td align="left">sparse</td>
 <td align="right">1.0</td>
 <td align="right">10000</td>
-<td align="right">2831</td>
-<td align="right">2</td>
-<td align="right">2.434608</td>
+<td align="right">1282</td>
+<td align="right">0.062</td>
+<td align="right">12</td>
+<td align="right">1.236</td>
 <td align="right">1</td>
-<td align="right">3</td>
-<td align="right">23</td>
+<td align="right">105</td>
+<td align="right">119</td>
 </tr>
 <tr class="odd">
 <td align="left">poisson</td>
 <td align="left">dense</td>
 <td align="right">0.5</td>
 <td align="right">10000</td>
-<td align="right">1</td>
-<td align="right">451</td>
-<td align="right">1.011987</td>
+<td align="right">112</td>
+<td align="right">0.009</td>
+<td align="right">126</td>
+<td align="right">1.023</td>
 <td align="right">0</td>
-<td align="right">265</td>
-<td align="right">327</td>
+<td align="right">81</td>
+<td align="right">149</td>
 </tr>
 <tr class="even">
 <td align="left">poisson</td>
 <td align="left">dense</td>
 <td align="right">1.0</td>
 <td align="right">10000</td>
+<td align="right">145</td>
+<td align="right">0.013</td>
+<td align="right">29</td>
+<td align="right">1.118</td>
 <td align="right">0</td>
-<td align="right">384</td>
-<td align="right">1.012953</td>
-<td align="right">0</td>
-<td align="right">266</td>
-<td align="right">340</td>
+<td align="right">84</td>
+<td align="right">230</td>
 </tr>
 <tr class="odd">
 <td align="left">poisson</td>
 <td align="left">sparse</td>
 <td align="right">0.5</td>
 <td align="right">10000</td>
-<td align="right">3018</td>
-<td align="right">5</td>
-<td align="right">1.714576</td>
-<td align="right">1</td>
-<td align="right">10</td>
-<td align="right">50</td>
-</tr>
-<tr class="even">
-<td align="left">poisson</td>
-<td align="left">sparse</td>
-<td align="right">1.0</td>
-<td align="right">10000</td>
-<td align="right">3326</td>
+<td align="right">1536</td>
+<td align="right">0.048</td>
 <td align="right">6</td>
-<td align="right">1.531513</td>
+<td align="right">1.439</td>
 <td align="right">1</td>
-<td align="right">8</td>
-<td align="right">110</td>
+<td align="right">127</td>
+<td align="right">120</td>
+</tr>
+<tr class="even">
+<td align="left">poisson</td>
+<td align="left">sparse</td>
+<td align="right">1.0</td>
+<td align="right">10000</td>
+<td align="right">1902</td>
+<td align="right">0.063</td>
+<td align="right">3</td>
+<td align="right">1.733</td>
+<td align="right">1</td>
+<td align="right">45</td>
+<td align="right">51</td>
 </tr>
 </tbody>
 </table>
@@ -431,8 +467,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <table>
 <thead>
 <tr class="header">
-<th></th>
-<th align="left">problem</th>
+<th align="left"></th>
+<th align="left">data_scenario</th>
 <th align="left">likelihood</th>
 <th align="left">sd_tau</th>
 <th align="left">parameter</th>
@@ -443,124 +479,124 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </thead>
 <tbody>
 <tr class="odd">
-<td>1</td>
+<td align="left">1</td>
 <td align="left">dense</td>
 <td align="left">binomial</td>
 <td align="left">0.5</td>
 <td align="left">mu</td>
-<td align="right">37.747</td>
+<td align="right">75.341</td>
 <td align="right">63</td>
-<td align="right">0.995</td>
+<td align="right">0.137</td>
 </tr>
 <tr class="even">
-<td>13</td>
+<td align="left">13</td>
 <td align="left">dense</td>
 <td align="left">binomial</td>
 <td align="left">1</td>
 <td align="left">mu</td>
-<td align="right">64.026</td>
+<td align="right">66.074</td>
 <td align="right">63</td>
-<td align="right">0.440</td>
+<td align="right">0.371</td>
 </tr>
 <tr class="odd">
-<td>25</td>
+<td align="left">25</td>
 <td align="left">dense</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">mu</td>
-<td align="right">65.011</td>
+<td align="right">65.485</td>
 <td align="right">63</td>
-<td align="right">0.406</td>
+<td align="right">0.391</td>
 </tr>
 <tr class="even">
-<td>37</td>
+<td align="left">37</td>
 <td align="left">dense</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">mu</td>
-<td align="right">46.362</td>
+<td align="right">58.202</td>
 <td align="right">63</td>
-<td align="right">0.943</td>
+<td align="right">0.648</td>
 </tr>
 <tr class="odd">
-<td>49</td>
+<td align="left">49</td>
 <td align="left">dense</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">mu</td>
-<td align="right">62.490</td>
+<td align="right">63.258</td>
 <td align="right">63</td>
-<td align="right">0.494</td>
+<td align="right">0.467</td>
 </tr>
 <tr class="even">
-<td>61</td>
+<td align="left">61</td>
 <td align="left">dense</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">mu</td>
-<td align="right">59.021</td>
+<td align="right">88.410</td>
 <td align="right">63</td>
-<td align="right">0.619</td>
+<td align="right">0.019</td>
 </tr>
 <tr class="odd">
-<td>73</td>
+<td align="left">73</td>
 <td align="left">sparse</td>
 <td align="left">binomial</td>
 <td align="left">0.5</td>
 <td align="left">mu</td>
-<td align="right">62.298</td>
+<td align="right">63.322</td>
 <td align="right">63</td>
-<td align="right">0.501</td>
+<td align="right">0.465</td>
 </tr>
 <tr class="even">
-<td>77</td>
+<td align="left">78</td>
 <td align="left">sparse</td>
 <td align="left">binomial</td>
 <td align="left">1</td>
 <td align="left">mu</td>
-<td align="right">73.485</td>
+<td align="right">72.000</td>
 <td align="right">63</td>
-<td align="right">0.172</td>
+<td align="right">0.205</td>
 </tr>
 <tr class="odd">
-<td>81</td>
+<td align="left">83</td>
 <td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">mu</td>
-<td align="right">59.904</td>
+<td align="right">47.373</td>
 <td align="right">63</td>
-<td align="right">0.587</td>
+<td align="right">0.929</td>
 </tr>
 <tr class="even">
-<td>85</td>
+<td align="left">88</td>
 <td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">mu</td>
-<td align="right">71.680</td>
+<td align="right">80.282</td>
 <td align="right">63</td>
-<td align="right">0.212</td>
+<td align="right">0.070</td>
 </tr>
 <tr class="odd">
-<td>89</td>
+<td align="left">93</td>
 <td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">mu</td>
-<td align="right">57.024</td>
+<td align="right">56.819</td>
 <td align="right">63</td>
-<td align="right">0.688</td>
+<td align="right">0.695</td>
 </tr>
 <tr class="even">
-<td>93</td>
+<td align="left">98</td>
 <td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">mu</td>
-<td align="right">66.240</td>
+<td align="right">76.698</td>
 <td align="right">63</td>
-<td align="right">0.366</td>
+<td align="right">0.115</td>
 </tr>
 </tbody>
 </table>
@@ -570,8 +606,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <table>
 <thead>
 <tr class="header">
-<th></th>
-<th align="left">problem</th>
+<th align="left"></th>
+<th align="left">data_scenario</th>
 <th align="left">likelihood</th>
 <th align="left">sd_tau</th>
 <th align="left">parameter</th>
@@ -582,124 +618,124 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </thead>
 <tbody>
 <tr class="odd">
-<td>2</td>
+<td align="left">2</td>
 <td align="left">dense</td>
 <td align="left">binomial</td>
 <td align="left">0.5</td>
 <td align="left">tau</td>
-<td align="right">58.624</td>
+<td align="right">74.074</td>
 <td align="right">63</td>
-<td align="right">0.633</td>
+<td align="right">0.160</td>
 </tr>
 <tr class="even">
-<td>14</td>
+<td align="left">14</td>
 <td align="left">dense</td>
 <td align="left">binomial</td>
 <td align="left">1</td>
 <td align="left">tau</td>
-<td align="right">84.032</td>
+<td align="right">69.402</td>
 <td align="right">63</td>
-<td align="right">0.040</td>
+<td align="right">0.271</td>
 </tr>
 <tr class="odd">
-<td>26</td>
+<td align="left">26</td>
 <td align="left">dense</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">tau</td>
-<td align="right">69.683</td>
+<td align="right">99.622</td>
 <td align="right">63</td>
-<td align="right">0.263</td>
+<td align="right">0.002</td>
 </tr>
 <tr class="even">
-<td>38</td>
+<td align="left">38</td>
 <td align="left">dense</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">tau</td>
-<td align="right">53.555</td>
+<td align="right">64.922</td>
 <td align="right">63</td>
-<td align="right">0.796</td>
+<td align="right">0.410</td>
 </tr>
 <tr class="odd">
-<td>50</td>
+<td align="left">50</td>
 <td align="left">dense</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">tau</td>
-<td align="right">67.430</td>
+<td align="right">74.368</td>
 <td align="right">63</td>
-<td align="right">0.328</td>
+<td align="right">0.155</td>
 </tr>
 <tr class="even">
-<td>62</td>
+<td align="left">62</td>
 <td align="left">dense</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">tau</td>
-<td align="right">79.309</td>
+<td align="right">51.238</td>
 <td align="right">63</td>
-<td align="right">0.080</td>
+<td align="right">0.856</td>
 </tr>
 <tr class="odd">
-<td>74</td>
+<td align="left">74</td>
 <td align="left">sparse</td>
 <td align="left">binomial</td>
 <td align="left">0.5</td>
 <td align="left">tau</td>
-<td align="right">51.635</td>
+<td align="right">51.546</td>
 <td align="right">63</td>
-<td align="right">0.846</td>
+<td align="right">0.848</td>
 </tr>
 <tr class="even">
-<td>78</td>
+<td align="left">79</td>
 <td align="left">sparse</td>
 <td align="left">binomial</td>
 <td align="left">1</td>
 <td align="left">tau</td>
-<td align="right">61.517</td>
+<td align="right">58.227</td>
 <td align="right">63</td>
-<td align="right">0.529</td>
+<td align="right">0.647</td>
 </tr>
 <tr class="odd">
-<td>82</td>
+<td align="left">84</td>
 <td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">tau</td>
-<td align="right">63.424</td>
+<td align="right">50.432</td>
 <td align="right">63</td>
-<td align="right">0.461</td>
+<td align="right">0.874</td>
 </tr>
 <tr class="even">
-<td>86</td>
+<td align="left">89</td>
 <td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">tau</td>
-<td align="right">63.757</td>
+<td align="right">54.080</td>
 <td align="right">63</td>
-<td align="right">0.450</td>
+<td align="right">0.781</td>
 </tr>
 <tr class="odd">
-<td>90</td>
+<td align="left">94</td>
 <td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">tau</td>
-<td align="right">51.251</td>
+<td align="right">44.147</td>
 <td align="right">63</td>
-<td align="right">0.855</td>
+<td align="right">0.966</td>
 </tr>
 <tr class="even">
-<td>94</td>
+<td align="left">99</td>
 <td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">tau</td>
-<td align="right">61.773</td>
+<td align="right">62.515</td>
 <td align="right">63</td>
-<td align="right">0.520</td>
+<td align="right">0.494</td>
 </tr>
 </tbody>
 </table>
@@ -709,8 +745,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <table>
 <thead>
 <tr class="header">
-<th></th>
-<th align="left">problem</th>
+<th align="left"></th>
+<th align="left">data_scenario</th>
 <th align="left">likelihood</th>
 <th align="left">sd_tau</th>
 <th align="left">parameter</th>
@@ -721,737 +757,797 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </thead>
 <tbody>
 <tr class="odd">
-<td>3</td>
+<td align="left">3</td>
 <td align="left">dense</td>
 <td align="left">binomial</td>
 <td align="left">0.5</td>
 <td align="left">theta[1]</td>
+<td align="right">79.846</td>
+<td align="right">63</td>
+<td align="right">0.075</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[10]</td>
+<td align="right">43.597</td>
+<td align="right">63</td>
+<td align="right">0.970</td>
+</tr>
+<tr class="odd">
+<td align="left">5</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[2]</td>
+<td align="right">60.954</td>
+<td align="right">63</td>
+<td align="right">0.550</td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[3]</td>
+<td align="right">54.797</td>
+<td align="right">63</td>
+<td align="right">0.760</td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[4]</td>
+<td align="right">57.728</td>
+<td align="right">63</td>
+<td align="right">0.664</td>
+</tr>
+<tr class="even">
+<td align="left">8</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[5]</td>
+<td align="right">68.134</td>
+<td align="right">63</td>
+<td align="right">0.307</td>
+</tr>
+<tr class="odd">
+<td align="left">9</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[6]</td>
+<td align="right">42.816</td>
+<td align="right">63</td>
+<td align="right">0.976</td>
+</tr>
+<tr class="even">
+<td align="left">10</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[7]</td>
+<td align="right">47.334</td>
+<td align="right">63</td>
+<td align="right">0.929</td>
+</tr>
+<tr class="odd">
+<td align="left">11</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[8]</td>
+<td align="right">55.027</td>
+<td align="right">63</td>
+<td align="right">0.753</td>
+</tr>
+<tr class="even">
+<td align="left">12</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[9]</td>
+<td align="right">63.578</td>
+<td align="right">63</td>
+<td align="right">0.456</td>
+</tr>
+<tr class="odd">
+<td align="left">15</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[1]</td>
+<td align="right">85.222</td>
+<td align="right">63</td>
+<td align="right">0.033</td>
+</tr>
+<tr class="even">
+<td align="left">16</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[10]</td>
+<td align="right">46.490</td>
+<td align="right">63</td>
+<td align="right">0.941</td>
+</tr>
+<tr class="odd">
+<td align="left">17</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[2]</td>
+<td align="right">67.264</td>
+<td align="right">63</td>
+<td align="right">0.333</td>
+</tr>
+<tr class="even">
+<td align="left">18</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[3]</td>
+<td align="right">67.149</td>
+<td align="right">63</td>
+<td align="right">0.337</td>
+</tr>
+<tr class="odd">
+<td align="left">19</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[4]</td>
+<td align="right">49.766</td>
+<td align="right">63</td>
+<td align="right">0.887</td>
+</tr>
+<tr class="even">
+<td align="left">20</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[5]</td>
+<td align="right">76.941</td>
+<td align="right">63</td>
+<td align="right">0.111</td>
+</tr>
+<tr class="odd">
+<td align="left">21</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[6]</td>
+<td align="right">47.782</td>
+<td align="right">63</td>
+<td align="right">0.923</td>
+</tr>
+<tr class="even">
+<td align="left">22</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[7]</td>
+<td align="right">55.155</td>
+<td align="right">63</td>
+<td align="right">0.749</td>
+</tr>
+<tr class="odd">
+<td align="left">23</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[8]</td>
+<td align="right">53.210</td>
+<td align="right">63</td>
+<td align="right">0.806</td>
+</tr>
+<tr class="even">
+<td align="left">24</td>
+<td align="left">dense</td>
+<td align="left">binomial</td>
+<td align="left">1</td>
+<td align="left">theta[9]</td>
+<td align="right">55.782</td>
+<td align="right">63</td>
+<td align="right">0.729</td>
+</tr>
+<tr class="odd">
+<td align="left">27</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[1]</td>
+<td align="right">51.456</td>
+<td align="right">63</td>
+<td align="right">0.850</td>
+</tr>
+<tr class="even">
+<td align="left">28</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[10]</td>
+<td align="right">68.442</td>
+<td align="right">63</td>
+<td align="right">0.298</td>
+</tr>
+<tr class="odd">
+<td align="left">29</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[2]</td>
+<td align="right">84.006</td>
+<td align="right">63</td>
+<td align="right">0.040</td>
+</tr>
+<tr class="even">
+<td align="left">30</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[3]</td>
+<td align="right">68.736</td>
+<td align="right">63</td>
+<td align="right">0.289</td>
+</tr>
+<tr class="odd">
+<td align="left">31</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[4]</td>
+<td align="right">63.104</td>
+<td align="right">63</td>
+<td align="right">0.473</td>
+</tr>
+<tr class="even">
+<td align="left">32</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[5]</td>
+<td align="right">57.690</td>
+<td align="right">63</td>
+<td align="right">0.665</td>
+</tr>
+<tr class="odd">
+<td align="left">33</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[6]</td>
+<td align="right">53.146</td>
+<td align="right">63</td>
+<td align="right">0.807</td>
+</tr>
+<tr class="even">
+<td align="left">34</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[7]</td>
+<td align="right">67.366</td>
+<td align="right">63</td>
+<td align="right">0.330</td>
+</tr>
+<tr class="odd">
+<td align="left">35</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[8]</td>
+<td align="right">63.974</td>
+<td align="right">63</td>
+<td align="right">0.442</td>
+</tr>
+<tr class="even">
+<td align="left">36</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">0.5</td>
+<td align="left">theta[9]</td>
+<td align="right">61.517</td>
+<td align="right">63</td>
+<td align="right">0.529</td>
+</tr>
+<tr class="odd">
+<td align="left">39</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[1]</td>
+<td align="right">57.574</td>
+<td align="right">63</td>
+<td align="right">0.669</td>
+</tr>
+<tr class="even">
+<td align="left">40</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[10]</td>
+<td align="right">62.003</td>
+<td align="right">63</td>
+<td align="right">0.512</td>
+</tr>
+<tr class="odd">
+<td align="left">41</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[2]</td>
+<td align="right">61.786</td>
+<td align="right">63</td>
+<td align="right">0.520</td>
+</tr>
+<tr class="even">
+<td align="left">42</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[3]</td>
+<td align="right">83.008</td>
+<td align="right">63</td>
+<td align="right">0.046</td>
+</tr>
+<tr class="odd">
+<td align="left">43</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[4]</td>
+<td align="right">65.254</td>
+<td align="right">63</td>
+<td align="right">0.398</td>
+</tr>
+<tr class="even">
+<td align="left">44</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[5]</td>
+<td align="right">70.733</td>
+<td align="right">63</td>
+<td align="right">0.235</td>
+</tr>
+<tr class="odd">
+<td align="left">45</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[6]</td>
+<td align="right">61.402</td>
+<td align="right">63</td>
+<td align="right">0.533</td>
+</tr>
+<tr class="even">
+<td align="left">46</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[7]</td>
+<td align="right">86.822</td>
+<td align="right">63</td>
+<td align="right">0.025</td>
+</tr>
+<tr class="odd">
+<td align="left">47</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[8]</td>
+<td align="right">77.888</td>
+<td align="right">63</td>
+<td align="right">0.098</td>
+</tr>
+<tr class="even">
+<td align="left">48</td>
+<td align="left">dense</td>
+<td align="left">gaussian</td>
+<td align="left">1</td>
+<td align="left">theta[9]</td>
+<td align="right">77.862</td>
+<td align="right">63</td>
+<td align="right">0.098</td>
+</tr>
+<tr class="odd">
+<td align="left">51</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[1]</td>
+<td align="right">50.163</td>
+<td align="right">63</td>
+<td align="right">0.879</td>
+</tr>
+<tr class="even">
+<td align="left">52</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[10]</td>
+<td align="right">59.251</td>
+<td align="right">63</td>
+<td align="right">0.611</td>
+</tr>
+<tr class="odd">
+<td align="left">53</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[2]</td>
+<td align="right">51.110</td>
+<td align="right">63</td>
+<td align="right">0.859</td>
+</tr>
+<tr class="even">
+<td align="left">54</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[3]</td>
+<td align="right">59.661</td>
+<td align="right">63</td>
+<td align="right">0.596</td>
+</tr>
+<tr class="odd">
+<td align="left">55</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[4]</td>
+<td align="right">46.925</td>
+<td align="right">63</td>
+<td align="right">0.935</td>
+</tr>
+<tr class="even">
+<td align="left">56</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[5]</td>
+<td align="right">52.096</td>
+<td align="right">63</td>
+<td align="right">0.835</td>
+</tr>
+<tr class="odd">
+<td align="left">57</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[6]</td>
+<td align="right">55.846</td>
+<td align="right">63</td>
+<td align="right">0.727</td>
+</tr>
+<tr class="even">
+<td align="left">58</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[7]</td>
+<td align="right">55.872</td>
+<td align="right">63</td>
+<td align="right">0.726</td>
+</tr>
+<tr class="odd">
+<td align="left">59</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[8]</td>
+<td align="right">76.442</td>
+<td align="right">63</td>
+<td align="right">0.119</td>
+</tr>
+<tr class="even">
+<td align="left">60</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">0.5</td>
+<td align="left">theta[9]</td>
+<td align="right">55.782</td>
+<td align="right">63</td>
+<td align="right">0.729</td>
+</tr>
+<tr class="odd">
+<td align="left">63</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[1]</td>
+<td align="right">51.123</td>
+<td align="right">63</td>
+<td align="right">0.858</td>
+</tr>
+<tr class="even">
+<td align="left">64</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[10]</td>
+<td align="right">74.752</td>
+<td align="right">63</td>
+<td align="right">0.148</td>
+</tr>
+<tr class="odd">
+<td align="left">65</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[2]</td>
+<td align="right">51.725</td>
+<td align="right">63</td>
+<td align="right">0.844</td>
+</tr>
+<tr class="even">
+<td align="left">66</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[3]</td>
+<td align="right">49.549</td>
+<td align="right">63</td>
+<td align="right">0.892</td>
+</tr>
+<tr class="odd">
+<td align="left">67</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[4]</td>
+<td align="right">61.325</td>
+<td align="right">63</td>
+<td align="right">0.536</td>
+</tr>
+<tr class="even">
+<td align="left">68</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[5]</td>
+<td align="right">67.392</td>
+<td align="right">63</td>
+<td align="right">0.329</td>
+</tr>
+<tr class="odd">
+<td align="left">69</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[6]</td>
+<td align="right">57.702</td>
+<td align="right">63</td>
+<td align="right">0.665</td>
+</tr>
+<tr class="even">
+<td align="left">70</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[7]</td>
+<td align="right">60.314</td>
+<td align="right">63</td>
+<td align="right">0.573</td>
+</tr>
+<tr class="odd">
+<td align="left">71</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[8]</td>
+<td align="right">53.811</td>
+<td align="right">63</td>
+<td align="right">0.789</td>
+</tr>
+<tr class="even">
+<td align="left">72</td>
+<td align="left">dense</td>
+<td align="left">poisson</td>
+<td align="left">1</td>
+<td align="left">theta[9]</td>
+<td align="right">72.371</td>
+<td align="right">63</td>
+<td align="right">0.196</td>
+</tr>
+<tr class="odd">
+<td align="left">75</td>
+<td align="left">sparse</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[1]</td>
+<td align="right">46.682</td>
+<td align="right">63</td>
+<td align="right">0.938</td>
+</tr>
+<tr class="even">
+<td align="left">76</td>
+<td align="left">sparse</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[2]</td>
+<td align="right">57.536</td>
+<td align="right">63</td>
+<td align="right">0.671</td>
+</tr>
+<tr class="odd">
+<td align="left">77</td>
+<td align="left">sparse</td>
+<td align="left">binomial</td>
+<td align="left">0.5</td>
+<td align="left">theta[3]</td>
 <td align="right">69.709</td>
 <td align="right">63</td>
 <td align="right">0.262</td>
 </tr>
 <tr class="even">
-<td>4</td>
-<td align="left">dense</td>
+<td align="left">80</td>
+<td align="left">sparse</td>
 <td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[10]</td>
-<td align="right">62.925</td>
+<td align="left">1</td>
+<td align="left">theta[1]</td>
+<td align="right">60.992</td>
 <td align="right">63</td>
-<td align="right">0.479</td>
+<td align="right">0.548</td>
 </tr>
 <tr class="odd">
-<td>5</td>
-<td align="left">dense</td>
+<td align="left">81</td>
+<td align="left">sparse</td>
 <td align="left">binomial</td>
-<td align="left">0.5</td>
+<td align="left">1</td>
 <td align="left">theta[2]</td>
-<td align="right">49.830</td>
-<td align="right">63</td>
-<td align="right">0.886</td>
-</tr>
-<tr class="even">
-<td>6</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[3]</td>
-<td align="right">56.115</td>
+<td align="right">56.128</td>
 <td align="right">63</td>
 <td align="right">0.718</td>
 </tr>
-<tr class="odd">
-<td>7</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[4]</td>
-<td align="right">59.789</td>
-<td align="right">63</td>
-<td align="right">0.591</td>
-</tr>
 <tr class="even">
-<td>8</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[5]</td>
-<td align="right">65.203</td>
-<td align="right">63</td>
-<td align="right">0.400</td>
-</tr>
-<tr class="odd">
-<td>9</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[6]</td>
-<td align="right">73.779</td>
-<td align="right">63</td>
-<td align="right">0.166</td>
-</tr>
-<tr class="even">
-<td>10</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[7]</td>
-<td align="right">75.750</td>
-<td align="right">63</td>
-<td align="right">0.130</td>
-</tr>
-<tr class="odd">
-<td>11</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[8]</td>
-<td align="right">59.763</td>
-<td align="right">63</td>
-<td align="right">0.592</td>
-</tr>
-<tr class="even">
-<td>12</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[9]</td>
-<td align="right">71.859</td>
-<td align="right">63</td>
-<td align="right">0.208</td>
-</tr>
-<tr class="odd">
-<td>15</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[1]</td>
-<td align="right">59.648</td>
-<td align="right">63</td>
-<td align="right">0.597</td>
-</tr>
-<tr class="even">
-<td>16</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[10]</td>
-<td align="right">79.834</td>
-<td align="right">63</td>
-<td align="right">0.075</td>
-</tr>
-<tr class="odd">
-<td>17</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[2]</td>
-<td align="right">62.016</td>
-<td align="right">63</td>
-<td align="right">0.511</td>
-</tr>
-<tr class="even">
-<td>18</td>
-<td align="left">dense</td>
+<td align="left">82</td>
+<td align="left">sparse</td>
 <td align="left">binomial</td>
 <td align="left">1</td>
 <td align="left">theta[3]</td>
-<td align="right">48.115</td>
+<td align="right">66.842</td>
 <td align="right">63</td>
-<td align="right">0.917</td>
+<td align="right">0.347</td>
 </tr>
 <tr class="odd">
-<td>19</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[4]</td>
-<td align="right">52.698</td>
-<td align="right">63</td>
-<td align="right">0.819</td>
-</tr>
-<tr class="even">
-<td>20</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[5]</td>
-<td align="right">57.254</td>
-<td align="right">63</td>
-<td align="right">0.680</td>
-</tr>
-<tr class="odd">
-<td>21</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[6]</td>
-<td align="right">66.970</td>
-<td align="right">63</td>
-<td align="right">0.343</td>
-</tr>
-<tr class="even">
-<td>22</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[7]</td>
-<td align="right">88.947</td>
-<td align="right">63</td>
-<td align="right">0.017</td>
-</tr>
-<tr class="odd">
-<td>23</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[8]</td>
-<td align="right">53.261</td>
-<td align="right">63</td>
-<td align="right">0.804</td>
-</tr>
-<tr class="even">
-<td>24</td>
-<td align="left">dense</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[9]</td>
-<td align="right">71.706</td>
-<td align="right">63</td>
-<td align="right">0.211</td>
-</tr>
-<tr class="odd">
-<td>27</td>
-<td align="left">dense</td>
+<td align="left">85</td>
+<td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">theta[1]</td>
-<td align="right">54.208</td>
+<td align="right">61.658</td>
 <td align="right">63</td>
-<td align="right">0.777</td>
+<td align="right">0.524</td>
 </tr>
 <tr class="even">
-<td>28</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[10]</td>
-<td align="right">66.317</td>
-<td align="right">63</td>
-<td align="right">0.363</td>
-</tr>
-<tr class="odd">
-<td>29</td>
-<td align="left">dense</td>
+<td align="left">86</td>
+<td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">theta[2]</td>
-<td align="right">75.597</td>
+<td align="right">85.184</td>
 <td align="right">63</td>
-<td align="right">0.133</td>
+<td align="right">0.033</td>
 </tr>
-<tr class="even">
-<td>30</td>
-<td align="left">dense</td>
+<tr class="odd">
+<td align="left">87</td>
+<td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">0.5</td>
 <td align="left">theta[3]</td>
-<td align="right">44.134</td>
+<td align="right">62.195</td>
 <td align="right">63</td>
-<td align="right">0.966</td>
-</tr>
-<tr class="odd">
-<td>31</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[4]</td>
-<td align="right">54.784</td>
-<td align="right">63</td>
-<td align="right">0.760</td>
+<td align="right">0.505</td>
 </tr>
 <tr class="even">
-<td>32</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[5]</td>
-<td align="right">66.854</td>
-<td align="right">63</td>
-<td align="right">0.346</td>
-</tr>
-<tr class="odd">
-<td>33</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[6]</td>
-<td align="right">63.027</td>
-<td align="right">63</td>
-<td align="right">0.475</td>
-</tr>
-<tr class="even">
-<td>34</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[7]</td>
-<td align="right">51.046</td>
-<td align="right">63</td>
-<td align="right">0.860</td>
-</tr>
-<tr class="odd">
-<td>35</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[8]</td>
-<td align="right">64.166</td>
-<td align="right">63</td>
-<td align="right">0.435</td>
-</tr>
-<tr class="even">
-<td>36</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[9]</td>
-<td align="right">50.829</td>
-<td align="right">63</td>
-<td align="right">0.865</td>
-</tr>
-<tr class="odd">
-<td>39</td>
-<td align="left">dense</td>
+<td align="left">90</td>
+<td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">theta[1]</td>
-<td align="right">51.917</td>
+<td align="right">49.382</td>
 <td align="right">63</td>
-<td align="right">0.839</td>
-</tr>
-<tr class="even">
-<td>40</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[10]</td>
-<td align="right">79.616</td>
-<td align="right">63</td>
-<td align="right">0.077</td>
+<td align="right">0.895</td>
 </tr>
 <tr class="odd">
-<td>41</td>
-<td align="left">dense</td>
+<td align="left">91</td>
+<td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">theta[2]</td>
-<td align="right">68.928</td>
+<td align="right">63.744</td>
 <td align="right">63</td>
-<td align="right">0.284</td>
+<td align="right">0.450</td>
 </tr>
 <tr class="even">
-<td>42</td>
-<td align="left">dense</td>
+<td align="left">92</td>
+<td align="left">sparse</td>
 <td align="left">gaussian</td>
 <td align="left">1</td>
 <td align="left">theta[3]</td>
-<td align="right">69.274</td>
+<td align="right">57.062</td>
 <td align="right">63</td>
-<td align="right">0.274</td>
+<td align="right">0.687</td>
 </tr>
 <tr class="odd">
-<td>43</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[4]</td>
-<td align="right">64.243</td>
-<td align="right">63</td>
-<td align="right">0.433</td>
-</tr>
-<tr class="even">
-<td>44</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[5]</td>
-<td align="right">44.442</td>
-<td align="right">63</td>
-<td align="right">0.963</td>
-</tr>
-<tr class="odd">
-<td>45</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[6]</td>
-<td align="right">80.691</td>
-<td align="right">63</td>
-<td align="right">0.066</td>
-</tr>
-<tr class="even">
-<td>46</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[7]</td>
-<td align="right">52.326</td>
-<td align="right">63</td>
-<td align="right">0.829</td>
-</tr>
-<tr class="odd">
-<td>47</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[8]</td>
-<td align="right">59.123</td>
-<td align="right">63</td>
-<td align="right">0.615</td>
-</tr>
-<tr class="even">
-<td>48</td>
-<td align="left">dense</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[9]</td>
-<td align="right">71.437</td>
-<td align="right">63</td>
-<td align="right">0.218</td>
-</tr>
-<tr class="odd">
-<td>51</td>
-<td align="left">dense</td>
+<td align="left">95</td>
+<td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">theta[1]</td>
-<td align="right">61.760</td>
+<td align="right">63.117</td>
 <td align="right">63</td>
-<td align="right">0.521</td>
+<td align="right">0.472</td>
 </tr>
 <tr class="even">
-<td>52</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[10]</td>
-<td align="right">66.995</td>
-<td align="right">63</td>
-<td align="right">0.342</td>
-</tr>
-<tr class="odd">
-<td>53</td>
-<td align="left">dense</td>
+<td align="left">96</td>
+<td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">theta[2]</td>
-<td align="right">63.642</td>
+<td align="right">59.430</td>
 <td align="right">63</td>
-<td align="right">0.454</td>
+<td align="right">0.604</td>
 </tr>
-<tr class="even">
-<td>54</td>
-<td align="left">dense</td>
+<tr class="odd">
+<td align="left">97</td>
+<td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">0.5</td>
 <td align="left">theta[3]</td>
-<td align="right">65.382</td>
+<td align="right">64.858</td>
 <td align="right">63</td>
-<td align="right">0.394</td>
-</tr>
-<tr class="odd">
-<td>55</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[4]</td>
-<td align="right">72.870</td>
-<td align="right">63</td>
-<td align="right">0.185</td>
+<td align="right">0.412</td>
 </tr>
 <tr class="even">
-<td>56</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[5]</td>
-<td align="right">69.760</td>
-<td align="right">63</td>
-<td align="right">0.261</td>
-</tr>
-<tr class="odd">
-<td>57</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[6]</td>
-<td align="right">63.898</td>
-<td align="right">63</td>
-<td align="right">0.445</td>
-</tr>
-<tr class="even">
-<td>58</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[7]</td>
-<td align="right">61.120</td>
-<td align="right">63</td>
-<td align="right">0.544</td>
-</tr>
-<tr class="odd">
-<td>59</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[8]</td>
-<td align="right">81.203</td>
-<td align="right">63</td>
-<td align="right">0.061</td>
-</tr>
-<tr class="even">
-<td>60</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[9]</td>
-<td align="right">62.797</td>
-<td align="right">63</td>
-<td align="right">0.484</td>
-</tr>
-<tr class="odd">
-<td>63</td>
-<td align="left">dense</td>
+<td align="left">100</td>
+<td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">theta[1]</td>
-<td align="right">54.938</td>
+<td align="right">70.259</td>
 <td align="right">63</td>
-<td align="right">0.755</td>
-</tr>
-<tr class="even">
-<td>64</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[10]</td>
-<td align="right">57.626</td>
-<td align="right">63</td>
-<td align="right">0.668</td>
+<td align="right">0.248</td>
 </tr>
 <tr class="odd">
-<td>65</td>
-<td align="left">dense</td>
+<td align="left">101</td>
+<td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">theta[2]</td>
-<td align="right">57.114</td>
+<td align="right">69.491</td>
 <td align="right">63</td>
-<td align="right">0.685</td>
+<td align="right">0.268</td>
 </tr>
 <tr class="even">
-<td>66</td>
-<td align="left">dense</td>
+<td align="left">102</td>
+<td align="left">sparse</td>
 <td align="left">poisson</td>
 <td align="left">1</td>
 <td align="left">theta[3]</td>
-<td align="right">81.946</td>
+<td align="right">66.829</td>
 <td align="right">63</td>
-<td align="right">0.055</td>
-</tr>
-<tr class="odd">
-<td>67</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[4]</td>
-<td align="right">68.224</td>
-<td align="right">63</td>
-<td align="right">0.304</td>
-</tr>
-<tr class="even">
-<td>68</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[5]</td>
-<td align="right">82.010</td>
-<td align="right">63</td>
-<td align="right">0.054</td>
-</tr>
-<tr class="odd">
-<td>69</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[6]</td>
-<td align="right">53.222</td>
-<td align="right">63</td>
-<td align="right">0.805</td>
-</tr>
-<tr class="even">
-<td>70</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[7]</td>
-<td align="right">87.322</td>
-<td align="right">63</td>
-<td align="right">0.023</td>
-</tr>
-<tr class="odd">
-<td>71</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[8]</td>
-<td align="right">59.776</td>
-<td align="right">63</td>
-<td align="right">0.592</td>
-</tr>
-<tr class="even">
-<td>72</td>
-<td align="left">dense</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[9]</td>
-<td align="right">80.909</td>
-<td align="right">63</td>
-<td align="right">0.064</td>
-</tr>
-<tr class="odd">
-<td>75</td>
-<td align="left">sparse</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[1]</td>
-<td align="right">73.523</td>
-<td align="right">63</td>
-<td align="right">0.171</td>
-</tr>
-<tr class="even">
-<td>76</td>
-<td align="left">sparse</td>
-<td align="left">binomial</td>
-<td align="left">0.5</td>
-<td align="left">theta[2]</td>
-<td align="right">54.541</td>
-<td align="right">63</td>
-<td align="right">0.767</td>
-</tr>
-<tr class="odd">
-<td>79</td>
-<td align="left">sparse</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[1]</td>
-<td align="right">58.957</td>
-<td align="right">63</td>
-<td align="right">0.621</td>
-</tr>
-<tr class="even">
-<td>80</td>
-<td align="left">sparse</td>
-<td align="left">binomial</td>
-<td align="left">1</td>
-<td align="left">theta[2]</td>
-<td align="right">60.083</td>
-<td align="right">63</td>
-<td align="right">0.581</td>
-</tr>
-<tr class="odd">
-<td>83</td>
-<td align="left">sparse</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[1]</td>
-<td align="right">66.061</td>
-<td align="right">63</td>
-<td align="right">0.372</td>
-</tr>
-<tr class="even">
-<td>84</td>
-<td align="left">sparse</td>
-<td align="left">gaussian</td>
-<td align="left">0.5</td>
-<td align="left">theta[2]</td>
-<td align="right">54.656</td>
-<td align="right">63</td>
-<td align="right">0.764</td>
-</tr>
-<tr class="odd">
-<td>87</td>
-<td align="left">sparse</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[1]</td>
-<td align="right">51.494</td>
-<td align="right">63</td>
-<td align="right">0.850</td>
-</tr>
-<tr class="even">
-<td>88</td>
-<td align="left">sparse</td>
-<td align="left">gaussian</td>
-<td align="left">1</td>
-<td align="left">theta[2]</td>
-<td align="right">58.010</td>
-<td align="right">63</td>
-<td align="right">0.654</td>
-</tr>
-<tr class="odd">
-<td>91</td>
-<td align="left">sparse</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[1]</td>
-<td align="right">71.987</td>
-<td align="right">63</td>
-<td align="right">0.205</td>
-</tr>
-<tr class="even">
-<td>92</td>
-<td align="left">sparse</td>
-<td align="left">poisson</td>
-<td align="left">0.5</td>
-<td align="left">theta[2]</td>
-<td align="right">51.085</td>
-<td align="right">63</td>
-<td align="right">0.859</td>
-</tr>
-<tr class="odd">
-<td>95</td>
-<td align="left">sparse</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[1]</td>
-<td align="right">68.352</td>
-<td align="right">63</td>
-<td align="right">0.301</td>
-</tr>
-<tr class="even">
-<td>96</td>
-<td align="left">sparse</td>
-<td align="left">poisson</td>
-<td align="left">1</td>
-<td align="left">theta[2]</td>
-<td align="right">50.701</td>
-<td align="right">63</td>
-<td align="right">0.868</td>
+<td align="right">0.347</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div id="session-info" class="section level2">
 <h2>Session Info</h2>
-<pre><code>## R version 3.6.3 (2020-02-29)
+<pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 18.04.5 LTS
+## Running under: Ubuntu 20.04.4 LTS
 ## 
 ## Matrix products: default
-## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
-## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
+## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -1466,28 +1562,26 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## [8] base     
 ## 
 ## other attached packages:
-##  [1] purrr_0.3.4        rstan_2.19.3       StanHeaders_2.19.2 RBesT_1.6-3       
-##  [5] testthat_2.3.2     devtools_2.3.0     usethis_1.6.0      ggplot2_3.3.0     
-##  [9] broom_0.5.5        tidyr_1.0.2        dplyr_0.8.5        assertthat_0.2.1  
-## [13] knitr_1.28         rmarkdown_2.1     
+##  [1] purrr_0.3.4          rstan_2.21.2         StanHeaders_2.21.0-7
+##  [4] here_1.0.1           ggplot2_3.3.5        broom_0.7.9         
+##  [7] tidyr_1.1.3          dplyr_1.0.8          assertthat_0.2.1    
+## [10] knitr_1.33           rmarkdown_2.11      
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.4.6       mvtnorm_1.1-0      lattice_0.20-44    prettyunits_1.1.1 
-##  [5] ps_1.3.2           rprojroot_1.3-2    digest_0.6.25      plyr_1.8.6        
-##  [9] R6_2.4.1           ggridges_0.5.2     backports_1.1.6    stats4_3.6.3      
-## [13] evaluate_0.14      highr_0.8          pillar_1.4.3       rlang_0.4.5       
-## [17] rstudioapi_0.11    callr_3.4.3        checkmate_2.0.0    desc_1.2.0        
-## [21] stringr_1.4.0      loo_2.2.0          munsell_0.5.0      compiler_3.6.3    
-## [25] xfun_0.13          pkgconfig_2.0.3    pkgbuild_1.0.6     rstantools_2.1.1  
-## [29] htmltools_0.4.0    tidyselect_1.0.0   tibble_3.0.0       gridExtra_2.3     
-## [33] codetools_0.2-18   matrixStats_0.56.0 fansi_0.4.1        crayon_1.3.4      
-## [37] withr_2.1.2        grid_3.6.3         nlme_3.1-152       gtable_0.3.0      
-## [41] lifecycle_0.2.0    magrittr_1.5       scales_1.1.0       RcppParallel_5.1.4
-## [45] cli_2.0.2          stringi_1.4.6      fs_1.4.1           remotes_2.1.1     
-## [49] ellipsis_0.3.0     generics_0.0.2     vctrs_0.2.4        Formula_1.2-3     
-## [53] glue_1.4.0         processx_3.4.2     pkgload_1.0.2      parallel_3.6.3    
-## [57] yaml_2.2.1         inline_0.3.15      colorspace_1.4-1   sessioninfo_1.1.1 
-## [61] bayesplot_1.7.1    memoise_1.1.0</code></pre>
+##  [1] tidyselect_1.1.1   xfun_0.25          bslib_0.3.1        V8_3.4.2          
+##  [5] colorspace_2.0-2   vctrs_0.3.8        generics_0.1.0     htmltools_0.5.2   
+##  [9] stats4_4.1.0       loo_2.4.1          yaml_2.2.1         utf8_1.2.2        
+## [13] rlang_1.0.1        pkgbuild_1.2.0     jquerylib_0.1.4    pillar_1.6.2      
+## [17] glue_1.6.1         withr_2.4.3        DBI_1.1.2          matrixStats_0.60.1
+## [21] lifecycle_1.0.1    stringr_1.4.0      munsell_0.5.0      gtable_0.3.0      
+## [25] codetools_0.2-18   evaluate_0.14      inline_0.3.19      callr_3.7.0       
+## [29] fastmap_1.1.0      ps_1.6.0           parallel_4.1.0     curl_4.3.2        
+## [33] fansi_0.5.0        highr_0.9          Rcpp_1.0.7         backports_1.2.1   
+## [37] scales_1.1.1       RcppParallel_5.1.4 jsonlite_1.7.2     gridExtra_2.3     
+## [41] digest_0.6.29      stringi_1.7.3      processx_3.5.2     grid_4.1.0        
+## [45] rprojroot_2.0.2    cli_3.1.1          magrittr_2.0.1     sass_0.4.0        
+## [49] tibble_3.1.3       crayon_1.4.2       pkgconfig_2.0.3    ellipsis_0.3.2    
+## [53] prettyunits_1.1.1  R6_2.5.1           compiler_4.1.0</code></pre>
 </div>
 </div>
 

@@ -90,12 +90,13 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
         ## difficulties if some points are far away from some
         ## component and hence recieve very low density
         for(i in seq(Nc)) {
-            lli[,i] <- log(pEst[i]) + dmvnorm(X, muEst[i,], as.matrix(covEst[i,,]), log=TRUE)
+            lli[,i] <- log(pEst[i]) + dmvnorm(X, muEst[i,], as.matrix(covEst[i,,]), log=TRUE, checkSymmetry=FALSE)
         }
         ## ensure that the log-likelihood does not go out of numerical
         ## reasonable bounds
         lli <- apply(lli, 2, pmax, -30)
-        lnresp <- apply(lli, 1, log_sum_exp)
+        ##lnresp <- apply(lli, 1, log_sum_exp)
+        lnresp <- matrixStats::rowLogSumExps(lli)
         ## the log-likelihood is then given by the sum of lresp
         lliCur <- sum(lnresp)
         ## record current state
@@ -129,7 +130,8 @@ EM_mnmm <- function(X, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol
 
         ## mean probability to be in a specific mixture component -> updates
         ## pEst
-        lzSum <- apply(lresp, 2, log_sum_exp)
+        ##lzSum <- apply(lresp, 2, log_sum_exp)
+        lzSum <- colLogSumExps(lresp)
         ##zSum <- exp(lzSum)
         pEst <- exp(lzSum - logN)
 

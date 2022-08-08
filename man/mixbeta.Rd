@@ -4,6 +4,8 @@
 \alias{mixbeta}
 \alias{ms2beta}
 \alias{mn2beta}
+\alias{print.betaMix}
+\alias{print.betaBinomialMix}
 \alias{summary.betaMix}
 \alias{summary.betaBinomialMix}
 \title{Beta Mixture Density}
@@ -13,6 +15,10 @@ mixbeta(..., param = c("ab", "ms", "mn"))
 ms2beta(m, s, drop = TRUE)
 
 mn2beta(m, n, drop = TRUE)
+
+\method{print}{betaMix}(x, ...)
+
+\method{print}{betaBinomialMix}(x, ...)
 
 \method{summary}{betaMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 
@@ -32,13 +38,15 @@ are interpreted. See details.}
 
 \item{n}{Vector of number of observations.}
 
+\item{x}{The mixture to print}
+
 \item{object}{Beta mixture object.}
 
 \item{probs}{Quantiles reported by the \code{summary} function.}
 }
 \value{
-\code{mixbeta} returns a beta mixture with the specified mixture components. \code{ms2beta} and 
-\code{mn2beta} return the equivalent natural \code{a} and \code{b} parametrization given parameters \code{m}, 
+\code{mixbeta} returns a beta mixture with the specified mixture components. \code{ms2beta} and
+\code{mn2beta} return the equivalent natural \code{a} and \code{b} parametrization given parameters \code{m},
 \code{s}, or \code{n}.
 }
 \description{

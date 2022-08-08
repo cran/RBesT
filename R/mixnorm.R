@@ -1,4 +1,3 @@
-#' @rdname mixnorm
 #' @name mixnorm
 #' @aliases sigma
 #'
@@ -6,16 +5,16 @@
 #'
 #' @description The normal mixture density and auxiliary functions.
 #'
-#' @param ... list of mixture components.
-#' @param sigma reference scale.
-#' @param param determines how the parameters in the list are
+#' @param ... List of mixture components.
+#' @param sigma Reference scale.
+#' @param param Determines how the parameters in the list are
 #' interpreted. See details.
-#' @param m vector of means
-#' @param n vector of sample sizes.
-#' @param drop delete the dimensions of an array which have only one level.
-#' @param object normal mixture object.
-#' @param probs quantiles reported by the \code{summary} function.
-#' @param value new value of the reference scale \code{sigma}.
+#' @param m Vector of means
+#' @param n Vector of sample sizes.
+#' @param drop Delete the dimensions of an array which have only one level.
+#' @param object Normal mixture object.
+#' @param probs Quantiles reported by the \code{summary} function.
+#' @param value New value of the reference scale \code{sigma}.
 #'
 #' @details Each entry in the \code{...} argument list is expected to
 #' be a triplet of numbers which defines the weight \eqn{w_k}, first
@@ -69,9 +68,10 @@
 #'
 #' sigma(nm) <- 10
 #' ess(nm)
-#'
-#' @export
+NULL
+
 #' @rdname mixnorm
+#' @export
 mixnorm <- function(..., sigma, param=c("ms", "mn")) {
     mix <- mixdist3(...)
     param <- match.arg(param)
@@ -90,8 +90,8 @@ mixnorm <- function(..., sigma, param=c("ms", "mn")) {
     mix
 }
 
-#' @export
 #' @rdname mixnorm
+#' @export
 mn2norm <- function(m, n, sigma, drop=TRUE) {
     assert_number(sigma, lower=0)
     sigma_n <- sigma/sqrt(n)
@@ -100,17 +100,20 @@ mn2norm <- function(m, n, sigma, drop=TRUE) {
     ms
 }
 
+#' @rdname mixnorm
+#' @method print normMix
+#' @param x The mixture to print
 #' @export
-print.normMix <- function(x, digits=NULL, ...) {
+print.normMix <- function(x, ...) {
     cat("Univariate normal mixture\n")
     if(!is.null(sigma(x)))
        cat("Reference scale: ", sigma(x), "\n", sep="")
     NextMethod()
 }
 
+#' @rdname mixnorm
 #' @method summary normMix
 #' @export
-#' @rdname mixnorm
 summary.normMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     p <- object[1,]
     m <- object[2,]

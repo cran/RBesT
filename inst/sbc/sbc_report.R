@@ -5,6 +5,10 @@
 #' output: html_vignette
 #' params:
 #'   include_plots: FALSE
+#' vignette: >
+#'    %\VignetteIndexEntry{Simulation based calibration for RBesT}
+#'    %\VignetteEngine{knitr::rmarkdown}
+#'    %\VignetteEncoding{UTF-8}
 #' ---
 #'
 #+ include=FALSE
@@ -16,7 +20,10 @@ library(tidyr)
 library(broom)
 library(ggplot2)
 theme_set(theme_bw())
-source("sbc_tools.R")
+here::i_am("inst/sbc/sbc_report.R")
+library(here)
+source(here("inst", "sbc", "sbc_tools.R"))
+library(rstan)
 library(purrr)
 
 knitr::opts_chunk$set(
@@ -37,11 +44,11 @@ knitr::opts_chunk$set(
 #'
 #' The calibration data presented here has been generated at and with
 #' the `RBesT` git version as:
-cat(readLines("calibration.md5"), sep="\n")
+cat(readLines(here("inst", "sbc", "calibration.md5")), sep="\n")
 #'
 #' The MD5 hash of the calibration data file presented here must match
 #' the above listed MD5:
-md5sum("calibration.rds")
+md5sum(here("inst", "sbc", "calibration.rds"))
 #'
 #' # Introduction
 #'
@@ -102,7 +109,7 @@ md5sum("calibration.rds")
 #' bin.
 #'
 
-calibration <- readRDS("calibration.rds")
+calibration <- readRDS(here("inst", "sbc", "calibration.rds"))
 include_plots <- TRUE
 if("params" %in% ls())
     include_plots <- params$include_plots
@@ -141,7 +148,7 @@ S <- calibration$S
 
 calibration_binned <- calibration$data %>%
     unite(family, sd_tau, col="group", sep="/") %>%
-    group_by(problem, group)
+    group_by(data_scenario, group)
 
 calibration_binned  <- calibration_binned %>%
     gather(starts_with("count"), key="parameter", value="count") %>%
@@ -151,14 +158,14 @@ calibration_binned  <- calibration_binned %>%
 ## (happens due the way data is processed for the sparse cases)
 
 calibration_binned  <- calibration_binned %>%
-    group_by(problem, group, parameter) %>%
+    group_by(data_scenario, group, parameter) %>%
     mutate(all_zero=all(count == 0)) %>%
     ungroup() %>%
     subset(!all_zero) %>%
     mutate(all_zero=NULL)
 
-calibration_dense <- subset(calibration_binned, problem=="dense")
-calibration_sparse <- subset(calibration_binned, problem=="sparse")
+calibration_dense <- subset(calibration_binned, data_scenario=="dense")
+calibration_sparse <- subset(calibration_binned, data_scenario=="sparse")
 
 pl_dense  <- calibration_dense %>%
     split(.$parameter) %>%
@@ -173,7 +180,7 @@ pl_sparse  <- calibration_sparse %>%
 #' ## Sampler Diagnostics Overview
 #'
 
-kable(calibration$sampler_diagnostics)
+kable(calibration$sampler_diagnostics, digits=3)
 
 #'
 #' Note: Large Rhat is defined as exceeding 1.2.
@@ -186,10 +193,10 @@ kable(calibration$sampler_diagnostics)
 #'
 
 chisq  <- calibration_binned %>%
-    group_by(problem, group, parameter) %>%
+    group_by(data_scenario, group, parameter) %>%
     group_map( ~cbind(case=.y, tidy(chisq.test(.$count))[,c(1,3,2)]) ) %>%
-    bind_rows() %>%
-    rename(df=parameter, problem=case.problem, group=case.group, parameter=case.parameter) %>%
+        bind_rows() %>%
+    rename(df=parameter, data_scenario=case.data_scenario, group=case.group, parameter=case.parameter) %>%
     separate(group, into=c("likelihood", "sd_tau"), sep="/")
 
 kable(subset(chisq, parameter=="mu"), digits=3)

@@ -6,7 +6,7 @@
 #'
 #' @param mix1 first mixture density
 #' @param mix2 second mixture density
-#' @param x vector of values for which density values are computed 
+#' @param x vector of values for which density values are computed
 #' @param q vector of quantiles for which cumulative probabilities are computed
 #' @param p vector of cumulative probabilities for which quantiles are computed
 #' @param n size of random sample
@@ -25,7 +25,7 @@
 #' Both integrals are performed over the full support of the
 #' densities and use the numerical integration function
 #' \code{\link{integrate}}.
-#' 
+#'
 # The quantile function is implemented using a gradient based
 # minimization of the squared difference of the cumulative
 # distribution function with the quantile requested, i.e. making use
@@ -34,7 +34,7 @@
 #'
 #' @return Respective density, quantile, cumulative density or random
 #' numbers.
-#' 
+#'
 #' @examples
 #'
 #' # 1. Difference between two beta distributions, i.e. Pr( mix1 - mix2 > 0)
@@ -52,21 +52,21 @@
 #' # random sample of difference
 #' set.seed(23434)
 #' rM <- rmixdiff(m1, m2, 1E4)
-#' 
+#'
 #' # histogram of random numbers and exact density
 #' hist(rM,prob=TRUE,new=TRUE,nclass=40)
 #' curve(dmixdiff(m1,m2,x), add=TRUE, n=51)
-#' 
+#'
 #' # threshold probabilities for difference, at 0 and 0.2
 #' pmixdiff(m1, m2, 0)
 #' mean(rM<0)
 #' pmixdiff(m1,m2,0.2)
 #' mean(rM<0.2)
-#' 
+#'
 #' # median of difference
 #' mdn <- qmixdiff(m1, m2, 0.5)
 #' mean(rM<mdn)
-#' 
+#'
 #' # 95%-interval
 #' qmixdiff(m1, m2, c(0.025,0.975))
 #' quantile(rM, c(0.025,0.975))
@@ -115,7 +115,7 @@ dmixdiff <- function(mix1, mix2, x) {
             integrate_density_log(function(x) lscale + dmix(mix2, x-sx, log=TRUE), mix1) / scale
         }
     }
-    
+
     vapply(x, .dens, c(d=0.1))
 }
 
@@ -143,7 +143,7 @@ pmixdiff <- function(mix1, mix2, q, lower.tail=TRUE) {
             integrate_density_log(function(x) pmix(mix2, x-sx, lower.tail=FALSE, log.p=TRUE), mix1)
         }
     }
-    
+
     p <- pmin(pmax(vapply(q, .prob, c(p=0.1)), 0), 1)
     if(!lower.tail)
         p <- 1-p

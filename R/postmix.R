@@ -107,7 +107,7 @@ postmix.betaMix <- function(priormix, data, n, r, ...) {
         n <- length(data)
     }
     w <- log(priormix[1,,drop=FALSE]) + dBetaBinomial(r, n, priormix[2,,drop=FALSE], priormix[3,,drop=FALSE], log=TRUE)
-    priormix[1,] <- exp(w - log_sum_exp(w))
+    priormix[1,] <- exp(w - matrixStats::logSumExp(w))
     priormix[2,] <- priormix[2,,drop=FALSE] + r
     priormix[3,] <- priormix[3,,drop=FALSE] + n - r
     class(priormix) <- c("betaMix", "mix")
@@ -155,7 +155,7 @@ postmix.normMix <- function(priormix, data, n, m, se, ...) {
     ## component in log space
     sigmaPred <- sqrt(priormix[3,,drop=FALSE]^2 + se^2)
     lw <- log(priormix[1,,drop=FALSE]) + dnorm(m, priormix[2,,drop=FALSE], sigmaPred, log=TRUE)
-    priormix[1,] <- exp(lw - log_sum_exp(lw))
+    priormix[1,] <- exp(lw - matrixStats::logSumExp(lw))
     ## posterior means are precision weighted average of prior mean
     ## and data
     priormix[2,] <- (priormix[2,,drop=FALSE] * priorPrec + m * dataPrec) / postPrec
@@ -185,7 +185,7 @@ postmix.gammaMix <- function(priormix, data, n, m, ...) {
         w <- log(priormix[1,,drop=FALSE]) + .dnbinomAB(s, priormix[2,], priormix[3,]/n, log=TRUE)
     else ## case n=0
         w <- log(priormix[1,,drop=FALSE])
-    priormix[1,] <- exp(w - log_sum_exp(w))
+    priormix[1,] <- exp(w - matrixStats::logSumExp(w))
     priormix[2,] <- priormix[2,,drop=FALSE] + s
     priormix[3,] <- priormix[3,,drop=FALSE] + n
     class(priormix) <- c("gammaMix", "mix")

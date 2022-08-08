@@ -44,11 +44,11 @@
 #'
 #' # example from Schmidli et al., 2014
 #' dec <- decision2S(0.975, 0, lower.tail=FALSE)
-#' 
+#'
 #' prior_inf <- mixbeta(c(1, 4, 16))
 #' prior_rob <- robustify(prior_inf, weight=0.2, mean=0.5)
 #' prior_uni <- mixbeta(c(1, 1,  1))
-#' 
+#'
 #' N <- 40
 #' N_ctl <- N - 20
 #'
@@ -61,12 +61,12 @@
 #' curve(design_inf(x,x), 0, 1)
 #' curve(design_uni(x,x), lty=2, add=TRUE)
 #' curve(design_rob(x,x), lty=3, add=TRUE)
-#' 
+#'
 #' # power
 #' curve(design_inf(0.2+x,0.2), 0, 0.5)
 #' curve(design_uni(0.2+x,0.2), lty=2, add=TRUE)
 #' curve(design_rob(0.2+x,0.2), lty=3, add=TRUE)
-#' 
+#'
 #'
 #' @export
 oc2S <- function(prior1, prior2, n1, n2, decision, ...) UseMethod("oc2S")
@@ -86,7 +86,7 @@ oc2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
     lower.tail <- attr(decision, "lower.tail")
 
     approx_method <- !missing(eps)
-    
+
     design_fun <- function(theta1, theta2, y2) {
         ## other-wise we calculate the frequencies at which the
         ## decision is 1 (probability mass with decision==1)
@@ -99,10 +99,10 @@ oc2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
             deprecated("Use of y2 argument", "decision2S_boundary")
             return(crit_y1(y2, lim1=c(0, n1)))
         }
-        
+
         assert_numeric(theta1, lower=0, upper=1, finite=TRUE)
         assert_numeric(theta2, lower=0, upper=1, finite=TRUE)
-        
+
         T <- try(data.frame(theta1 = theta1, theta2 = theta2, row.names=NULL))
         if (inherits(T, "try-error")) {
             stop("theta1 and theta2 need to be of same size")
@@ -126,7 +126,7 @@ oc2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
         ## the density as the value for 1 occures (due to theta1)
         boundary <- crit_y1(lim2[1]:lim2[2], lim1=c(0,n1))
         res <- matrix(-Inf, nrow=diff(lim2)+1, ncol=nrow(T))
-        
+
         for(i in lim2[1]:lim2[2]) {
             y2ind <- i - lim2[1] + 1
             if(boundary[y2ind] == -1) {
@@ -145,7 +145,8 @@ oc2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
             ##res[y2ind,] <- res[y2ind,] + pmax(dbinom(i, n2, T$theta2, log=TRUE), -700)
             res[y2ind,] <- res[y2ind,] + dbinom(i, n2, T$theta2, log=TRUE)
         }
-        exp(log_colSum_exp(res))
+        ##exp(log_colSum_exp(res))
+        exp(matrixStats::colLogSumExps(res))
     }
     design_fun
 }
@@ -167,7 +168,7 @@ oc2S.normMix <- function(prior1, prior2, n1, n2, decision, sigma1, sigma2, eps=1
     }
     assert_number(sigma1, lower=0)
     assert_number(sigma2, lower=0)
-    
+
     sigma(prior1) <- sigma1
     sigma(prior2) <- sigma2
 
@@ -206,7 +207,7 @@ oc2S.normMix <- function(prior1, prior2, n1, n2, decision, sigma1, sigma2, eps=1
         ## in case n2==0, then theta2 is irrelevant
         if(n2 == 0 & missing(theta2))
             theta2 <- theta1
-        
+
         lim2 <- c(qnorm(p=  eps/2, mean=min(theta2), sd=sem2)
                  ,qnorm(p=1-eps/2, mean=max(theta2), sd=sem2))
 
@@ -223,7 +224,7 @@ oc2S.normMix <- function(prior1, prior2, n1, n2, decision, sigma1, sigma2, eps=1
         ## call boundary function to cache all results for all
         ## requested computations
         crit_y1(lim2, lim1=lim1)
-        
+
         T <- try(data.frame(theta1 = theta1, theta2 = theta2, row.names=NULL))
         if (inherits(T, "try-error")) {
             stop("theta1 and theta2 need to be of same size")
@@ -252,7 +253,7 @@ oc2S.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1e-6, ...) {
         lim1 <- qpois(c(eps/2, 1-eps/2), lambda1)
         grid <- seq(qpois(eps/2, lambda2), qpois(1-eps/2, lambda2))
 
-        exp(log_sum_exp(dpois(grid, lambda2, log=TRUE)
+        exp(matrixStats::logSumExp(dpois(grid, lambda2, log=TRUE)
                         + ppois(crit_y1(grid, lim1=lim1), lambda1, lower.tail=lower.tail, log.p=TRUE)))
     }
 
@@ -271,7 +272,7 @@ oc2S.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1e-6, ...) {
         } else {
             lambda2 <- theta2 * n2
         }
-        
+
         lambda1 <- theta1 * n1
 
         lim1 <- c(0, 0)
@@ -293,12 +294,12 @@ oc2S.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1e-6, ...) {
 
         ## ensure that the boundaries are cached
         crit_y1(lim2, lim1=lim1)
-        
+
         if(!missing(y2)) {
             deprecated("Use of y2 argument", "decision2S_boundary")
             return(crit_y1(y2, lim1=lim1))
         }
-        
+
         T <- try(data.frame(theta1 = theta1, theta2 = theta2, row.names=NULL))
         if (inherits(T, "try-error")) {
             stop("theta1 and theta2 need to be of same size")

@@ -910,6 +910,25 @@ print.gMAP <- function(x, digits=3, probs=c(0.025, 0.5, 0.975), ...) {
         print(signif(csum_map, digits=digits))
     }
 
+    div_trans <- sum(rstan::get_divergent_iterations(x$fit))
+    num_sim <- length(rstan::get_divergent_iterations(x$fit))
+    if (div_trans > 0) {
+      warning(
+        "The sampler detected ", div_trans, " out of ", num_sim, " transitions ending in a divergence after warmup.\n",
+        "Increasing 'adapt_delta' closer to 1 may help to avoid these. Use for example: \n",
+        paste0("options(RBesT.MC.control=list(adapt_delta=0.999))"),
+        call.=FALSE
+      )
+    }
+    Rhats <- bayesplot::rhat(x$fit)
+    if (any(Rhats > 1.1, na.rm = TRUE)) {
+      warning(
+        "Parts of the model have not converged (some Rhats are > 1.1).\n",
+        "Be careful when analysing the results! It is recommend to run\n",
+        "more iterations and/or setting stronger priors.", call.=FALSE
+      )
+    }
+
     invisible(x)
 }
 

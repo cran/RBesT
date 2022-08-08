@@ -4,7 +4,7 @@
 \alias{log_inv_logit}
 \title{Numerically stable log of the inv_logit function}
 \usage{
-log_inv_logit(u)
+log_inv_logit(mat)
 }
 \description{
 Numerically stable log of the inv_logit function

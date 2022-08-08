@@ -58,6 +58,7 @@
 #' @import rstantools
 #' @import stats
 #' @importFrom utils capture.output modifyList
+#' @importFrom matrixStats rowLogSumExps colLogSumExps colSums2 rowMins rowRanks logSumExp
 #' @import assertthat
 #' @import mvtnorm
 #' @import ggplot2

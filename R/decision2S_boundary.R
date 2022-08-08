@@ -327,34 +327,38 @@ decision2S_boundary.normMix <- function(prior1, prior2, n1, n2, decision, sigma1
 
         ## check if boundary function must be recomputed
         if(lim2[1] < clim2[1] | lim2[2] > clim2[2]) {
+            new_lim2 <- clim2
             ## note: the <<- assignment is needed to set the variable in the enclosure
             if(missing(lim1))
                 lim1 <- qmix(mean_prior1, c(eps/2, 1-eps/2))
             if(nrow(boundary_discrete) == 0) {
                 ## boundary hasn't been calculated before, do it all
                 boundary_discrete <<- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, lim2, delta2)
+                new_lim2 <- lim2
             } else {
                 if(lim2[1] < clim2[1]) {
                     ## the lower bound is not low enough... only add the region which is missing
-                    new_left_lim2 <- min(lim2[1], clim2[1]-delta2)
-                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(new_left_lim2, clim2[1]), delta2)
-                    lim2[1] <- new_left_lim2
+                    new_left_lim2 <- min(lim2[1], clim2[1]-2*delta2)
+                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(new_left_lim2, clim2[1]-delta2), delta2)
+                    new_lim2[1] <- new_left_lim2
                     boundary_discrete <<- rbind(boundary_extra, boundary_discrete)
                 }
                 if(lim2[2] > clim2[2]) {
                     ## the upper bound is not large enough.. again only add whats missing
-                    new_right_lim2 <- max(lim2[2], clim2[2]+delta2)
-                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(clim2[2], new_right_lim2), delta2)
-                    lim2[2] <- new_right_lim2
+                    new_right_lim2 <- max(lim2[2], clim2[2]+2*delta2)
+                    boundary_extra <- solve_boundary2S_normMix(decision, prior1, prior2, n1, n2, lim1, c(clim2[2]+delta2, new_right_lim2), delta2)
+                    new_lim2[2] <- new_right_lim2
                     boundary_discrete <<- rbind(boundary_discrete, boundary_extra)
                 }
             }
+            ## only for debugging
+            ##assert_that(all(order(boundary_discrete[,1]) == 1:nrow(boundary_discrete)), msg="x grid must stay ordered!")
             if(linear_boundary) {
                 boundary <<- approxfun(boundary_discrete[,1], boundary_discrete[,2], rule=2)
             } else {
                 boundary <<- splinefun(boundary_discrete[,1], boundary_discrete[,2])
             }
-            clim2 <<- lim2
+            clim2 <<- new_lim2
         }
 
         return(boundary(y2))

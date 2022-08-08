@@ -69,7 +69,7 @@ pl_all <- plot(bfit)
 options(.user_option)
 
 names(pl_all)
-# [1] "a"   "b"   "w"   "m"   "N"   "Lm"  "lN"  "Lw"  "lli" "mixdens" "mix"
+# [1] "mixdist" "a"   "b"   "w"   "m"   "N"   "Lm"  "lN"  "Lw"  "lli" "mixdens" "mixecdf" "mix"
 }
 
 }

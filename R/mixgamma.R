@@ -1,16 +1,15 @@
-#' @rdname mixgamma
 #' @name mixgamma
-#' 
+#'
 #' @title The Gamma Mixture Distribution
 #'
 #' @description The gamma mixture density and auxiliary functions.
 #'
-#' @param ... List of mixture components. 
+#' @param ... List of mixture components.
 #' @param param Determines how the parameters in the list are
 #' interpreted. See details.
 #' @param likelihood Defines with what likelihood the Gamma density is used (Poisson or Exp). Defaults to \code{poisson}.
 #' @param m Vector of means of the Gamma mixture components
-#' @param s Vector of standard deviations of the gamma mixture components, 
+#' @param s Vector of standard deviations of the gamma mixture components,
 #' @param n Vector of sample sizes of the Gamma mixture components.
 #' @param drop Delete the dimensions of an array which have only one level.
 #' @param object Gamma mixture object.
@@ -31,12 +30,12 @@
 #' likelihood \eqn{n=b} (and \eqn{a=m \cdot n}{a=m n}), for an Exp
 #' likelihood \eqn{n=a} (and \eqn{b=n/m}).}
 #' }
-#' 
+#'
 #' @family mixdist
-#' 
-#' @return \code{mixgamma} returns a gamma mixture with the specified mixture components. 
-#' \code{ms2gamma} and 
-#' \code{mn2gamma} return the equivalent natural \code{a} and \code{b} parametrization given 
+#'
+#' @return \code{mixgamma} returns a gamma mixture with the specified mixture components.
+#' \code{ms2gamma} and
+#' \code{mn2gamma} return the equivalent natural \code{a} and \code{b} parametrization given
 #' parameters \code{m}, \code{s}, or \code{n}.
 #'
 #' @examples
@@ -65,9 +64,10 @@
 #'
 #' # and mixed parametrizations are also possible
 #' gfmix <- mixgamma(rob1=c(0.15, mn2gamma(2, 1)), rob2=c(0.15, ms2gamma(2, 5)), inf=c(0.7, 50, 10))
-#' 
-#' @export
+NULL
+
 #' @rdname mixgamma
+#' @export
 mixgamma <- function(..., param=c("ab", "ms", "mn"), likelihood=c("poisson", "exp")) {
     mix <- mixdist3(...)
     param <- match.arg(param)
@@ -85,8 +85,8 @@ mixgamma <- function(..., param=c("ab", "ms", "mn"), likelihood=c("poisson", "ex
     mix
 }
 
-#' @export
 #' @rdname mixgamma
+#' @export
 ms2gamma <- function(m, s, drop=TRUE) {
     b <- m/s^2
     ab <- cbind(a=m*b, b=b)
@@ -94,8 +94,8 @@ ms2gamma <- function(m, s, drop=TRUE) {
     ab
 }
 
-#' @export
 #' @rdname mixgamma
+#' @export
 mn2gamma <- function(m, n, likelihood=c("poisson", "exp"), drop=TRUE) {
     assert_that(all(n>=0))
     likelihood <- match.arg(likelihood)
@@ -104,27 +104,36 @@ mn2gamma <- function(m, n, likelihood=c("poisson", "exp"), drop=TRUE) {
     ab
 }
 
+#' @rdname mixgamma
+#' @method print gammaMix
+#' @param x The mixture to print
 #' @export
-print.gammaMix <- function(x, digits=NULL, ...) {
+print.gammaMix <- function(x, ...) {
     cat("Univariate Gamma mixture\n")
     NextMethod()
 }
 
+#' @rdname mixgamma
+#' @method print gammaPoissonMix
+#' @param x The mixture to print
 #' @export
-print.gammaPoissonMix <- function(x, digits=NULL, ...) {
+print.gammaPoissonMix <- function(x, ...) {
     cat("Univariate Gamma-Poisson mixture\n")
     NextMethod()
 }
 
+#' @rdname mixgamma
+#' @method print gammaExpMix
+#' @param x The mixture to print
 #' @export
-print.gammaExpMix <- function(x, digits=NULL, ...) {
+print.gammaExpMix <- function(x, ...) {
     cat("Univariate Gamma-Exponential mixture\n")
     NextMethod()
 }
 
+#' @rdname mixgamma
 #' @method summary gammaMix
 #' @export
-#' @rdname mixgamma
 summary.gammaMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     p <- object[1,]
     a <- object[2,]
@@ -144,9 +153,9 @@ summary.gammaMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     c(mean=mmix, sd=sqrt(vmix), q)
 }
 
+#' @rdname mixgamma
 #' @method summary gammaPoissonMix
 #' @export
-#' @rdname mixgamma
 summary.gammaPoissonMix <- function(object, probs=c(0.025,0.5,0.975), ...) {
     n <- attr(object, "n")
     p <- object[1,]

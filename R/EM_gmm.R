@@ -15,7 +15,7 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
     ## temporaries needed during EM
     Lx <- matrix(log(x), ncol=Nc, nrow=N)
 
-    xRep <- rep(x, each=Nc)
+    xRep <- matrix(x, ncol=Nc, nrow=N)
 
     ## initialize randomly using KNN
     if(missing(mix_init)) {
@@ -128,12 +128,20 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         ## calculate responsabilities from the likelihood terms;
         ## calculations are done in log-space to avoid numerical difficulties if some points are far away from some component and hence recieve very low density
         ##li <- t(matrix(abmEst[,1] * dgamma(xRep, abmEst[,2], abmEst[,3]), nrow=Nc))
-        lli <- t(matrix(log(mixEst[1,]) + dgamma(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+
+        ##lli <- t(matrix(log(mixEst[1,]) + dgamma(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+        w <- mixEst[1,]
+        a <- mixEst[2,]
+        b <- mixEst[3,]
+        ## Gamma density: x^(a-1) * exp(-b * x) * b^a / Gamma(a)
+        lli  <- sweep(sweep(Lx, 2, a-1, "*") - sweep(xRep, 2, b, "*"), 2, a * log(b) - lgamma(a) + log(w), "+")
+
         ## ensure that the log-likelihood does not go out of numerical
         ## reasonable bounds
         lli <- apply(lli, 2, pmax, -30)
 
-        lnresp <- apply(lli, 1, log_sum_exp)
+        ##lnresp <- apply(lli, 1, log_sum_exp)
+        lnresp <- matrixStats::rowLogSumExps(lli)
         ## the log-likelihood is then given by the sum of lresp norms
         lliCur <- sum(lnresp)
         ## record current state
@@ -168,7 +176,8 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
 
         ## mean probability to be in a specific mixture component -> updates
         ## mixEst first row
-        lzSum <- apply(lresp, 2, log_sum_exp)
+        ##lzSum <- apply(lresp, 2, log_sum_exp)
+        lzSum <- colLogSumExps(lresp)
         zSum <- exp(lzSum)
         mixEst[1,] <- exp(lzSum - logN)
 
@@ -176,7 +185,8 @@ EM_gmm <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, tol,
         ## to small rounding issues
         mixEst[1,] <- mixEst[1,] / sum(mixEst[1,])
 
-        lrx <- apply(Lx + lresp, 2, log_sum_exp)
+        ##lrx <- apply(Lx + lresp, 2, log_sum_exp)
+        lrx <- colLogSumExps(Lx + lresp)
         resp_zscaled  <- exp(sweep(lresp, 2, lzSum, "-"))
         c1 <- colSums(Lx * resp_zscaled) + lzSum - lrx
         c2 <- lzSum - lrx

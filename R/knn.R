@@ -61,15 +61,17 @@ knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
         for(i in seq(K))
             DM[,i] <- rowSums(scale(X, muEst[i,], FALSE)^2)
 
-        resp <- 1*(Kresp == apply(DM, 1, which.min))
-        respM <- colSums(resp)
+        ##resp <- 1*(Kresp == apply(DM, 1, which.min))
+        resp <- 1*(1 == matrixStats::rowRanks(DM, ties.method="first"))
+        respM <- matrixStats::colSums2(resp)
         if(any(respM == 0)) {
             warning("Some components are assigned the empty set! Try reducing K.")
             respM[respM==0] <- 1
         }
 
         ## "M" step, i.e. given cluster membership, calculate new means
-        muEst <- sweep(t(resp) %*% X, 1, respM, "/")
+        ##muEst <- sweep(t(resp) %*% X, 1, respM, "/")
+        muEst <- sweep(crossprod(resp, X), 1, respM, "/", FALSE)
 
         ## functional to be minimized
         J <- sum( (X - resp %*% muEst)^2 )
@@ -86,7 +88,9 @@ knn <- function(X, K=2, init, Ninit=50, verbose=FALSE, tol, Niter.max=500)
         warning("Maximum number of iterations reached.")
 
     res <- list(center=muEst, p=colMeans(resp), J=J, delta=delta, niter=iter)
-    res$cluster <- apply(resp==1, 1, which)
+    ##res$cluster <- apply(resp==1, 1, which)
+    ## 10x faster
+    res$cluster <- ((which(t(resp==1)) - 1) %% K) + 1
 
     invisible(res)
 }

@@ -177,12 +177,22 @@ EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, t
         ## calculations are done in log-space to avoid numerical
         ## difficulties if some points are far away from some
         ## component and hence recieve very low density
-        lli <- t(matrix(log(mixEst[1,]) + dbeta(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+        ##lli <- t(matrix(log(mixEst[1,]) + dbeta(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+
+        ## Beta: Gamma(a + b) / (Gamma(a) * Gamma(b)) * x^(a-1) * (1-x)^(b-1)
+        w <- mixEst[1,]
+        a <- mixEst[2,]
+        b <- mixEst[3,]
+        ##lli <- sweep( sweep(Lx, 2, a - 1, "*", check.margin=FALSE) + sweep(LxC, 2, b - 1, "*", check.margin=FALSE), 2, log(w) + lgamma(a + b) - lgamma(a) - lgamma(b), "+", check.margin=FALSE)
+        lli <- sweep( sweep(Lx, 2, a - 1, "*", check.margin=FALSE) + sweep(LxC, 2, b - 1, "*", check.margin=FALSE), 2, log(w) - lbeta(a, b), "+", check.margin=FALSE)
+        ##lli <- t(matrix(log(mixEst[1,]) + dbeta(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
+
         ## ensure that the log-likelihood does not go out of numerical
         ## reasonable bounds
         lli <- apply(lli, 2, pmax, -30)
 
-        lnresp <- apply(lli, 1, log_sum_exp)
+        ##lnresp <- apply(lli, 1, log_sum_exp)
+        lnresp  <- matrixStats::rowLogSumExps(lli)
         ## the log-likelihood is then given by the sum of lresp norms
         lliCur <- sum(lnresp)
         ## record current state
@@ -213,21 +223,22 @@ EM_bmm_ab <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, t
 
         ## ... and the (log) responseability matrix follows from this by
         ## appropiate normalization.
-        lresp <- sweep(lli, 1, lnresp, "-")
+        lresp <- sweep(lli, 1, lnresp, "-", FALSE)
         ##resp <- exp(lresp)
 
         ## mean probability to be in a specific mixture component -> updates
         ## abmEst first colum
-        lzSum <- apply(lresp, 2, log_sum_exp)
+        ##lzSum <- apply(lresp, 2, log_sum_exp)
+        lzSum <- matrixStats::colLogSumExps(lresp)
         ##zSum <- exp(lzSum)
         mixEst[1,] <- exp(lzSum - logN)
 
         ##c1 <- colSums(Lx * resp)/zSum
         ##c2 <- colSums(LxC * resp)/zSum
 
-        resp_zscaled  <- exp(sweep(lresp, 2, lzSum, "-"))
-        c1 <- colSums(Lx * resp_zscaled)
-        c2 <- colSums(LxC * resp_zscaled)
+        resp_zscaled  <- exp(sweep(lresp, 2, lzSum, "-", FALSE))
+        c1 <- matrixStats::colSums2(Lx * resp_zscaled)
+        c2 <- matrixStats::colSums2(LxC * resp_zscaled)
 
         ## now solve for new alpha and beta estimates jointly for each
         ## component

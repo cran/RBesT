@@ -40,19 +40,19 @@ fulfills all the required threshold conditions specified with the
 are met and 0 otherwise. Hence, for \code{lower.tail=TRUE}
 condition \eqn{i} is equivalent to
 
-\deqn{P(x \leq q_{c,i}) > p_{c,i}}
+\deqn{P(\theta \leq q_{c,i}) > p_{c,i}}
 
 and the decision function is implemented as indicator function on
-the basis of the heavy-side step function \eqn{H} which is \eqn{0}
+the basis of the heavy-side step function \eqn{H(x)} which is \eqn{0}
 for \eqn{x \leq 0} and \eqn{1} for \eqn{x > 0}. As all conditions
 must be met, the final indicator function returns
 
-\deqn{\Pi_i H_i(P(x \leq q_{c,i}) - p_{c,i} ).}
+\deqn{\Pi_i H_i(P(\theta \leq q_{c,i}) - p_{c,i} ).}
 
 When the second argument is set to \code{TRUE} a distance metric is
 returned component-wise per defined condition as
 
-\deqn{ D_i = \log(P(p < q_{c,i})) - \log(p_{c,i}) .}
+\deqn{ D_i = \log(P(\theta < q_{c,i})) - \log(p_{c,i}) .}
 
 These indicator functions can be used as input for 1-sample
 boundary, OC or PoS calculations using \code{\link{oc1S}} or

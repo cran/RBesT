@@ -4,6 +4,9 @@
 \alias{mixgamma}
 \alias{ms2gamma}
 \alias{mn2gamma}
+\alias{print.gammaMix}
+\alias{print.gammaPoissonMix}
+\alias{print.gammaExpMix}
 \alias{summary.gammaMix}
 \alias{summary.gammaPoissonMix}
 \title{The Gamma Mixture Distribution}
@@ -13,6 +16,12 @@ mixgamma(..., param = c("ab", "ms", "mn"), likelihood = c("poisson", "exp"))
 ms2gamma(m, s, drop = TRUE)
 
 mn2gamma(m, n, likelihood = c("poisson", "exp"), drop = TRUE)
+
+\method{print}{gammaMix}(x, ...)
+
+\method{print}{gammaPoissonMix}(x, ...)
+
+\method{print}{gammaExpMix}(x, ...)
 
 \method{summary}{gammaMix}(object, probs = c(0.025, 0.5, 0.975), ...)
 
@@ -34,14 +43,16 @@ interpreted. See details.}
 
 \item{n}{Vector of sample sizes of the Gamma mixture components.}
 
+\item{x}{The mixture to print}
+
 \item{object}{Gamma mixture object.}
 
 \item{probs}{Quantiles reported by the \code{summary} function.}
 }
 \value{
-\code{mixgamma} returns a gamma mixture with the specified mixture components. 
-\code{ms2gamma} and 
-\code{mn2gamma} return the equivalent natural \code{a} and \code{b} parametrization given 
+\code{mixgamma} returns a gamma mixture with the specified mixture components.
+\code{ms2gamma} and
+\code{mn2gamma} return the equivalent natural \code{a} and \code{b} parametrization given
 parameters \code{m}, \code{s}, or \code{n}.
 }
 \description{
@@ -90,7 +101,6 @@ gmnMix <- mixgamma(rob=c(0.2, 2, 1), inf=c(0.8, 2, 5), param="mn")
 
 # and mixed parametrizations are also possible
 gfmix <- mixgamma(rob1=c(0.15, mn2gamma(2, 1)), rob2=c(0.15, ms2gamma(2, 5)), inf=c(0.7, 50, 10))
-
 }
 \seealso{
 Other mixdist: 

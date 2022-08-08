@@ -62,7 +62,7 @@ test_that("gMAP meets SBC requirements wrt to a Chi-Square statistic.", {
     require(tidyr)
     sbc_chisq_test <-  RBesT:::calibration_data %>%
         gather(count.mu, count.tau, key="param", value="count") %>%
-        group_by(problem, family, sd_tau, param) %>%
+        group_by(data_scenario, family, sd_tau, param) %>%
         do(as.data.frame(chisq.test(.$count)[c("statistic", "p.value")]))
     num_tests  <- nrow(sbc_chisq_test)
     num_failed <- sum(sbc_chisq_test$p.value < 0.05)
@@ -82,7 +82,7 @@ test_that("gMAP meets SBC requirements per bin.", {
     crit_high  <- qbinom(1-alpha/2, S, ptrue)
     sbc_binom_test <-  RBesT:::calibration_data %>%
         gather(count.mu, count.tau, key="param", value="count") %>%
-        group_by(problem, family, sd_tau, param) %>%
+        group_by(data_scenario, family, sd_tau, param) %>%
         summarise(crit=sum(count < crit_low | count > crit_high)) %>%
         mutate(pvalue=pbinom(crit, B, alpha), extreme=pvalue<0.025|pvalue>0.975)
     num_tests  <- nrow(sbc_binom_test)

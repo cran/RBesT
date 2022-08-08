@@ -140,7 +140,7 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
         ## difficulties if some points are far away from some
         ## component and hence recieve very low density
         lli <- t(matrix(log(mixEst[1,]) + dbeta(xRep, mixEst[2,], mixEst[3,], log=TRUE), nrow=Nc))
-        lnresp <- apply(lli, 1, log_sum_exp)
+        lnresp <- matrixStats::rowLogSumExps(lli)
         ## ensure that the log-likelihood does not go out of numerical
         ## reasonable bounds
         lli <- apply(lli, 2, pmax, -30)
@@ -178,7 +178,7 @@ EM_bmm_mun <- function(x, Nc, mix_init, Ninit=50, verbose=FALSE, Niter.max=500, 
 
         ## mean probability to be in a specific mixture component -> updates
         ## mixEst first row
-        lzSum <- apply(lresp, 2, log_sum_exp)
+        lzSum <- matrixStats::colLogSumExps(lresp)
         zSum <- exp(lzSum)
         mixEst[1,] <- exp(lzSum - logN)
 

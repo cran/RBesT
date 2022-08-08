@@ -135,7 +135,7 @@ pos2S.betaMix <- function(prior1, prior2, n1, n2, decision, eps, ...) {
             ## of i due to theta2; the pmax avoids -Inf in a case of Prob==0
             res[y2ind] <- res[y2ind] + dmix(pred_mix2, i, log=TRUE)
         }
-        exp(log_sum_exp(res))
+        exp(matrixStats::logSumExp(res))
     }
     design_fun
 }
@@ -231,7 +231,7 @@ pos2S.gammaMix <- function(prior1, prior2, n1, n2, decision, eps=1e-6, ...) {
         ## ensure that the boundaries are cached
         crit_y1(lim2, lim1=lim1)
         grid <- seq(lim2[1], lim2[2])
-        exp(log_sum_exp(dmix(pred_mix2_sum, grid, log=TRUE)
+        exp(matrixStats::logSumExp(dmix(pred_mix2_sum, grid, log=TRUE)
                         + pmix(pred_mix1_sum, crit_y1(grid, lim1=lim1), lower.tail=lower.tail, log.p=TRUE)))
     }
     design_fun

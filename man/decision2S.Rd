@@ -53,18 +53,18 @@ basis of the difference distribution in a 2 sample situation. To
 support double criterion designs, see \emph{Neuenschwander et al.,
 2010}, an arbitrary number of criterions can be given. The decision
 function demands that the probability mass below the critical value
-\code{qc} of the difference \eqn{x_1 - x_2} is at least
+\code{qc} of the difference \eqn{\theta_1 - \theta_2} is at least
 \code{pc}. Hence, for \code{lower.tail=TRUE} condition \eqn{i} is
 equivalent to
 
-\deqn{P(x_1 - x_2 \leq q_{c,i}) > p_{c,i}}
+\deqn{P(\theta_1 - \theta_2 \leq q_{c,i}) > p_{c,i}}
 
 and the decision function is implemented as indicator function
-using the heavy-side step function \eqn{H} which is \eqn{0} for
+using the heavy-side step function \eqn{H(x)} which is \eqn{0} for
 \eqn{x \leq 0} and \eqn{1} for \eqn{x > 0}. As all conditions must
 be met, the final indicator function returns
 
-\deqn{\Pi_i H_i(P(x_1 - x_2 \leq q_{c,i}) - p_{c,i} ),}
+\deqn{\Pi_i H_i(P(\theta_1 - \theta_2 \leq q_{c,i}) - p_{c,i} ),}
 
 which is \eqn{1} if all conditions are met and \eqn{0}
 otherwise. For \code{lower.tail=FALSE} differences must be greater

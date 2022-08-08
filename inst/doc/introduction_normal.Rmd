@@ -4,7 +4,7 @@ author: "Yue Li"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{RBest for a Normal Endpoint}
+  %\VignetteIndexEntry{RBesT for a Normal Endpoint}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -183,8 +183,8 @@ Consider this 2-arm design of placebo (with an informative prior) against
 an experimental treatment. The dual-criterion for success is defined as follows:
 $$
 \begin{align*}
-\textrm{Criterion 1:} &  \Pr(y_{act} - y_{pbo} \lt 0) &> 0.95 \\
-\textrm{Criterion 2:} & \Pr(y_{act} - y_{pbo} \lt -50) &> 0.50.
+\textrm{Criterion 1:} &  \Pr(\theta_{act} - \theta_{pbo} \lt 0) &> 0.95 \\
+\textrm{Criterion 2:} & \Pr(\theta_{act} - \theta_{pbo} \lt -50) &> 0.50.
 \end{align*}
 $$
 

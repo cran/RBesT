@@ -16,24 +16,24 @@
 #' are met and 0 otherwise. Hence, for \code{lower.tail=TRUE}
 #' condition \eqn{i} is equivalent to
 #'
-#' \deqn{P(x \leq q_{c,i}) > p_{c,i}}
-#' 
+#' \deqn{P(\theta \leq q_{c,i}) > p_{c,i}}
+#'
 #' and the decision function is implemented as indicator function on
-#' the basis of the heavy-side step function \eqn{H} which is \eqn{0}
+#' the basis of the heavy-side step function \eqn{H(x)} which is \eqn{0}
 #' for \eqn{x \leq 0} and \eqn{1} for \eqn{x > 0}. As all conditions
 #' must be met, the final indicator function returns
-#' 
-#' \deqn{\Pi_i H_i(P(x \leq q_{c,i}) - p_{c,i} ).}
-#' 
+#'
+#' \deqn{\Pi_i H_i(P(\theta \leq q_{c,i}) - p_{c,i} ).}
+#'
 #' When the second argument is set to \code{TRUE} a distance metric is
 #' returned component-wise per defined condition as
 #'
-#' \deqn{ D_i = \log(P(p < q_{c,i})) - \log(p_{c,i}) .}
+#' \deqn{ D_i = \log(P(\theta < q_{c,i})) - \log(p_{c,i}) .}
 #'
 #' These indicator functions can be used as input for 1-sample
 #' boundary, OC or PoS calculations using \code{\link{oc1S}} or
 #' \code{\link{pos1S}} .
-#' 
+#'
 #' @family design1S
 #'
 #' @return The function returns a decision function which takes two
@@ -48,14 +48,14 @@
 #' @references Neuenschwander B, Rouyrre N, Hollaender H, Zuber E,
 #' Branson M. A proof of concept phase II non-inferiority
 #' criterion. \emph{Stat. in Med.}. 2011, 30:1618-1627
-#' 
+#'
 #' @examples
-#' 
+#'
 #' # see Neuenschwander et al., 2011
-#' 
+#'
 #' # example is for a time-to-event trial evaluating non-inferiority
 #' # using a normal approximation for the log-hazard ratio
-#' 
+#'
 #' # reference scale
 #' s <- 2
 #' theta_ni <- 0.4
@@ -70,14 +70,14 @@
 #'
 #' # flat prior
 #' flat_prior <- mixnorm(c(1,0,100), sigma=s)
-#' 
+#'
 #' # standard NI design
 #' decA <- decision1S(1 - alpha, theta_ni, lower.tail=TRUE)
 #'
 #' # for double criterion with indecision point (mean estimate must be
 #' # lower than this)
 #' theta_c <- c1
-#' 
+#'
 #' # double criterion design
 #' # statistical significance (like NI design)
 #' dec1 <- decision1S(1-alpha, theta_ni, lower.tail=TRUE)
@@ -98,7 +98,7 @@
 #' # or for a possible outcome of the trial
 #' # here with HR of 0.8 for 40 events
 #' decComb(postmix(flat_prior, m=log(0.8), n=40))
-#' 
+#'
 #'
 #' @export
 decision1S <- function(pc=0.975, qc=0, lower.tail=TRUE) {
@@ -126,7 +126,7 @@ print.decision1S <- function(x, ...) {
     low <- attr(x, "lower.tail")
     cmp <- ifelse(low, "<=", ">")
     for(i in seq_along(qc)) {
-        cat(paste0("P(x ", cmp, " ", qc[i], ") > ", pc[i], "\n"))
+        cat(paste0("P(theta ", cmp, " ", qc[i], ") > ", pc[i], "\n"))
     }
     invisible(x)
 }

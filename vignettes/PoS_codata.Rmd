@@ -8,12 +8,18 @@ output:
     toc: true
   html_vignette:
     toc: true
+  html_document:
+    toc: true
+    number_sections: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
   pdf_document:
     toc: true
   word_document:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Probability of Success with Co-Data (advanced)}
+  %\VignetteIndexEntry{Probability of Success with Co-Data}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -527,7 +533,7 @@ $$
 \begin{aligned}
 PoS &= \iint CP_{N-n_{I_A}}(\theta_A|y_{n_{I_A}}) \,
 CP_{N-n_{I_B}}(\theta_B|y_{n_{I_B}})\,
-p(\theta_B|y_{n_{I_A}},y_{n_{I_B}}) \, d\theta_A d\theta_B \\
+p(\theta_A,\theta_B|y_{n_{I_A}},y_{n_{I_B}}) \, d\theta_A d\theta_B \\
 & \approx
 \frac{1}{S} \sum_{i=1}^S CP_{N-n_{I_A}}(\theta_{A,i}|y_{n_{I_A}}) \,
 CP_{N-n_{I_B}}(\theta_{B,i}|y_{n_{I_B}}).

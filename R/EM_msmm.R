@@ -94,7 +94,8 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
         ## ensure that the log-likelihood does not go out of numerical
         ## reasonable bounds
         lli <- apply(lli, 2, pmax, -30)
-        lnresp <- apply(lli, 1, log_sum_exp)
+        ##lnresp <- apply(lli, 1, log_sum_exp)
+        lnresp <- matrixStats::rowLogSumExps(lli)
         ## the log-likelihood is then given by the sum of lresp
         lliCur <- sum(lnresp)
         traceLli <- c(traceLli, lliCur)
@@ -121,7 +122,8 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
 
         ## mean probability to be in a specific mixture component ->
         ## updates pEst
-        lzSum <- apply(lresp, 2, log_sum_exp)
+        ##lzSum <- apply(lresp, 2, log_sum_exp)
+        lzSum <- colLogSumExps(lresp)
         zSum <- exp(lzSum)
         ##zSum <- colSums(resp)
         ##pEst <- zSum/N ## Eq. 29
@@ -133,7 +135,8 @@ EM_msmm <- function(X, Nc, init, Ninit=50, verbose=TRUE, Niter.max=500, tol=1e-1
 
         ## product of u weight and responsabilities
         lW <- lresp + lU ## intermediate formed, i.e. tau_ij * u_ij
-        wSum <- exp(apply(lW, 2, log_sum_exp))
+        ##wSum <- exp(apply(lW, 2, log_sum_exp))
+        wSum <- exp(colLogSumExps(lW))
         ##wSum <- colSums(W)
 
         ## now obtain new estimates for each component of the mixtures

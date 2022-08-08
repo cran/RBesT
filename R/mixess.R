@@ -150,19 +150,19 @@ mixInfo <- function(mix, x, dens, gradl, hessl) {
     b <- mix[3,]
     lp <- log(p)
     ldensComp <- dens(x, a, b, log=TRUE)
-    ldensMix <- log_sum_exp(lp + ldensComp)
+    ldensMix <- matrixStats::logSumExp(lp + ldensComp)
     lwdensComp <- lp + ldensComp - ldensMix
     dgl <- gradl(x,a,b)
     dhl <- (hessl(x,a,b) + dgl^2)
     ## attempt numerically more stable log calculations if possible,
     ## i.e. if all sings are the same
     if(all(dgl < 0) || all(dgl > 0)) {
-        gsum <- exp(2*log_sum_exp(lwdensComp + log(abs(dgl))))
+        gsum <- exp(2*matrixStats::logSumExp(lwdensComp + log(abs(dgl))))
     } else {
         gsum <- (sum(exp(lwdensComp)*dgl))^2
     }
     if(all(dhl < 0) || all(dhl > 0)) {
-        hsum <- sign(dhl[1]) * exp(log_sum_exp(lwdensComp + log(abs(dhl))))
+        hsum <- sign(dhl[1]) * exp(matrixStats::logSumExp(lwdensComp + log(abs(dhl))))
     } else {
         hsum <- (sum(exp(lwdensComp)*dhl))
     }

@@ -1,4 +1,3 @@
-#' @rdname likelihood
 #' @name likelihood
 #'
 #' @title Read and Set Likelihood to the Corresponding Conjugate Prior
@@ -30,16 +29,18 @@
 #'
 #' # ... which changes the interpretation of the mixture
 #' ess(gmix)
-#' @export
+NULL
+
 #' @rdname likelihood
+#' @export
 likelihood <- function(mix) {
     likelihood <- attr(mix, "likelihood")
     check_choice(likelihood, c("poisson", "exp", "normal", "binomial"))
     likelihood
 }
 
-#' @export
 #' @rdname likelihood
+#' @export
 'likelihood<-' <- function(mix, value) {
     check_choice(value, c("poisson", "exp", "normal", "binomial"))
     attr(mix, "likelihood") <- value

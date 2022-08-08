@@ -12,14 +12,18 @@ is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
 ## is_CRAN <- FALSE
 .user_mc_options <- list()
 if (is_CRAN) {
-    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
+    .user_mc_options <- options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2, RBesT.MC.thin=1, RBesT.MC.control=list(adapt_delta=0.9))
 }
 
 ## ----results="asis",echo=FALSE------------------------------------------------
 kable(AS)
 
 ## -----------------------------------------------------------------------------
+# load R packages
 library(RBesT)
+library(ggplot2)
+theme_set(theme_bw()) # sets up plotting theme
+
 set.seed(34563)
 map_mcmc <- gMAP(cbind(r, n-r) ~ 1 | study,
                  data=AS,
@@ -58,50 +62,87 @@ round(ess(map, method="morita"))
 map_robust <- robustify(map, weight=0.2, mean=1/2)
 print(map_robust)
 
-## -----------------------------------------------------------------------------
 round(ess(map_robust))
 
 ## -----------------------------------------------------------------------------
-p_truth       <- seq(0.1,0.95,by=0.01)
+ess_weight <- data.frame(weight=seq(0.05, 0.95, by=0.05), ess=NA)
+for(i in seq_along(ess_weight$weight)) {
+    ess_weight$ess[i] <- ess(robustify(map, ess_weight$weight[i], 0.5))
+}
+ess_weight <- rbind(ess_weight,
+                    data.frame(weight=c(0, 1),
+                               ess=c(ess(map), ess(mixbeta(c(1,1,1))))))
+
+qplot(weight, ess, data=ess_weight, geom=c("point", "line"),
+      main="ESS of robust MAP for varying weight of robust component") +
+    scale_x_continuous(breaks=seq(0,  1, by=0.1)) +
+    scale_y_continuous(breaks=seq(0, 40, by=5))
+
+## -----------------------------------------------------------------------------
+theta         <- seq(0.1,0.95,by=0.01)
 uniform_prior <- mixbeta(c(1,1,1))
 treat_prior   <- mixbeta(c(1,0.5,1)) # prior for treatment used in trial
 lancet_prior  <- mixbeta(c(1,11,32)) # prior for control   used in trial
 decision      <- decision2S(0.95, 0, lower.tail=FALSE)
 
-design_uniform   <- oc2S(uniform_prior, uniform_prior, 24, 6, decision)
-design_nonrobust <- oc2S(treat_prior,   map          , 24, 6, decision)
-design_robust    <- oc2S(treat_prior,   map_robust   , 24, 6, decision)
+design_uniform   <- oc2S(uniform_prior, uniform_prior, 24,  6, decision)
+design_classic   <- oc2S(uniform_prior, uniform_prior, 24, 24, decision)
+design_nonrobust <- oc2S(treat_prior,   map          , 24,  6, decision)
+design_robust    <- oc2S(treat_prior,   map_robust   , 24,  6, decision)
 
-typeI_uniform   <- design_uniform(  p_truth, p_truth)
-typeI_nonrobust <- design_nonrobust(p_truth, p_truth)
-typeI_robust    <- design_robust(   p_truth, p_truth)
+typeI_uniform   <- design_uniform(  theta, theta)
+typeI_classic   <- design_classic(  theta, theta)
+typeI_nonrobust <- design_nonrobust(theta, theta)
+typeI_robust    <- design_robust(   theta, theta)
 
-ocI <- rbind(data.frame(p_truth=p_truth, typeI=typeI_robust,    prior="robust"),
-             data.frame(p_truth=p_truth, typeI=typeI_nonrobust, prior="non-robust"),
-             data.frame(p_truth=p_truth, typeI=typeI_uniform,   prior="uniform")
+ocI <- rbind(data.frame(theta=theta, typeI=typeI_robust,    prior="robust"),
+             data.frame(theta=theta, typeI=typeI_nonrobust, prior="non-robust"),
+             data.frame(theta=theta, typeI=typeI_uniform,   prior="uniform"),
+             data.frame(theta=theta, typeI=typeI_classic,   prior="uniform 24:24")
              )
 
-library(ggplot2)
-theme_set(theme_bw()) # nice plotting theme
-qplot(p_truth, typeI, data=ocI, colour=prior, geom="line", main="Type I Error")
+qplot(theta, typeI, data=ocI, colour=prior, geom="line", main="Type I Error")
+
+## -----------------------------------------------------------------------------
+summary(map)
+
+## -----------------------------------------------------------------------------
+qplot(theta, typeI, data=subset(ocI, theta < 0.5), colour=prior, geom="line",
+      main="Type I Error - response rate restricted to plausible range")
 
 ## -----------------------------------------------------------------------------
 delta <- seq(0,0.7,by=0.01)
-m <- summary(map)["mean"]
-p_truth1 <- m +   delta
-p_truth2 <- m + 0*delta
+mean_control <- summary(map)["mean"]
+theta_active  <- mean_control +   delta
+theta_control <- mean_control + 0*delta
 
-power_uniform   <- design_uniform(  p_truth1, p_truth2)
-power_nonrobust <- design_nonrobust(p_truth1, p_truth2)
-power_robust    <- design_robust(   p_truth1, p_truth2)
+power_uniform   <- design_uniform(  theta_active, theta_control)
+power_classic   <- design_classic(  theta_active, theta_control)
+power_nonrobust <- design_nonrobust(theta_active, theta_control)
+power_robust    <- design_robust(   theta_active, theta_control)
 
-ocP <- rbind(data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power=power_robust,    prior="robust"),
-             data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power=power_nonrobust, prior="non-robust"),
-             data.frame(p_truth1=p_truth1, p_truth2=p_truth2, delta=delta, power=power_uniform,   prior="uniform")
+ocP <- rbind(data.frame(theta_active, theta_control, delta=delta, power=power_robust,    prior="robust"),
+             data.frame(theta_active, theta_control, delta=delta, power=power_nonrobust, prior="non-robust"),
+             data.frame(theta_active, theta_control, delta=delta, power=power_uniform,   prior="uniform"),
+             data.frame(theta_active, theta_control, delta=delta, power=power_classic,   prior="uniform 24:24")
              )
 
 qplot(delta, power, data=ocP, colour=prior, geom="line", main="Power")
 
+
+## -----------------------------------------------------------------------------
+find_delta <- function(design, theta_control, target_power) {
+    uniroot(function(delta) { design(theta_control + delta, theta_control) - target_power },
+            interval=c(0, 1-theta_control))$root
+}
+
+target_effect <- data.frame(delta=c(find_delta(design_nonrobust, mean_control, 0.8),
+                                    find_delta(design_classic,   mean_control, 0.8),
+                                    find_delta(design_robust,    mean_control, 0.8),                                    
+                                    find_delta(design_uniform,   mean_control, 0.8)),
+                            prior=c("non-robust", "uniform 24:24", "robust", "uniform"))
+
+knitr::kable(target_effect, digits=3)
 
 ## -----------------------------------------------------------------------------
 ## Critical values at which the decision flips are given conditional

@@ -1,4 +1,38 @@
-## ---- include=FALSE-----------------------------------------------------------
+#' ---
+#' title: "Using RBesT to reproduce Schmidli et al. \"Robust MAP Priors\""
+#' author: "Sebastian Weber"
+#' date: "`r Sys.Date()`"
+#' output: rmarkdown::html_vignette
+#' vignette: >
+#'   %\VignetteIndexEntry{Using RBesT to reproduce Schmidli et al. "Robust MAP Priors"}
+#'   %\VignetteEngine{knitr::rmarkdown}
+#'   %\VignetteDepends{foreach}
+#'   %\VignetteDepends{reshape2}
+#' ---
+#'
+#' The following script demonstrates the ` RBesT` library to reproduce the
+#' main results from Schmidli et al., Biometrics 70, 1024, 2014.
+#'
+#' The two main ideas of the paper are
+#'
+#' 1. use mixture priors to approximate accuratley numerical MCMC MAP
+#'    priors
+#'
+#' 2. robustify informative MAP priors by adding a suitable
+#'    non-informative component to the informative MAP prior
+#'
+#' As example an adaptive design for a binomial endpoint is considered:
+#'
+#' - Stage 1: mI in test treatment and nI in control (e.g., mI = 20, nI = 15);
+#' - Stage 2: (m - mI ) in test treatment and max(n - ESSI, nmin) in control (e.g., nmin = 5).
+#'
+#' To render a report with all the figures, please run:
+#'
+#' - ` rmarkdown::render("robustMAP.R")`
+#'
+#' - ` rmarkdown::render("robustMAP.R", "pdf_document")` (for a pdf version)
+#'
+
 library(foreach)
 library(ggplot2)
 library(dplyr)
@@ -10,19 +44,12 @@ knitr::opts_chunk$set(
     fig.width = 7,
     fig.height = 4
 )
-## setup up fast sampling when run on CRAN
-is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
-## NOTE: for running this vignette locally, please uncomment the
-## following line:
-## is_CRAN <- FALSE
-.user_mc_options <- list()
-if (is_CRAN) {
-    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
-}
 
-## ----cache=TRUE,echo=FALSE,include=FALSE,message=FALSE------------------------
+#'
+#' ## Operating Characteristics, Table 1
+#'
 
-## the different priors
+#' the different priors
 map <- list()
 map$beta  <- mixbeta(c(1.0, 4, 16)              )
 map$mix90 <- mixbeta(c(0.9, 4, 16), c(0.1, 1, 1))
@@ -69,7 +96,7 @@ OC_adaptBinary2S <- function(N1, Ntarget, Nmin, M, ctl.prior, treat.prior, pc, p
     ## finally take the mean with the respective weight which corresponds
     ## to the weight how the respective sample size occur
     w <- sapply(P$pc, function(p) dbinom(r1, N1, p))
-    
+
     data.frame(power=colSums(power_all * w), samp=colSums(w * N))
 }
 
@@ -127,8 +154,6 @@ powerFix <- foreach(i=cases.fix, .combine=rbind) %do% {
 power <- rbind(powerMix, powerFix)
 
 
-
-## ----echo=FALSE,message=FALSE-------------------------------------------------
 ocAdapt <- powerTable[,-ncol(powerTable)] %>%
     unite(case, delta, prior) %>%
         transform(power=100*power) %>%
@@ -137,12 +162,14 @@ ocAdaptSamp <- powerTable[,- ( ncol(powerTable)-1 )] %>%
     unite(case, delta, prior) %>%
             spread(case, samp)
 
-## ----echo=FALSE,result="asis"-------------------------------------------------
 kable(ocAdapt, digits=1, caption="Type I error and power")
 
 kable(ocAdaptSamp, digits=1, caption="Sample size")
 
-## ----echo=FALSE---------------------------------------------------------------
+#'
+#' ## Additional power Figure under varying pc
+#'
+
 qplot(pt-pc, power, data=power, geom=c("line"), colour=prior) +
     facet_wrap(~pc) +
     scale_y_continuous(breaks=seq(0,1,by=0.2)) +
@@ -152,11 +179,20 @@ qplot(pt-pc, power, data=power, geom=c("line"), colour=prior) +
                 geom_hline(yintercept=0.8, linetype=2) +
                     ggtitle("Prob. for alternative for different pc")
 
-## ----echo=FALSE---------------------------------------------------------------
+
+#'
+#' ## Bias and rMSE, Figure 1
+#'
+#' Reproduction of Fig. 1 in Robust MAP Prior paper.
+#'
+
+
 plot(map$beta, prob=1)
 plot(map$mix50)
 
-## ----cache=TRUE,echo=FALSE,warning=FALSE--------------------------------------
+#' The bias and rMSE calculations are slightly involved as the sample
+#' size depends on the first stage.
+
 est <- foreach(case=names(map), .combine=rbind) %do% {
 
     ## prior to consider
@@ -192,18 +228,18 @@ est <- foreach(case=names(map), .combine=rbind) %do% {
             m2[i,r+1] <- res["sd"]^2 + m[i,r+1]^2
         }
     }
-    
+
     ## now collect the terms correctly weighted for each assumed true rate
     bias <- rMSE <- c()
     pt <- seq(0,1,length=101)
     for(p in pt) {
         ## weight for each possible N at stage 1
         wnp <- dbinom(0:N1, N1, p)
-        
+
         ## E(p) and E(p^2) for each possible N at stage 1
         Mnm <- rep(0, N1+1)
         Mnm2 <- rep(0, N1+1)
-        
+
         ## for a given weight at stage 1....
         for(i in seq(N1+1)) {
             n <- N[i]
@@ -213,26 +249,33 @@ est <- foreach(case=names(map), .combine=rbind) %do% {
             ## expected as we can never observe more counts than the
             ## number of trials...
             wp <- dbinom(0:Nmax, n, p)
-            
+
             Mnm[i]  <- sum(m[i,]  * wp)
             Mnm2[i] <- sum(m2[i,] * wp)
         }
-    
+
         ## ... which we average over possible outcomes in stage 1
         Mm  <- sum(wnp * Mnm)
         Mm2 <- sum(wnp * Mnm2)
-    
+
         bias <- c(bias, (Mm - p))
         rMSE <- c(rMSE, sqrt(Mm2 - 2 * p * Mm + p^2))
     }
     data.frame(p=pt, bias=bias, rMSE=rMSE, prior=case)
 }
 
-## ----echo=FALSE---------------------------------------------------------------
+
+
 qplot(p, 100*bias, data=est, geom="line", colour=prior, main="Bias")
 qplot(p, 100*rMSE, data=est, geom="line", colour=prior, main="rMSE")
 
-## ----echo=TRUE----------------------------------------------------------------
+
+
+#'
+#' ##  Ulcerative colitis example
+#'
+#' Clinical example to exemplify the methodology.
+#'
 
 ## set seed to guarantee exact reproducible results
 set.seed(25445)
@@ -257,7 +300,11 @@ prior <- map_auto
 pl <- plot(prior)
 pl$mix + ggtitle("MAP prior for ulcerative colitis")
 
-## ----echo=TRUE----------------------------------------------------------------
+
+#'
+#' Colitis MAPs from paper for further figures.
+#'
+
 mapCol <- list(
     one = mixbeta(c(1,2.3,16)),
     two = mixbeta(c(0.77, 6.2, 50.8), c(1-0.77, 1.0, 4.7)),
@@ -268,7 +315,11 @@ mapCol <- c(mapCol, list(twoRob=robustify(mapCol$two, weight=0.1, mean=1/2),
                          )
             )
 
-## ----echo=TRUE----------------------------------------------------------------
+#'
+#' Posterior for different remission rates, Figure 3
+#'
+
+
 N <- 20
 post <- foreach(prior=names(mapCol), .combine=rbind) %do% {
     res <- data.frame(mean=rep(NA, N+1), sd=0, r=0:N)
@@ -284,7 +335,4 @@ qplot(r, sd, data=post, colour=prior, shape=prior) + coord_cartesian(ylim=c(0,0.
 
 
 sessionInfo()
-
-## ----include=FALSE------------------------------------------------------------
-options(.user_mc_options)
 

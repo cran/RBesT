@@ -1,64 +1,56 @@
+#! /usr/bin/env Rscript
+
+start_time  <- Sys.time()
+
+here::i_am("inst/sbc/make_reference_rankhist.R")
+library(here)
+
 library(pkgbuild)
 ## ensure that the current dev version of RBesT is loaded
-pkgbuild::compile_dll("../..")
+pkgbuild::compile_dll(here())
 
-library(assertthat)
-library(batchtools)
-library(dplyr)
+pkg <- c("assertthat", "rstan", "mvtnorm", "checkmate", "Formula", "abind", "dplyr", "tidyr", "here", "bayesplot")
+sapply(pkg, require, character.only=TRUE)
+
+
+library(clustermq)
+library(data.table)
 library(knitr)
-source("sbc_tools.R")
+sbc_tools <- new.env()
+source(here("inst", "sbc", "sbc_tools.R"), local=sbc_tools)
 set.seed(453453)
 
-#' according to the docs this speeds up the reduce step
-options(batchtools.progress = FALSE)
+scheduler <- getOption("clustermq.scheduler")
 
-registry_tmp <- Sys.getenv("TMP_NFS", tempdir())
+if(is.null(scheduler)) {
+    ## in this case we enable the multiprocess option to leverage local CPUs
+    options(clustermq.scheduler="multiprocess")
+}
+
+scheduler <- getOption("clustermq.scheduler")
+
+##options(clustermq.scheduler="LOCAL")
+n_jobs <- 1
+if(scheduler == "multiprocess") {
+    ## on a local machine we only use as many CPUs as available
+    n_jobs  <- as.numeric(system2("nproc", stdout=TRUE))
+}
+if(scheduler %in% c("LSF", "SGE", "SLURM", "PBS", "Torque")) {
+    ## on a queinging enabled backend, we use a lot more parallelism
+    n_jobs  <- 200
+}
+
+cat("Using clustermq backend", scheduler, "with", n_jobs, "concurrent jobs.\n")
 
 #' Evaluate dense and sparse data-scenario
 
-#' Dense: 10 trials with 40 entries each
-dense_data  <- list(group=rep(1:10, each=40))
-#' Sparse: 2 trials with 40 entries each
-sparse_data <- list(group=rep(1:2,  each=40))
-
-reg <- makeExperimentRegistry(
-    file.dir = tempfile("sbc_", registry_tmp),
-    ## use the default configured batchtools configuration batchtools.conf
-    ## - found in the environemnt variable R_BATCHTOOLS_SEARCH_PATH
-    ## - current working directory
-    ## - $(HOME)/.batchtools.conf
-    seed = 47845854,
-    ## our worker functions and package loading
-    source="sbc_tools.R"
-)
-
-## resources of each job: Less than 55min, 2000MB RAM and 1 cores
-job_resources <- list(walltime=55, memory=2000, ncpus=1, max.concurrent.jobs=500)
-
-if(FALSE) {
-    ## for debugging here
-    removeProblems("dense")
-    removeProblems("sparse")
-}
-
-addProblem("dense",
-           data=dense_data,
-           fun=simulate_fake,
-           seed=2345,
-           cache=FALSE
-           )
-
-addProblem("sparse",
-           data=sparse_data,
-           fun=simulate_fake,
-           seed=2346,
-           cache=FALSE
-           )
-
-addAlgorithm("RBesT", fit_rbest)
+#' - Dense: 10 trials with 40 entries each
+#' - Sparse: 3 trials with 40 entries each
+base_scenarios <- list(dense=list(group=rep(1:10, each=40)),
+                       sparse=list(group=rep(1:3, each=40)))
 
 ## family, mean_mu, sd_mu, sd_tau, samp_sd
-scenarios <- data.frame(
+cases <- data.frame(
     family=c("binomial", "gaussian", "poisson"),
     mean_mu=c(-1, 0, 0),
     sd_mu=c(1),
@@ -66,65 +58,37 @@ scenarios <- data.frame(
     samp_sd=c(1),
     stringsAsFactors=FALSE)
 
-pdes <- list(sparse=scenarios, dense=scenarios)
-ades <- list(RBesT=data.frame())
+## replications to use
+S <- 1E4
 
-#' Add the defined problems and analysis methods to the registry and
-#' set the number of replications:
-S  <- 1E4L
-addExperiments(pdes, ades, repls=S)
+scenarios <- merge(expand.grid(repl=1:S, data_scenario=c("dense", "sparse"), stringsAsFactors=FALSE), cases, by=NULL)
+##scenarios <- merge(expand.grid(repl=1:S, data_scenario=c("sparse"), stringsAsFactors=FALSE), cases, by=NULL)
 
-summarizeExperiments()
+scenarios <- cbind(job.id=1:nrow(scenarios), scenarios)
 
-if(FALSE) {
-    ## used for debugging
-    job1 <- testJob(1)
-    job1
+num_simulations <- nrow(scenarios)
 
-    job2 <- testJob(6)
-    job3 <- testJob(11)
+cat("Total number of jobs to dispatch:", num_simulations, "\n")
 
-    job <- makeJob(1)
+RNGkind("L'Ecuyer-CMRG")
+set.seed(56969)
+rng_seeds <- sbc_tools$setup_lecuyer_seeds(.Random.seed, num_simulations)
 
-    debug(fit_rbest)
+sim_result <- Q_rows(scenarios, sbc_tools$run_sbc_case, const=list(base_scenarios=base_scenarios, seeds=rng_seeds), export=as.list(sbc_tools), n_jobs=n_jobs, pkgs=pkg)
 
-    res  <- fit_rbest(dense_data, job, job$instance )
-    res
+assert_that(num_simulations == length(sim_result), msg="Check if all simulations were processed.")
 
-    data <- dense_data
-    instance  <- job$instance
+calibration_data <- merge(scenarios, bind_rows(sim_result), by="job.id")
 
-    job1
-
-}
-
-
-#'
-#' Chunk the jobs into 500 chunks to run
-#'
-ids <- getJobTable()
-ids <- ids[, chunk:=chunk(job.id, 500)]
-
-#' Once things run fine let's submit this work to the cluster.
-auto_submit(ids, reg, job_resources)
-
-#' Ensure that no error occured
-assert_that(nrow(findErrors()) == 0)
-
-#' Collect results.
-calibration_data <- ijoin(
-    ## grab job parameters
-    unwrap(getJobPars()),
-    unwrap(reduceResultsDataTable())
-)
-
-calibration_data[,algorithm:=NULL]
+## convert to data.table
+setDT(calibration_data)
 
 ## collect sampler diagnostics
 sampler_diagnostics <- calibration_data %>%
-    group_by(family, problem, sd_tau) %>%
+    group_by(family, data_scenario, sd_tau) %>%
     summarize(N=n(),
               total_divergent=sum(n_divergent),
+              total_divergent_sim_fraction=mean(n_divergent>0),
               min_ess=min(min_Neff),
               max_Rhat=max(max_Rhat),
               total_large_Rhat=sum(max_Rhat > 1.2),
@@ -144,9 +108,9 @@ if(any(sampler_diagnostics$max_Rhat > 1.2) ) {
 }
 
 #' Bin raw data as used in the analysis.
-scale64  <- scale_ranks(1024, 2^4)
+scale64  <- sbc_tools$scale_ranks(1024, 2^4)
 B <- 1024L / 2^4
-calibration_data_binned <- calibration_data[, scale64(.SD), by=c("problem", "family", "sd_tau")]
+calibration_data_binned <- calibration_data[, scale64(.SD), by=c("data_scenario", "family", "sd_tau")]
 
 #' Save as data.frame to avoid data.table dependency.
 calibration_data <- as.data.frame(calibration_data)
@@ -174,33 +138,23 @@ cat(paste0("Created:  ", created_str, "\ngit hash: ", git_hash, "\nMD5:      ", 
 #'
 #' Summarize execution time
 #'
-job_report <- unwrap(getJobTable())
-units(job_report$time.running)  <- "mins"
-
-chunk_cols  <- c("job.id", "chunk")
-job_report  <- job_report[ids[, ..chunk_cols], on="job.id", nomatch=0]
+job_report <- calibration_data[c("job.id", "time.running", names(scenarios))]
+setDT(job_report)
+job_report$time.running <-  job_report$time.running / 60 ## convert to minutes
 
 runtime_by_problem_family  <- job_report %>%
-    group_by(family, problem) %>%
+    group_by(family, data_scenario) %>%
     summarize(total=sum(time.running), mean=mean(time.running), max=max(time.running))
 
 runtime_by_problem  <- job_report %>%
-    group_by(problem) %>%
+    group_by(data_scenario) %>%
     summarize(total=sum(time.running), mean=mean(time.running), max=max(time.running))
 
 runtime  <- job_report %>%
     group_by(family) %>%
     summarize(total=sum(time.running), mean=mean(time.running), max=max(time.running))
 
-runtime_by_problem_chunk  <- job_report %>%
-    group_by(problem, chunk) %>%
-    summarize(chunk_total=sum(time.running)) %>%
-    summarize(total=sum(chunk_total), mean=mean(chunk_total), max=max(chunk_total))
-
 cat("Summary on job runtime on cluster:\n\n")
-
-cat("\nRuntime by problem and chunk:\n")
-kable(runtime_by_problem_chunk, digits=2)
 
 cat("\nRuntime by problem and family:\n")
 kable(runtime_by_problem_family, digits=2)
@@ -211,21 +165,12 @@ kable(runtime, digits=2)
 cat("\nRuntime by problem:\n")
 kable(runtime_by_problem, digits=2)
 
-duration_by_problem <- job_report %>%
-    group_by(problem) %>%
-        summarize(total=difftime(max(done), min(submitted), units="mins"))
+end_time <- Sys.time()
 
-duration <- job_report %>%
-    summarize(total=difftime(max(done), min(submitted), units="mins"))
+total_runtime <- difftime(end_time, start_time)
+units(total_runtime) <- "mins"
 
-cat("\nDuration by problem:\n")
-kable(duration_by_problem, digits=2)
-
-cat("\nDuration:\n")
-kable(duration, digits=2)
-
-#' Cleanup
-removeRegistry(0)
+cat("\n\nTotal runtime (min):", as.numeric(total_runtime), "\n\n\n")
 
 #' Session info
 sessionInfo()
