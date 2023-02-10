@@ -22,6 +22,7 @@
 #'
 #' @seealso \code{\link{gMAP}}, \code{\link{predict.glm}}
 #'
+#' @template example-start
 #' @examples
 #' # create a fake data set with a covariate
 #' trans_cov <- transform(transplant, country=cut(1:11, c(0,5,8,Inf), c("CH", "US", "DE")))
@@ -57,6 +58,7 @@
 #' pred_new <- predict(map, data.frame(country="CH", study=12))
 #' pred_new
 #'
+#' @template example-stop
 #' @rdname predict.gMAP
 #' @method predict gMAP
 #' @export
@@ -69,9 +71,11 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
         posterior_predict <- TRUE
         X <- model.matrix(f, mf, rhs=1)
         log_offset <- object$log_offset
+        group.factor <- model.part(f, data = mf, rhs = 2)
     } else {
         posterior_predict <- FALSE
         Terms <- delete.response(tt)
+        ## replace model frame with newdata context
         m <- model.frame(Terms, newdata, na.action = na.action,
                          xlev = .getXlevels(tt, mf))
         if (!is.null(cl <- attr(Terms, "dataClasses")))
@@ -83,7 +87,24 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
                                                             "variables")[[i + 1]], newdata)
         if (!is.null(object$call$offset))
             log_offset <- log_offset + eval(object$call$offset, newdata)
+
+        group.factor <- model.part(f, data = newdata, rhs = 2)
     }
+
+    if(ncol(group.factor) != 1)
+        stop("Grouping factor must be a single term (study).")
+    group.factor <- group.factor[,1]
+
+    if (!is.factor(group.factor)) {
+        group.factor <- factor(group.factor)
+    }
+    labels <- as.character(group.factor)
+    group.index <- array(as.integer(group.factor))
+
+    ## nubmer of groups coded by the factor
+    n.groups <- nlevels(group.factor)
+    ## number of groups actually observed in the data
+    n.groups.obs <- length(unique(group.index))
 
     if(missing(thin)) {
         thin <- object$thin
@@ -108,20 +129,23 @@ predict.gMAP <- function(object, newdata, type=c("response", "link"), probs = c(
 
     if(!posterior_predict) {
         ## in case we make a prediction unconditional on the fitted
-        ## data, we draw random effects here
+        ## data, we draw random effects here (one for each study per
+        ## iteration)
 
         S <- nrow(pred)
-        ## sample random effects
+        ## sample random effects for as many groups defined, which can
+        ## be more than the ones in the data set, since we sample for
+        ## all defined factor levels
         tau <- as.vector(rstan::extract(object$fit, inc_warmup=FALSE, permuted=FALSE, pars=paste0("tau[", object$tau.strata.pred, "]"))[sub_ind,,])
         if(object$REdist == "normal") {
-            re <- tau * matrix(rnorm(n.pred * S, 0, 1), nrow=S)
+            re <- tau * matrix(rnorm(n.groups * S, 0, 1), nrow=S)
         }
         if(object$REdist == "t") {
-            re <- tau * matrix(rt(n.pred * S, df=object$t.df), nrow=S)
+            re <- tau * matrix(rt(n.groups * S, df=object$t.df), nrow=S)
         }
 
         ## ... and add it to predictions
-        pred <- pred + re
+        pred <- pred + re[,group.index]
     }
 
     if(type == "response")

@@ -5,9 +5,9 @@ start_time  <- Sys.time()
 here::i_am("inst/sbc/make_reference_rankhist.R")
 library(here)
 
-library(pkgbuild)
-## ensure that the current dev version of RBesT is loaded
-pkgbuild::compile_dll(here())
+setwd(here())
+system("make binary")
+setwd(here("inst", "sbc"))
 
 pkg <- c("assertthat", "rstan", "mvtnorm", "checkmate", "Formula", "abind", "dplyr", "tidyr", "here", "bayesplot")
 sapply(pkg, require, character.only=TRUE)
@@ -121,7 +121,7 @@ git_hash <- system2("git", c("rev-parse", "HEAD"), stdout=TRUE)
 created <- Sys.time()
 created_str <- format(created, "%F %T %Z", tz="UTC")
 
-calibration <- list(raw=calibration_data,
+calibration <- list(## raw=calibration_data, ## stop storing raw results, which are not needed for SBC reports
                     data=calibration_data_binned,
                     sampler_diagnostics = sampler_diagnostics,
                     S=S,
@@ -130,6 +130,7 @@ calibration <- list(raw=calibration_data,
                     created=created)
 
 saveRDS(calibration, file="calibration.rds")
+saveRDS(calibration_data, file="calibration_data.rds")
 
 library(tools)
 md5 <- md5sum("calibration.rds")

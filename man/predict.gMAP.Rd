@@ -51,6 +51,11 @@ stratum of the gMAP object. For details on the syntax, please refer
 to \code{\link{predict.glm}} and the example below.
 }
 \examples{
+## Setting up dummy sampling for fast execution of example
+## Please use 4 chains and 20x more warmup & iter in practice
+.user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100,
+                            RBesT.MC.chains=2, RBesT.MC.thin=1)
+
 # create a fake data set with a covariate
 trans_cov <- transform(transplant, country=cut(1:11, c(0,5,8,Inf), c("CH", "US", "DE")))
 set.seed(34246)
@@ -84,6 +89,9 @@ summary(pred_cov)
 # obtain a prediction for new data with specific covariates
 pred_new <- predict(map, data.frame(country="CH", study=12))
 pred_new
+
+## Recover user set sampling defaults
+options(.user_mc_options)
 
 }
 \seealso{

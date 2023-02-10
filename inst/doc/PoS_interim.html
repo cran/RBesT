@@ -12,92 +12,106 @@
 
 <meta name="author" content="Yue Li" />
 
-<meta name="date" content="2022-08-08" />
+<meta name="date" content="2023-02-10" />
 
 <title>Probability of Success at an Interim Analysis</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-  {  }
+{ }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -316,23 +330,41 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Probability of Success at an Interim Analysis</h1>
+<h1 class="title toc-ignore">Probability of Success at an Interim
+Analysis</h1>
 <h4 class="author">Yue Li</h4>
-<h4 class="date">2022-08-08</h4>
+<h4 class="date">2023-02-10</h4>
 
 
 
-<p>At different stages of drug development, there are questions about how likely a study will be successful given previously collected data within the trial itself or data from other earlier trials. For example given Ph2a (PoC, proof of concept) and Ph2b (DRF, dose range finding) studies, how likely a new Ph3 study would be successful is of great interest. Another example, at an interim analysis (IA) of a PoC study, one would also be interested to understand the probability of success at the end of the study given the partial data observed. <strong><code>pos1S()</code></strong> and <strong><code>pos2S()</code></strong> are constructed to calculate predictive probabilities for this purpose to inform quantitative decision making. This vignette shows an example from an IA in a PoC study, where <strong><code>pos2S()</code></strong> was used to explore the probability of success for the final analysis given the interim data.</p>
-<p>The primary endpoint for this study is log transformed facial lesion count, assumed to be normally distributed. Decrease in the lesion count upon treatment is considered improvement in the patients. Below is the summary statistics of this primary endpoint by group at the interim.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">ia &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">n=</span><span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">14</span>),</a>
-<a class="sourceLine" id="cb1-2" title="2">                 <span class="dt">median_count=</span><span class="kw">c</span>(<span class="fl">20.5</span>, <span class="dv">21</span>),</a>
-<a class="sourceLine" id="cb1-3" title="3">                 <span class="dt">mean_count=</span><span class="kw">c</span>(<span class="fl">23.3</span>, <span class="dv">27</span>),</a>
-<a class="sourceLine" id="cb1-4" title="4">                 <span class="dt">mean_log=</span><span class="kw">c</span>(<span class="fl">2.96</span>, <span class="fl">3.03</span>),</a>
-<a class="sourceLine" id="cb1-5" title="5">                 <span class="dt">sd_log=</span><span class="kw">c</span>(<span class="fl">0.67</span>, <span class="fl">0.774</span>),</a>
-<a class="sourceLine" id="cb1-6" title="6">                 <span class="dt">row.names=</span><span class="kw">c</span>(<span class="st">&quot;active&quot;</span>, <span class="st">&quot;placebo&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="st">    </span><span class="kw">transform</span>(<span class="dt">se_log=</span><span class="kw">round</span>(sd_log<span class="op">/</span><span class="kw">sqrt</span>(n), <span class="dv">3</span>))</a>
-<a class="sourceLine" id="cb1-8" title="8">sd_log_pooled &lt;-<span class="st"> </span><span class="kw">with</span>(ia, <span class="kw">sqrt</span>(<span class="kw">sum</span>(sd_log<span class="op">^</span><span class="dv">2</span><span class="op">*</span>(n<span class="dv">-1</span>))<span class="op">/</span>(<span class="kw">sum</span>(n)<span class="op">-</span><span class="dv">2</span>)))</a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="kw">kable</span>(ia)</a></code></pre></div>
+<p>At different stages of drug development, there are questions about
+how likely a study will be successful given previously collected data
+within the trial itself or data from other earlier trials. For example
+given Ph2a (PoC, proof of concept) and Ph2b (DRF, dose range finding)
+studies, how likely a new Ph3 study would be successful is of great
+interest. Another example, at an interim analysis (IA) of a PoC study,
+one would also be interested to understand the probability of success at
+the end of the study given the partial data observed.
+<strong><code>pos1S()</code></strong> and
+<strong><code>pos2S()</code></strong> are constructed to calculate
+predictive probabilities for this purpose to inform quantitative
+decision making. This vignette shows an example from an IA in a PoC
+study, where <strong><code>pos2S()</code></strong> was used to explore
+the probability of success for the final analysis given the interim
+data.</p>
+<p>The primary endpoint for this study is log transformed facial lesion
+count, assumed to be normally distributed. Decrease in the lesion count
+upon treatment is considered improvement in the patients. Below is the
+summary statistics of this primary endpoint by group at the interim.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ia <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">n=</span><span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">14</span>),</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">median_count=</span><span class="fu">c</span>(<span class="fl">20.5</span>, <span class="dv">21</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mean_count=</span><span class="fu">c</span>(<span class="fl">23.3</span>, <span class="dv">27</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">mean_log=</span><span class="fu">c</span>(<span class="fl">2.96</span>, <span class="fl">3.03</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">sd_log=</span><span class="fu">c</span>(<span class="fl">0.67</span>, <span class="fl">0.774</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">row.names=</span><span class="fu">c</span>(<span class="st">&quot;active&quot;</span>, <span class="st">&quot;placebo&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">transform</span>(<span class="at">se_log=</span><span class="fu">round</span>(sd_log<span class="sc">/</span><span class="fu">sqrt</span>(n), <span class="dv">3</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sd_log_pooled <span class="ot">&lt;-</span> <span class="fu">with</span>(ia, <span class="fu">sqrt</span>(<span class="fu">sum</span>(sd_log<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>(n<span class="dv">-1</span>))<span class="sc">/</span>(<span class="fu">sum</span>(n)<span class="sc">-</span><span class="dv">2</span>)))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(ia)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -367,72 +399,90 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tbody>
 </table>
 <p>The predefined dual PoC criteria is as follows,</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">n &lt;-<span class="st"> </span><span class="dv">21</span> <span class="co"># planned total n per arm</span></a>
-<a class="sourceLine" id="cb2-2" title="2">rules &lt;-<span class="st"> </span><span class="kw">decision2S</span>(<span class="kw">c</span>(<span class="fl">0.9</span>, <span class="fl">0.5</span>), <span class="kw">c</span>(<span class="dv">0</span>,<span class="op">-</span><span class="fl">0.357</span>), <span class="dt">lower.tail =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="kw">print</span>(rules)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">21</span> <span class="co"># planned total n per arm</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">decision2S</span>(<span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">0.5</span>), <span class="fu">c</span>(<span class="dv">0</span>,<span class="sc">-</span><span class="fl">0.357</span>), <span class="at">lower.tail =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rules)</span></code></pre></div>
 <pre><code>## 2 sample decision function
 ## Conditions for acceptance:
 ## P(theta1 - theta2 &lt;= 0) &gt; 0.9
 ## P(theta1 - theta2 &lt;= -0.357) &gt; 0.5
 ## Link: identity</code></pre>
-<p>The interim data were evaluated against the PoC criteria with weakly informative priors for both active and placebo groups. The criteria were not met, although it seemed to show some benefit of the active treatment over placebo numerically. The variability of this endpoint is higher than what was assumed for study sample size calculation.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">priorP &lt;-<span class="st"> </span>priorT &lt;-<span class="st"> </span><span class="kw">mixnorm</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="kw">log</span>(<span class="dv">20</span>), <span class="dv">1</span>), <span class="dt">sigma =</span> <span class="fl">0.47</span>, <span class="dt">param =</span> <span class="st">&#39;mn&#39;</span>)</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="co">## posterior at IA data</span></a>
-<a class="sourceLine" id="cb4-3" title="3">postT_interim &lt;-<span class="st"> </span><span class="kw">postmix</span>(priorT, <span class="dt">m=</span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;mean_log&quot;</span>], <span class="dt">se=</span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;se_log&quot;</span>])</a>
-<a class="sourceLine" id="cb4-4" title="4">postP_interim &lt;-<span class="st"> </span><span class="kw">postmix</span>(priorP, <span class="dt">m=</span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;mean_log&quot;</span>], <span class="dt">se=</span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;se_log&quot;</span>])</a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="kw">pmixdiff</span>(postT_interim, postP_interim, <span class="dv">0</span>)</a></code></pre></div>
+<p>The interim data were evaluated against the PoC criteria with weakly
+informative priors for both active and placebo groups. The criteria were
+not met, although it seemed to show some benefit of the active treatment
+over placebo numerically. The variability of this endpoint is higher
+than what was assumed for study sample size calculation.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>priorP <span class="ot">&lt;-</span> priorT <span class="ot">&lt;-</span> <span class="fu">mixnorm</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">log</span>(<span class="dv">20</span>), <span class="dv">1</span>), <span class="at">sigma =</span> <span class="fl">0.47</span>, <span class="at">param =</span> <span class="st">&#39;mn&#39;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## posterior at IA data</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>postT_interim <span class="ot">&lt;-</span> <span class="fu">postmix</span>(priorT, <span class="at">m=</span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;mean_log&quot;</span>], <span class="at">se=</span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;se_log&quot;</span>])</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>postP_interim <span class="ot">&lt;-</span> <span class="fu">postmix</span>(priorP, <span class="at">m=</span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;mean_log&quot;</span>], <span class="at">se=</span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;se_log&quot;</span>])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">pmixdiff</span>(postT_interim, postP_interim, <span class="dv">0</span>)</span></code></pre></div>
 <pre><code>## [1] 0.5900663</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">pmixdiff</span>(postT_interim, postP_interim,<span class="op">-</span><span class="fl">0.357</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pmixdiff</span>(postT_interim, postP_interim,<span class="sc">-</span><span class="fl">0.357</span>)</span></code></pre></div>
 <pre><code>## [1] 0.12637</code></pre>
-<p>The probability of success at the final analysis, i.e. the probability of meeting PoC criteria at trial completion given observed interim data, was computed using function <strong><code>pos2S()</code></strong>. One could assume that the new data after the interim would be from the same distribution as the interim data. If the <span class="math inline">\(\sigma_{1}\)</span> and <span class="math inline">\(\sigma_{2}\)</span> in <strong><code>pos2S()</code></strong> were not specified, i.e. the previously assumed <span class="math inline">\(\sigma\)</span> would be used.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">pos_final &lt;-<span class="st"> </span><span class="kw">pos2S</span>(</a>
-<a class="sourceLine" id="cb8-2" title="2">  postT_interim,</a>
-<a class="sourceLine" id="cb8-3" title="3">  postP_interim,</a>
-<a class="sourceLine" id="cb8-4" title="4">  n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;n&quot;</span>],</a>
-<a class="sourceLine" id="cb8-5" title="5">  n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;n&quot;</span>],</a>
-<a class="sourceLine" id="cb8-6" title="6">  rules,</a>
-<a class="sourceLine" id="cb8-7" title="7">  <span class="dt">sigma1 =</span> sd_log_pooled,</a>
-<a class="sourceLine" id="cb8-8" title="8">  <span class="dt">sigma2 =</span> sd_log_pooled</a>
-<a class="sourceLine" id="cb8-9" title="9">  )</a></code></pre></div>
-<p>The function constructed by <strong><code>pos2S()</code></strong> can produce the predictive probability given any defined distribution for the two groups. For example, if the interim posterior distributions are used, the calculated probability is small, suggesting a low chance of success at the final analysis given observed IA data.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">pos_final</span>(postT_interim, postP_interim)</a></code></pre></div>
+<p>The probability of success at the final analysis, i.e. the
+probability of meeting PoC criteria at trial completion given observed
+interim data, was computed using function
+<strong><code>pos2S()</code></strong>. One could assume that the new
+data after the interim would be from the same distribution as the
+interim data. If the <span class="math inline">\(\sigma_{1}\)</span> and
+<span class="math inline">\(\sigma_{2}\)</span> in
+<strong><code>pos2S()</code></strong> were not specified, i.e. the
+previously assumed <span class="math inline">\(\sigma\)</span> would be
+used.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pos_final <span class="ot">&lt;-</span> <span class="fu">pos2S</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  postT_interim,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  postP_interim,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  n <span class="sc">-</span> ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;n&quot;</span>],</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  n <span class="sc">-</span> ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;n&quot;</span>],</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  rules,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma1 =</span> sd_log_pooled,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma2 =</span> sd_log_pooled</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>The function constructed by <strong><code>pos2S()</code></strong> can
+produce the predictive probability given any defined distribution for
+the two groups. For example, if the interim posterior distributions are
+used, the calculated probability is small, suggesting a low chance of
+success at the final analysis given observed IA data.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pos_final</span>(postT_interim, postP_interim)</span></code></pre></div>
 <pre><code>## [1] 0.02413245</code></pre>
-<p>One can also use <strong><code>oc2S()</code></strong> to compute conditional power for any given treatment effect.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">ia_oc &lt;-<span class="st"> </span><span class="kw">oc2S</span>(</a>
-<a class="sourceLine" id="cb11-2" title="2">    postT_interim,</a>
-<a class="sourceLine" id="cb11-3" title="3">    postP_interim,</a>
-<a class="sourceLine" id="cb11-4" title="4">    n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;n&quot;</span>],</a>
-<a class="sourceLine" id="cb11-5" title="5">    n <span class="op">-</span><span class="st"> </span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;n&quot;</span>],</a>
-<a class="sourceLine" id="cb11-6" title="6">    rules,</a>
-<a class="sourceLine" id="cb11-7" title="7">    <span class="dt">sigma1 =</span> sd_log_pooled,</a>
-<a class="sourceLine" id="cb11-8" title="8">    <span class="dt">sigma2 =</span> sd_log_pooled</a>
-<a class="sourceLine" id="cb11-9" title="9">    )</a>
-<a class="sourceLine" id="cb11-10" title="10">  </a>
-<a class="sourceLine" id="cb11-11" title="11">delta &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>, <span class="fl">0.9</span>, <span class="fl">0.01</span>) <span class="co">#pct diff from pbo</span></a>
-<a class="sourceLine" id="cb11-12" title="12">pbomean &lt;-<span class="st"> </span>ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;mean_log&quot;</span>]</a>
-<a class="sourceLine" id="cb11-13" title="13">y1 &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="kw">exp</span>(pbomean) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>delta)) <span class="co">#active</span></a>
-<a class="sourceLine" id="cb11-14" title="14">y2 &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="kw">exp</span>(pbomean) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="dv">0</span> <span class="op">*</span><span class="st"> </span>delta)) <span class="co">#placebo</span></a>
-<a class="sourceLine" id="cb11-15" title="15">  </a>
-<a class="sourceLine" id="cb11-16" title="16">out &lt;-</a>
-<a class="sourceLine" id="cb11-17" title="17"><span class="st">    </span><span class="kw">data.frame</span>(</a>
-<a class="sourceLine" id="cb11-18" title="18">        <span class="dt">diff_pct =</span> delta,</a>
-<a class="sourceLine" id="cb11-19" title="19">        <span class="dt">diff =</span> <span class="kw">round</span>(y1 <span class="op">-</span><span class="st"> </span>y2, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb11-20" title="20">        <span class="dt">y_act =</span> y1,</a>
-<a class="sourceLine" id="cb11-21" title="21">        <span class="dt">y_pbo =</span> y2,</a>
-<a class="sourceLine" id="cb11-22" title="22">        <span class="dt">cp =</span> <span class="kw">ia_oc</span>(y1, y2)</a>
-<a class="sourceLine" id="cb11-23" title="23">        )</a>
-<a class="sourceLine" id="cb11-24" title="24">  </a>
-<a class="sourceLine" id="cb11-25" title="25"><span class="kw">ggplot</span>(<span class="dt">data =</span> out, <span class="kw">aes</span>(<span class="dt">x =</span> diff_pct, <span class="dt">y =</span> cp)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb11-26" title="26"><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">labels =</span> scales<span class="op">::</span>percent) <span class="op">+</span></a>
-<a class="sourceLine" id="cb11-27" title="27"><span class="st">        </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&#39;Conditional power&#39;</span>,</a>
-<a class="sourceLine" id="cb11-28" title="28">             <span class="dt">x =</span> <span class="st">&#39;True percentage difference from placebo in lesion count&#39;</span>,</a>
-<a class="sourceLine" id="cb11-29" title="29">             <span class="dt">title =</span> <span class="st">&#39;Conditional power at interim for success at final analysis&#39;</span>)</a></code></pre></div>
+<p>One can also use <strong><code>oc2S()</code></strong> to compute
+conditional power for any given treatment effect.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ia_oc <span class="ot">&lt;-</span> <span class="fu">oc2S</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    postT_interim,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    postP_interim,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">-</span> ia[<span class="st">&quot;active&quot;</span>,<span class="st">&quot;n&quot;</span>],</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    n <span class="sc">-</span> ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;n&quot;</span>],</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    rules,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sigma1 =</span> sd_log_pooled,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sigma2 =</span> sd_log_pooled</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>delta <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.9</span>, <span class="fl">0.01</span>) <span class="co">#pct diff from pbo</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>pbomean <span class="ot">&lt;-</span> ia[<span class="st">&quot;placebo&quot;</span>,<span class="st">&quot;mean_log&quot;</span>]</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="fu">exp</span>(pbomean) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> delta)) <span class="co">#active</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="fu">exp</span>(pbomean) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="dv">0</span> <span class="sc">*</span> delta)) <span class="co">#placebo</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">diff_pct =</span> delta,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">diff =</span> <span class="fu">round</span>(y1 <span class="sc">-</span> y2, <span class="dv">2</span>),</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">y_act =</span> y1,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">y_pbo =</span> y2,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">cp =</span> <span class="fu">ia_oc</span>(y1, y2)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> out, <span class="fu">aes</span>(<span class="at">x =</span> diff_pct, <span class="at">y =</span> cp)) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>percent) <span class="sc">+</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&#39;Conditional power&#39;</span>,</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="st">&#39;True percentage difference from placebo in lesion count&#39;</span>,</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">&#39;Conditional power at interim for success at final analysis&#39;</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
 <div id="r-session-info" class="section level3">
 <h3>R Session Info</h3>
 <pre><code>## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Ubuntu 20.04.4 LTS
+## Running under: Ubuntu 20.04.5 LTS
 ## 
 ## Matrix products: default
 ## BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0
@@ -451,7 +501,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 
 ## other attached packages:
 ## [1] scales_1.1.1    purrr_0.3.4     bayesplot_1.8.1 tidyr_1.1.3    
-## [5] dplyr_1.0.8     ggplot2_3.3.5   RBesT_1.6-4     knitr_1.33     
+## [5] dplyr_1.0.8     ggplot2_3.3.5   RBesT_1.6-5     knitr_1.33     
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_1.0.7           mvtnorm_1.1-2        prettyunits_1.1.1   

@@ -34,9 +34,17 @@ test_that("correct # of new predictions are generated", expect_equal(ncol(pred_n
 test_that("predictive variances have correct ordering",{
               pred_new_link <- predict(map, data.frame(country="CH", study=11), type="link")
               tau_est <- summary(map)$tau[,"mean"]
-              summary(pred_new_link)[,"sd"] > tau_est
+              expect_true(summary(pred_new_link)[,"sd"] > tau_est)
           })
 
+## whenever the same study/covariate combination is requested, then
+## the MAP must be numerically exactly the same. This ensures that per
+## study the random effect is sampled just once in each iteration.
+test_that("predictive distributions for the same study & covariate must match exactly", {
+    trans_cov_new <- data.frame(study="new", n=50, r=0, country=levels(trans_cov$country)[c(1,1)])
+    post_trans <- as.matrix(predict(map, newdata=trans_cov_new))
+    expect_equal(post_trans[,1], post_trans[,2])
+})
 
 context("Utilities: (auto)mixfit")
 

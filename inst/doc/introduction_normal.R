@@ -23,11 +23,11 @@ crohn_sigma <- 88
 dat$y.se <- crohn_sigma/sqrt(dat$n)
 
 ## ----dataprint,results="asis",echo=FALSE--------------------------------------
-kable(dat)
+kable(dat, digits=2)
 
 ## ----gMAP---------------------------------------------------------------------
 library(RBesT)
-set.seed(1234)
+set.seed(689654)
 map_mcmc <- gMAP(cbind(y, y.se) ~ 1 | study, 
                  weights=n,data=dat,
                  family=gaussian,
@@ -145,12 +145,12 @@ qplot(delta, power, data=ocP, colour=design, geom="line", main="Power") +
 
 ## ----final--------------------------------------------------------------------
 ## one can either use summary data or individual data. See ?postmix.
-y.act <- -29.15
-y.act.se <- 16.69
+y.act <- -29.2
+y.act.se <- 14.0
 n.act <- 39
 
-y.pbo <- -76.01
-y.pbo.se <- 21.93
+y.pbo <- -63.1
+y.pbo.se <- 13.9
 n.pbo <- 20
 
 ## first obtain posterior distributions

@@ -8,8 +8,8 @@ Description: Tool-set to support Bayesian evidence synthesis.  This
     for details on applying this package while Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
     <doi:10.1111/biom.12242> explain details on the methodology.
-Version: 1.6-4
-Date: 2022-08-05
+Version: 1.6-5
+Date: 2023-02-08
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -19,7 +19,7 @@ Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Satrajit", "Roychoudhury", email="satrajit.roychoudhury@novartis.com", role="ctb")
             ,person("Trustees of", "Columbia University", role="cph", comment="R/stanmodels.R, configure, configure.win")
 	    )
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5.0)
 Imports: methods, Rcpp (>= 0.12.0), RcppParallel (>= 5.0.1), rstan (>=
         2.19.3), rstantools (>= 2.1.1), assertthat, mvtnorm, Formula,
         checkmate, bayesplot (>= 1.4.0), ggplot2, dplyr, stats, utils,
@@ -31,13 +31,17 @@ License: GPL (>= 3)
 LazyData: true
 Biarch: true
 NeedsCompilation: yes
+UseLTO: true
+URL: http://opensource.nibr.com/RBesT/
+BugReports: https://github.com/Novartis/RBesT/issues
 Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, purrr,
         rstanarm (>= 2.17.2), scales, tools, broom, tidyr, parallel
 VignetteBuilder: knitr
-SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc
+SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc,
+        C++17
 Encoding: UTF-8
 RoxygenNote: 7.1.1
-Packaged: 2022-08-08 12:02:35 UTC; 1001150000
+Packaged: 2023-02-10 16:00:47 UTC; 1001150000
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -49,4 +53,4 @@ Author: Novartis Pharma AG [cph],
     configure.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2022-08-08 13:40:24 UTC
+Date/Publication: 2023-02-10 18:20:06 UTC

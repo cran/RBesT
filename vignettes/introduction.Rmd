@@ -428,7 +428,7 @@ decision(post_treat, post_placebo)
 [2] Baeten D. et al., _The Lancet_, 2013, (382), 9906, p 1705  
 [3] Morita S. et al., _Biometrics_ 2008;64(2):595-602  
 [4] Schmidli H. et al., _Biometrics_ 2014;70(4):1023-1032  
-[5] Neuenschwander B. et al., _pre-print_ 2019; arXiv:1907.04185  
+[5] Neuenschwander B. et al., _Biometrics_ 2020;76(2):578-587  
 
 ### R Session Info
 

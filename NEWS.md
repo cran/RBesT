@@ -1,3 +1,17 @@
+# RBesT 1.6-5 - February 8th, 2023
+
+## Enhancements
+
+* upon package load `RBesT` will now report the date of the release
+  and the respective git commit hash used to create the sources of the
+  package.
+
+## Bug fixes
+
+* ensure that `predict` for new studies will sample the study specifc
+  random effect per iteration only once. This is important for MAP
+  priors with covariate effects (which are pooled over the studies).
+
 # RBesT 1.6-4 - August 5th, 2022
 
 ## Enhancements
