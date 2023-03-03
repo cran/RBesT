@@ -8,8 +8,8 @@ Description: Tool-set to support Bayesian evidence synthesis.  This
     for details on applying this package while Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
     <doi:10.1111/biom.12242> explain details on the methodology.
-Version: 1.6-5
-Date: 2023-02-08
+Version: 1.6-6
+Date: 2023-03-03
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -32,7 +32,7 @@ LazyData: true
 Biarch: true
 NeedsCompilation: yes
 UseLTO: true
-URL: http://opensource.nibr.com/RBesT/
+URL: https://opensource.nibr.com/RBesT/
 BugReports: https://github.com/Novartis/RBesT/issues
 Suggests: rmarkdown, knitr, testthat (>= 2.0.0), foreach, purrr,
         rstanarm (>= 2.17.2), scales, tools, broom, tidyr, parallel
@@ -40,8 +40,8 @@ VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc,
         C++17
 Encoding: UTF-8
-RoxygenNote: 7.1.1
-Packaged: 2023-02-10 16:00:47 UTC; 1001150000
+RoxygenNote: 7.2.3
+Packaged: 2023-03-03 17:39:16 UTC; 1001150000
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -53,4 +53,4 @@ Author: Novartis Pharma AG [cph],
     configure.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2023-02-10 18:20:06 UTC
+Date/Publication: 2023-03-03 18:20:02 UTC
