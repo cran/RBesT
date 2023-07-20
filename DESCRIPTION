@@ -8,8 +8,8 @@ Description: Tool-set to support Bayesian evidence synthesis.  This
     for details on applying this package while Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
     <doi:10.1111/biom.12242> explain details on the methodology.
-Version: 1.6-7
-Date: 2023-06-26
+Version: 1.7-0
+Date: 2023-07-19
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -23,7 +23,7 @@ Depends: R (>= 3.5.0)
 Imports: methods, Rcpp (>= 0.12.0), RcppParallel (>= 5.0.1), rstan (>=
         2.19.3), rstantools (>= 2.3.1), assertthat, mvtnorm, Formula,
         checkmate, bayesplot (>= 1.4.0), ggplot2, dplyr, stats, utils,
-        matrixStats
+        matrixStats, abind
 LinkingTo: BH (>= 1.72.0), Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0),
         RcppParallel (>= 5.0.1), rstan (>= 2.19.3), StanHeaders (>=
         2.19.0)
@@ -41,7 +41,7 @@ SystemRequirements: GNU make, pandoc (>= 1.12.3), pandoc-citeproc,
         C++17
 Encoding: UTF-8
 RoxygenNote: 7.2.3
-Packaged: 2023-06-27 11:40:30 UTC; 1001150000
+Packaged: 2023-07-20 08:39:48 UTC; 1001150000
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -53,4 +53,4 @@ Author: Novartis Pharma AG [cph],
     configure.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2023-06-29 11:10:02 UTC
+Date/Publication: 2023-07-20 10:00:02 UTC
