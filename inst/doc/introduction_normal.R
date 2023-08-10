@@ -1,21 +1,33 @@
-## ----init, include=FALSE------------------------------------------------------
+## ---- SETTINGS-knitr, include=FALSE-------------------------------------------
+## knitr settings used to build vignettes
 library(RBesT)
+library(knitr)
 library(ggplot2)
 theme_set(theme_bw())
-library(knitr)
+knitr::knit_hooks$set(pngquant = knitr::hook_pngquant)
 knitr::opts_chunk$set(
-    fig.width = 1.62*4,
-    fig.height = 4
-)
+  dev = "ragg_png",
+  dpi = 72,
+  fig.retina = 2,
+  fig.width = 1.62*4,
+  fig.height = 4,
+  fig.align = "center",
+  out.width = "100%",
+  pngquant = "--speed=1 --quality=50"
+  )
+
+## ---- SETTINGS-sampling, include=FALSE----------------------------------------
+## sampling settings used to build vignettes
 ## setup up fast sampling when run on CRAN
-is_CRAN <- !identical(Sys.getenv("NOT_CRAN"), "true")
+is_CRAN <- Sys.getenv("NOT_CRAN", "true") != "true"
 ## NOTE: for running this vignette locally, please uncomment the
 ## following line:
 ## is_CRAN <- FALSE
 .user_mc_options <- list()
 if (is_CRAN) {
-    .user_mc_options <- options(RBesT.MC.warmup=50, RBesT.MC.iter=100, RBesT.MC.chains=2, RBesT.MC.thin=1)
+    .user_mc_options <- options(RBesT.MC.warmup=250, RBesT.MC.iter=500, RBesT.MC.chains=2, RBesT.MC.thin=1, RBesT.MC.control=list(adapt_delta=0.9))
 }
+set.seed(6475863)
 
 ## ----data---------------------------------------------------------------------
 dat <- crohn
