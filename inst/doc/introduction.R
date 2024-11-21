@@ -1,4 +1,4 @@
-## ---- SETTINGS-knitr, include=FALSE-------------------------------------------
+## ----SETTINGS-knitr, include=FALSE--------------------------------------------
 ## knitr settings used to build vignettes
 library(RBesT)
 library(knitr)
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
   pngquant = "--speed=1 --quality=50"
   )
 
-## ---- SETTINGS-sampling, include=FALSE----------------------------------------
+## ----SETTINGS-sampling, include=FALSE-----------------------------------------
 ## sampling settings used to build vignettes
 ## setup up fast sampling when run on CRAN
 is_CRAN <- Sys.getenv("NOT_CRAN", "true") != "true"
@@ -87,8 +87,8 @@ ess_weight <- rbind(ess_weight,
                     data.frame(weight=c(0, 1),
                                ess=c(ess(map), ess(mixbeta(c(1,1,1))))))
 
-qplot(weight, ess, data=ess_weight, geom=c("point", "line"),
-      main="ESS of robust MAP for varying weight of robust component") +
+ggplot(ess_weight, aes(weight, ess)) + geom_point() + geom_line() +
+    ggtitle("ESS of robust MAP for varying weight of robust component") +
     scale_x_continuous(breaks=seq(0,  1, by=0.1)) +
     scale_y_continuous(breaks=seq(0, 40, by=5))
 
@@ -115,14 +115,15 @@ ocI <- rbind(data.frame(theta=theta, typeI=typeI_robust,    prior="robust"),
              data.frame(theta=theta, typeI=typeI_classic,   prior="uniform 24:24")
              )
 
-qplot(theta, typeI, data=ocI, colour=prior, geom="line", main="Type I Error")
+ggplot(ocI, aes(theta, typeI, colour=prior)) + geom_line() + ggtitle("Type I Error")
 
 ## -----------------------------------------------------------------------------
 summary(map)
 
 ## -----------------------------------------------------------------------------
-qplot(theta, typeI, data=subset(ocI, theta < 0.5), colour=prior, geom="line",
-      main="Type I Error - response rate restricted to plausible range")
+ggplot(ocI, aes(theta, typeI, colour=prior)) + geom_line() +
+    ggtitle("Type I Error - response rate restricted to plausible range") +
+    coord_cartesian(xlim=c(0, 0.5))
 
 ## -----------------------------------------------------------------------------
 delta <- seq(0,0.7,by=0.01)
@@ -141,7 +142,8 @@ ocP <- rbind(data.frame(theta_active, theta_control, delta=delta, power=power_ro
              data.frame(theta_active, theta_control, delta=delta, power=power_classic,   prior="uniform 24:24")
              )
 
-qplot(delta, power, data=ocP, colour=prior, geom="line", main="Power")
+ggplot(ocP, aes(delta, power, colour=prior)) + geom_line() +
+    ggtitle("Power")
 
 
 ## -----------------------------------------------------------------------------
@@ -173,7 +175,7 @@ ocC <- rbind(data.frame(y2=treat_y2, y1_crit=crit_robust(treat_y2),    prior="ro
              data.frame(y2=treat_y2, y1_crit=crit_uniform(treat_y2),   prior="uniform")
              )
 
-qplot(y2, y1_crit, data=ocC, colour=prior, geom="step", main="Critical values y1(y2)")
+ggplot(ocC, aes(y2, y1_crit, colour=prior)) + geom_step() + ggtitle("Critical values y1(y2)")
 
 ## -----------------------------------------------------------------------------
 ## just positive
