@@ -1,6 +1,6 @@
-091e1714851ee0fff910acab5c7ebedf *DESCRIPTION
+0546e9b1706237ed55cefaafd9e85bc8 *DESCRIPTION
 457c22f07c3280b62e5d2b4cea18744c *NAMESPACE
-69f8fa319b14853fa0d4d2c54cbefc35 *NEWS.md
+23a437d9cbda14314e72db3e3f07cf67 *NEWS.md
 c8316e67fb0d3a99d02267c844aaba4b *R/AS.R
 749988b5281a0694833e06f3580d668c *R/BinaryExactCI.R
 600497c949dca02bf95e3888b8dfc633 *R/Curry.R
@@ -39,7 +39,7 @@ e865d1964af0e08ee4429246a8d7dece *R/mixbeta.R
 eca84f55596ef7c8029838b719767a8f *R/mixcombine.R
 f34c48140081af1e9ecf9ec90d508cac *R/mixdiff.R
 1ee17973f0e49cdebc89827a224888b0 *R/mixdist3.R
-4e38b02d0097f0f5286ec38dfff368bc *R/mixess.R
+9009fe0329eb48fdab2eb5ecb90266d8 *R/mixess.R
 67bf5616c363efa2dba770aa5541d243 *R/mixfit.R
 9a0667809c142c608def71a5b3e69f7c *R/mixgamma.R
 2272cc6cb4b7f686307995ff54f836dd *R/mixmode.R
@@ -58,7 +58,7 @@ b7b61ecac116ca28a0a79de8fc517186 *R/postmix.R
 4bd8bea2800ebdc2d3e8bb48c91f48cb *R/robustify.R
 88d160344193a7b3b1a14efe2adb3451 *R/stanmodels.R
 ca7fc4aa60a848f61357994ffdcabe4f *R/support.R
-4cd0111a5622aea3a8082ea3fbb37210 *R/sysdata.rda
+86ba5f3f640fe744a354b4cc905d7ad2 *R/sysdata.rda
 0b613ef6532cc1cb1a48057129ae8fce *R/transplant.R
 48b4e102ec0b533d9265027af927d37a *R/uniroot_int.R
 2098c98f6cb341b578931d440186a199 *R/zzz.R
@@ -73,10 +73,10 @@ f61036adf1a70a957912e1ed4713222a *demo/00Index
 1eb9203cbec4bb05c01165c218a8480f *demo/oc2S-tte.R
 a34df40a96485abeb480d106de22fc3f *demo/robustMAP.R
 c98bb406ff11d2a78477c2df39568f33 *inst/CITATION
-f9df96e3175ef0c999fbe4b66691ae0c *inst/doc/RBesT.pdf
+719ef6f4ab844112f9ff41b46f222f2d *inst/doc/RBesT.pdf
 197d7c098d59b0c24831f638bd482f24 *inst/doc/introduction.R
 e049c37af793202880668c9e3bfe822a *inst/doc/introduction.Rmd
-e14dc338f688a290f3624bb2c192f1c6 *inst/doc/introduction.html
+22d9b2eea0b21f400890f74028155e00 *inst/doc/introduction.html
 d68941998e10d932188468ffb7338972 *inst/doc/settings-knitr.txt
 7790a315e1375fb74308a6a81025185f *inst/doc/settings-sampling.txt
 a6a4deb8dfa20450219602732129588f *inst/examples/ess.R
@@ -98,7 +98,7 @@ b556e5b2d4b764afb8badcfdaa4da9fb *inst/stan/include/license.stan
 dd7d1214ac296e954f2df4c424d31a39 *man/AS.Rd
 1ca181fc3e3eeebc612a230e23a95dbf *man/BinaryExactCI.Rd
 d93610dcb40ee60be1169fd18fb4f0c9 *man/Curry.Rd
-f8472fc6fc75f6e4197c5183df57ce21 *man/RBesT-package.Rd
+595b0cc9ae1d7a6924e247a7bf49dd57 *man/RBesT-package.Rd
 6d9f880771db3123d5b131ffbc8ab025 *man/SimSum.Rd
 f8a78bd9c000ae44a90f780b9554819b *man/automixfit.Rd
 6371047a9f306f26dec233a44870edf0 *man/chains2sample.Rd
@@ -163,7 +163,7 @@ bed5947c0fe676deb6649f607e3a0c4c *tests/testthat/test-mixstanvar.R
 6f674531244e43f7de930ddee9e373e2 *tests/testthat/test-pos2S.R
 c3a6680fd4ae42ca4b2f53fa2b8c422d *tests/testthat/test-postmix.R
 5f2503e17192c5b436de4d891921b592 *tests/testthat/test-preddist.R
-abb812928bc81c05c6042625e1c44ef1 *tests/testthat/test-utils.R
+7690538a0b9ab206415bca6ad856da28 *tests/testthat/test-utils.R
 e049c37af793202880668c9e3bfe822a *vignettes/introduction.Rmd
 d68941998e10d932188468ffb7338972 *vignettes/settings-knitr.txt
 7790a315e1375fb74308a6a81025185f *vignettes/settings-sampling.txt
