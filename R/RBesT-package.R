@@ -35,11 +35,18 @@
 #' `RBesT.MC.rescale` \tab `TRUE` \tab Automatic rescaling of raw parameters  \cr
 #' `RBesT.verbose` \tab `FALSE` \tab requests outputs to be more verbose\cr
 #' `RBesT.integrate_args` \tab `list(lower=-Inf,` \tab arguments passed to `integrate` for\cr
-#'  \tab `upper=Inf,` \tab intergation of densities\cr
-#' \tab `rel.tol=.Machine$double.eps^0.25,` \tab \cr
-#' \tab `abs.tol=.Machine$double.eps^0.25,` \tab \cr
+#'  \tab `upper=Inf,` \tab adaptive integration of densities (used when\cr
+#' \tab `rel.tol=.Machine$double.eps^0.25,` \tab `RBesT.integrate_method` is `"adaptive"`\cr
+#' \tab `abs.tol=.Machine$double.eps^0.25,` \tab or for non-`normMix` densities)\cr
 #' \tab `subdivisions=1E3)` \tab \cr
 #' `RBesT.integrate_prob_eps` \tab `1E-6` \tab probability mass left out from tails if integration needs to be restricted in range \cr
+#' `RBesT.integrate_method` \tab `"GQ"` \tab integration method for mixture densities: `"GQ"` (Gaussian quadrature, deterministic) or `"adaptive"` (adaptive Gauss-Kronrod). GQ uses Gauss-Hermite for `normMix`, Gauss-Jacobi for `betaMix`, and Gauss-Laguerre for `gammaMix`. \cr
+#' `RBesT.GQ_nodes` \tab `20` \tab starting number of Gaussian quadrature nodes (only used when `RBesT.integrate_method` is `"GQ"`) \cr
+#' `RBesT.GQ_rel_tol` \tab `1E-4` \tab relative tolerance target for GQ refinement; the node count is increased until successive estimates agree within `max(RBesT.GQ_abs_tol, RBesT.GQ_rel_tol * |I|)`. Set to a non-finite or non-positive value (e.g. `Inf`) to disable refinement (single evaluation at `RBesT.GQ_nodes`). \cr
+#' `RBesT.GQ_abs_tol` \tab `1E-6` \tab absolute tolerance floor for GQ refinement \cr
+#' `RBesT.GQ_max_nodes` \tab `240` \tab upper cap on the GQ node count during refinement \cr
+#' `RBesT.GQ_node_growth` \tab `2` \tab multiplicative growth factor for the GQ node count between refinement steps \cr
+#' `RBesT.GQ_on_nonconvergence` \tab `"adaptive"` \tab behaviour when GQ refinement reaches `RBesT.GQ_max_nodes` without meeting tolerance: `"adaptive"` (fall through to adaptive integration), `"warn"` (warn and return best estimate), `"error"`, or `"silent"` \cr
 #' }
 #'
 #' @section Version History:

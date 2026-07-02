@@ -1,0 +1,7 @@
+Compact gMAP fixture approximation report
+Tolerance for delta: mean <= 0.05, sd <= 0.05, q10 <= 0.10, q80 <= 0.10
+
+                            fixture   variable  mean_delta    sd_delta
+ gmap_binomial_extreme_all_response theta_pred 0.009458665 -0.04032999
+  q10_delta q80_delta within_tolerance              note
+ 0.05446553 0.3803341            FALSE outside tolerance

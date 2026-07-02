@@ -37,6 +37,8 @@ predict.gMAP <- function(
   thin,
   ...
 ) {
+  .gmap_warn_no_samples(object, object_name = deparse(substitute(object)))
+
   f <- object$formula
   mf <- object$model
   tt <- terms(f, data = mf, lhs = 1, rhs = 1)
@@ -104,36 +106,33 @@ predict.gMAP <- function(
     thin <- object$thin
   }
 
-  beta <- rstan::extract(
-    object$fit,
-    inc_warmup = FALSE,
-    permuted = FALSE,
-    pars = "beta"
+  beta_draws <- .gmap_thin_draws(
+    .gmap_draws_array(object, variable = "beta"),
+    thin = thin
   )
+  beta <- as.array(beta_draws)
   n.pred <- nrow(X)
   n.iter <- dim(beta)[1]
   n.chains <- dim(beta)[2]
 
   if (posterior_predict) {
     pred <- aperm(
-      rstan::extract(
-        object$fit,
-        inc_warmup = FALSE,
-        permuted = FALSE,
-        pars = "theta"
-      ),
+      as.array(.gmap_thin_draws(
+        .gmap_draws_array(object, variable = "theta"),
+        thin = thin
+      )),
       c(3, 1, 2)
     )
   } else {
-    pred <- apply(beta, c(1, 2), function(x) X %*% x)
-    if (n.pred == 1) {
-      pred <- array(pred, dim = c(1, dim(pred)))
+    pred <- array(NA_real_, dim = c(n.pred, n.iter, n.chains))
+    for (chain_id in seq_len(n.chains)) {
+      beta_chain <- beta[, chain_id, , drop = FALSE]
+      dim(beta_chain) <- c(n.iter, dim(beta)[3])
+      pred[, , chain_id] <- X %*% t(beta_chain)
     }
   }
 
-  sub_ind <- seq(1, n.iter, by = thin)
-
-  pred <- t(matrix(pred[, sub_ind, ], nrow = n.pred))
+  pred <- t(matrix(pred, nrow = n.pred))
 
   if (!posterior_predict) {
     ## in case we make a prediction unconditional on the fitted
@@ -144,24 +143,26 @@ predict.gMAP <- function(
     ## sample random effects for as many groups defined, which can
     ## be more than the ones in the data set, since we sample for
     ## all defined factor levels
-    tau <- as.vector(rstan::extract(
-      object$fit,
-      inc_warmup = FALSE,
-      permuted = FALSE,
-      pars = paste0("tau[", object$tau.strata.pred, "]")
-    )[sub_ind, , ])
+    tau_draws <- .gmap_thin_draws(
+      .gmap_draws_array(
+        object,
+        variable = paste0("tau[", object$tau.strata.pred, "]")
+      ),
+      thin = thin
+    )
+    tau <- as.vector(as.array(tau_draws)[, , 1])
     if (object$REdist == "normal") {
-      re <- tau * matrix(rnorm(n.groups * S, 0, 1), nrow = S)
+      re <- tau * matrix(rnorm(n.groups * S, 0, 1), nrow = S, ncol = n.groups)
     }
     if (object$REdist == "t") {
-      re <- tau * matrix(rt(n.groups * S, df = object$t.df), nrow = S)
+      re <- tau * matrix(rt(n.groups * S, df = object$t.df), nrow = S, ncol = n.groups)
     }
 
     ## ... and add it to predictions
     pred <- pred + re[, group.index]
   }
 
-  if (type == "response") {
+  if (type == "response" && length(pred) > 0L) {
     pred <- object$family$linkinv(pred)
   }
 
@@ -171,7 +172,24 @@ predict.gMAP <- function(
   }
   dimnames(pred) <- list(NULL, predNames)
 
-  stat <- SimSum(pred, probs = probs, margin = 2)
+  pred_draws <- posterior::as_draws_matrix(pred)
+  if (posterior::ndraws(pred_draws) == 0L) {
+    stat <- .gmap_empty_draws_summary(
+      variables = posterior::variables(pred_draws),
+      probs = probs
+    )
+  } else {
+    stat <- posterior::summarise_draws(
+      pred_draws,
+      "mean",
+      "median",
+      "sd",
+      ~posterior::quantile2(.x, probs = probs)
+    )
+    stat <- as.data.frame(stat)
+    rownames(stat) <- stat$variable
+    stat$variable <- NULL
+  }
   attr(pred, "summary") <- stat
   attr(pred, "type") <- type
   attr(pred, "family") <- object$family

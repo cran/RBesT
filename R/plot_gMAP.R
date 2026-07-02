@@ -18,31 +18,33 @@
 #' @method plot gMAP
 #' @export
 plot.gMAP <- function(x, size = NULL, linewidth = NULL, ...) {
+  .gmap_warn_no_samples(x, object_name = deparse(substitute(x)))
+
   pl <- list()
 
-  draws <- rstan::extract(x$fit, permuted = FALSE, inc_warmup = FALSE)
-  nuts_diag <- bayesplot::nuts_params(x$fit, inc_warmup = FALSE)
+  draws <- .gmap_draws_array(x)
+  nuts_diag <- .gmap_diag_df(x$draws_diag)
 
   ## by default we return a small set of plots only
   plot_verbose <- getOption("RBesT.verbose", FALSE)
 
   div_opts <- list()
-  if (sum(nuts_diag$Value[nuts_diag$Parameter == "divergent__"]) > 0) {
-    div_opts$np <- bayesplot::nuts_params(x$fit, inc_warmup = TRUE)
+  if (!is.null(nuts_diag) && sum(nuts_diag$Value[nuts_diag$Parameter == "divergent__"]) > 0) {
+    div_opts$np <- .gmap_all_diag_df(x)
     plot_verbose <- TRUE ## if any divergent transition happens,
     ## then we plot verbose in any case
   }
 
-  tau_pars <- grep("tau\\[", dimnames(draws)$parameters, value = TRUE)
-  beta_pars <- grep("beta\\[", dimnames(draws)$parameters, value = TRUE)
+  tau_pars <- posterior::variables(.gmap_draws_array(x, variable = "tau"))
+  beta_pars <- posterior::variables(.gmap_draws_array(x, variable = "beta"))
 
   tau_log_trans <- as.list(rep("log", length(tau_pars)))
   names(tau_log_trans) <- tau_pars
 
   if (plot_verbose) {
     ## traces are only shown if in verbose mode...
-    draws_all <- rstan::extract(x$fit, permuted = FALSE, inc_warmup = TRUE)
-    n_warmup <- dim(draws_all)[1] - dim(draws)[1]
+    draws_all <- .gmap_all_draws(x)
+    n_warmup <- if (is.null(x$draws_warmup)) 0 else x$metadata_mcmc$warmup_saved
     pl$traceBeta <- do.call(
       bayesplot::mcmc_trace,
       c(

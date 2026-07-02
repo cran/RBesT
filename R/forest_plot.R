@@ -100,13 +100,18 @@ forest_plot <- function(
   pred_est <- transform(pred_est, study = c("MAP", "Mean"), model = "meta")
   pred_est <- pred_est[c("MAP", "Mean") %in% est, ]
 
-  names(pred_est)[1:5] <- names(strat) <- names(fit) <- c(
-    "mean",
-    "sem",
-    "median",
-    "low",
-    "up"
-  )
+  q_low <- paste0("q", 100 * low)
+  q_up <- paste0("q", 100 * up)
+
+  names(strat)[1:5] <- c("mean", "sem", "median", "low", "up")
+  fit$sem <- fit$sd
+  fit$low <- fit[[q_low]]
+  fit$up <- fit[[q_up]]
+  fit <- fit[c("mean", "sem", "median", "low", "up")]
+  pred_est$sem <- pred_est$sd
+  pred_est$low <- pred_est[[q_low]]
+  pred_est$up <- pred_est[[q_up]]
+  pred_est <- pred_est[c("mean", "sem", "median", "low", "up", "study", "model")]
   comb <- rbind(
     if ("stratified" %in% model) {
       transform(strat, study = rownames(strat), model = "stratified")

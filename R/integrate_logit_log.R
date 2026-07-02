@@ -1,27 +1,95 @@
-#' internal function used for integration of densities which appears
-#' to be much more stable from -Inf to +Inf in the logit space while
-#' the density to be integrated recieves inputs from 0 to 1 such that
-#' the inverse distribution function must be used. The integral solved
-#' is int_x dmix(mix,x) integrand(x) where integrand must be given as
-#' log and we integrate over the support of mix.
+#' Integrate a function against a mixture density
 #'
-#' integrate density in logit space and split by component such
-#' that the quantile function of each component is used. This
-#' ensures that the R implementation of the quantile function is
-#' always used.
+#' Computes \eqn{\int g(x) f_{\text{mix}}(x) dx} where \eqn{f_{\text{mix}}}
+#' is a mixture density. S3 generic dispatching on the mixture type.
 #'
-#' @param log_integrand function to integrate over which must return the log(f)
-#' @param mix density over which to integrate
-#' @param Lplower logit of lower cumulative density
-#' @param Lpupper logit of upper cumulative density
+#' @param mix mixture density to integrate over (dispatch argument)
+#' @param integrand function to integrate
+#' @param ... additional arguments passed to methods
 #'
 #' @keywords internal
-integrate_density_log <- function(
-  log_integrand,
+integrate_density <- function(mix, integrand, ...) UseMethod("integrate_density")
+
+#' @exportS3Method
+#' @describeIn integrate_density Default method using adaptive integration
+#' @keywords internal
+integrate_density.default <- function(
   mix,
+  integrand,
   Lplower = -Inf,
   Lpupper = Inf,
-  eps = getOption("RBesT.integrate_prob_eps", 1E-6)
+  eps = getOption("RBesT.integrate_prob_eps", 1E-6),
+  ...
+) {
+  .integrand_comp_logit <- function(mix_comp) {
+    function(l) {
+      u <- inv_logit(l)
+      lp <- log_inv_logit(l)
+      lnp <- log_inv_logit(-l)
+      exp(lp + lnp) * integrand(qmix(mix_comp, u))
+    }
+  }
+  Nc <- ncol(mix)
+
+  lower <- inv_logit(Lplower)
+  upper <- inv_logit(Lpupper)
+
+  return(sum(
+    vapply(
+      1:Nc,
+      function(comp) {
+        mix_comp <- mix[[comp, rescale = TRUE]]
+        ## ensure that the integrand is defined at the boundaries...
+        fn_integrand_comp_logit <- .integrand_comp_logit(mix_comp)
+        if (all(!is.na(fn_integrand_comp_logit(c(Lplower, Lpupper))))) {
+          return(.integrate(fn_integrand_comp_logit, Lplower, Lpupper))
+        }
+        ## ... otherwise we avoid the boundaries by eps prob density:
+        lower_comp <- ifelse(
+          Lplower == -Inf,
+          qmix(mix_comp, eps),
+          qmix(mix_comp, lower)
+        )
+        upper_comp <- ifelse(
+          Lpupper == Inf,
+          qmix(mix_comp, 1 - eps),
+          qmix(mix_comp, upper)
+        )
+        return(.integrate(
+          function(x) integrand(x) * dmix(mix_comp, x),
+          lower_comp,
+          upper_comp
+        ))
+      },
+      c(0.1)
+    ) *
+      mix[1, ]
+  ))
+}
+
+#' Integrate a log-space function against a mixture density
+#'
+#' Computes \eqn{\int \exp(\text{log\_integrand}(x)) f_{\text{mix}}(x) dx}.
+#' Uses logit-space transformation for numerical stability with adaptive
+#' integration. S3 generic dispatching on the mixture type.
+#'
+#' @param mix mixture density to integrate over (dispatch argument)
+#' @param log_integrand function returning \code{log(g(x))}
+#' @param ... additional arguments passed to methods
+#'
+#' @keywords internal
+integrate_density_log <- function(mix, log_integrand, ...) UseMethod("integrate_density_log")
+
+#' @exportS3Method
+#' @describeIn integrate_density_log Default method using adaptive logit-space integration
+#' @keywords internal
+integrate_density_log.default <- function(
+  mix,
+  log_integrand,
+  Lplower = -Inf,
+  Lpupper = Inf,
+  eps = getOption("RBesT.integrate_prob_eps", 1E-6),
+  ...
 ) {
   .integrand_comp_logit <- function(mix_comp) {
     function(l) {
@@ -62,59 +130,6 @@ integrate_density_log <- function(
         )
         return(.integrate(
           function(x) exp(log_integrand(x) + dmix(mix_comp, x, log = TRUE)),
-          lower_comp,
-          upper_comp
-        ))
-      },
-      c(0.1)
-    ) *
-      mix[1, ]
-  ))
-}
-
-integrate_density <- function(
-  integrand,
-  mix,
-  Lplower = -Inf,
-  Lpupper = Inf,
-  eps = getOption("RBesT.integrate_prob_eps", 1E-6)
-) {
-  .integrand_comp_logit <- function(mix_comp) {
-    function(l) {
-      u <- inv_logit(l)
-      lp <- log_inv_logit(l)
-      lnp <- log_inv_logit(-l)
-      exp(lp + lnp) * integrand(qmix(mix_comp, u))
-    }
-  }
-  Nc <- ncol(mix)
-
-  lower <- inv_logit(Lplower)
-  upper <- inv_logit(Lpupper)
-
-  return(sum(
-    vapply(
-      1:Nc,
-      function(comp) {
-        mix_comp <- mix[[comp, rescale = TRUE]]
-        ## ensure that the integrand is defined at the boundaries...
-        fn_integrand_comp_logit <- .integrand_comp_logit(mix_comp)
-        if (all(!is.na(fn_integrand_comp_logit(c(Lplower, Lpupper))))) {
-          return(.integrate(fn_integrand_comp_logit, Lplower, Lpupper))
-        }
-        ## ... otherwise we avoid the boundaries by eps prob density:
-        lower_comp <- ifelse(
-          Lplower == -Inf,
-          qmix(mix_comp, eps),
-          qmix(mix_comp, lower)
-        )
-        upper_comp <- ifelse(
-          Lpupper == Inf,
-          qmix(mix_comp, 1 - eps),
-          qmix(mix_comp, upper)
-        )
-        return(.integrate(
-          function(x) integrand(x) * dmix(mix_comp, x),
           lower_comp,
           upper_comp
         ))

@@ -1,2 +1,3 @@
 oc2S-tte      2-sample time-to-event operating characeristics using Poisson approximation
+oc2S_interim  OC for two-stage designs with interim analysis (grid-based, no MC)
 robustMAP     Generates main results from Schmidli et al., Biometrics 70, 1024, 2014.

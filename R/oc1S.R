@@ -157,27 +157,47 @@ oc1S.betaMix <- function(prior, n, decision, ...) {
 #' @templateVar fun oc1S
 #' @template design1S-normal
 #' @export
-oc1S.normMix <- function(prior, n, decision, sigma, eps = 1e-6, ...) {
-  ## distributions of the means of the data generating distributions
-  ## for now we assume that the underlying standard deviation
-  ## matches the respective reference scales
-  if (missing(sigma)) {
-    sigma <- RBesT::sigma(prior)
-    message("Using default prior reference scale ", sigma)
+oc1S.normMix <- function(prior, n, decision, sigma, eps = 1e-6, family = NULL, offset = 0, ...) {
+  # Determine data sigma
+  resolved <- resolve_sigma_family(family, missing(sigma), sigma, offset)
+  sigma_fun <- resolved$sigma_fun
+  family <- resolved$family
+
+  # Calculate critical value
+  if (is.null(sigma_fun)) {
+    if (missing(sigma)) {
+      sigma <- RBesT::sigma(prior)
+      message("Using default prior reference scale ", sigma)
+    }
+    assert_number(sigma, lower = 0)
+
+    sd_samp <- sigma / sqrt(n)
+    sigma(prior) <- sigma
+
+    crit <- decision1S_boundary(prior, n, decision, sigma, eps)
+  } else {
+    if (family$family == "gaussian") {
+      crit <- decision1S_boundary(prior, n, decision,
+                                  family = family, offset = offset,
+                                  sigma = sigma, eps = eps)
+    } else {
+      crit <- decision1S_boundary(prior, n, decision,
+                                  family = family, offset = offset, eps = eps)
+    }
   }
-  assert_number(sigma, lower = 0)
-
-  sd_samp <- sigma / sqrt(n)
-  sigma(prior) <- sigma
-
-  crit <- decision1S_boundary(prior, n, decision, sigma, eps)
 
   design_fun <- if (is(decision, "decision1S_1sided")) {
-    ## check where the decision is 1, i.e. left or right
     lower.tail <- attr(decision, "lower.tail")
 
-    function(theta) {
-      pnorm(crit, theta, sd_samp, lower.tail = lower.tail)
+    if (is.null(sigma_fun)) {
+      function(theta) {
+        pnorm(crit, theta, sd_samp, lower.tail = lower.tail)
+      }
+    } else {
+      function(theta) {
+        se_theta <- sigma_fun(theta) / sqrt(n)
+        pnorm(crit, theta, se_theta, lower.tail = lower.tail)
+      }
     }
   } else {
     crit_lower_or_equal <- crit["lower_or_equal_than"]
@@ -185,24 +205,27 @@ oc1S.normMix <- function(prior, n, decision, sigma, eps = 1e-6, ...) {
     if (crit_lower_or_equal <= crit_upper) {
       function(theta) rep(0, length(theta))
     } else {
-      function(theta) {
-        # Calculate probability between the two bounds.
-        # P(X <= crit_lower_or_equal):
-        prob_lower_or_equal <- pnorm(
-          crit_lower_or_equal,
-          theta,
-          sd_samp,
-          lower.tail = TRUE
-        )
-        # P(X <= crit_upper):
-        prob_upper <- pnorm(
-          crit_upper,
-          theta,
-          sd_samp,
-          lower.tail = TRUE
-        )
-        # P(crit_upper < X <= crit_lower_or_equal):
-        prob_lower_or_equal - prob_upper
+      if (is.null(sigma_fun)) {
+        function(theta) {
+          prob_lower_or_equal <- pnorm(
+            crit_lower_or_equal, theta, sd_samp, lower.tail = TRUE
+          )
+          prob_upper <- pnorm(
+            crit_upper, theta, sd_samp, lower.tail = TRUE
+          )
+          prob_lower_or_equal - prob_upper
+        }
+      } else {
+        function(theta) {
+          se_theta <- sigma_fun(theta) / sqrt(n)
+          prob_lower_or_equal <- pnorm(
+            crit_lower_or_equal, theta, se_theta, lower.tail = TRUE
+          )
+          prob_upper <- pnorm(
+            crit_upper, theta, se_theta, lower.tail = TRUE
+          )
+          prob_lower_or_equal - prob_upper
+        }
       }
     }
   }

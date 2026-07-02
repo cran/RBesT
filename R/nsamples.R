@@ -23,8 +23,5 @@
 #' @aliases nsamples
 #' @export
 nsamples.gMAP <- function(object, ...) {
-  return(
-    object$fit@sim$chains *
-      (object$fit@sim$iter - object$fit@sim$warmup)
-  )
+  posterior::ndraws(object$draws)
 }

@@ -11,7 +11,7 @@ oc1S(prior, n, decision, ...)
 
 \method{oc1S}{betaMix}(prior, n, decision, ...)
 
-\method{oc1S}{normMix}(prior, n, decision, sigma, eps = 1e-06, ...)
+\method{oc1S}{normMix}(prior, n, decision, sigma, eps = 1e-06, family = NULL, offset = 0, ...)
 
 \method{oc1S}{gammaMix}(prior, n, decision, eps = 1e-06, ...)
 }
@@ -25,11 +25,26 @@ oc1S(prior, n, decision, ...)
 \item{...}{Optional arguments.}
 
 \item{sigma}{The fixed reference scale. If left unspecified, the
-default reference scale of the prior is assumed.}
+default reference scale of the prior is assumed. When \code{family}
+is a non-Gaussian family, \code{sigma} must not be specified (it is
+determined by the family). When \code{family = gaussian()},
+\code{sigma} is required and acts as the dispersion parameter.}
 
 \item{eps}{Support of random variables are determined as the
 interval covering \code{1-eps} probability mass. Defaults to
 \eqn{10^{-6}}.}
+
+\item{family}{Optional \code{\link{family}} object specifying a
+GLM family and link function (e.g.\ \code{binomial()},
+\code{MASS::negative.binomial(theta)}). When provided, the
+sampling standard deviation varies with the parameter value via the
+family's variance function and link. Default is \code{NULL}
+(constant \code{sigma}).}
+
+\item{offset}{Numeric scalar added to the linear predictor before
+evaluating the family's variance function. Relevant for
+Poisson/negative-binomial models with log link where
+\code{offset = log(exposure)}. Default is \code{0}.}
 }
 \value{
 Returns a function with one argument \code{theta} which
@@ -75,6 +90,17 @@ second moment. The function \code{oc1S} has an extra
 argument \code{eps} (defaults to \eqn{10^{-6}}). The critical value
 \eqn{y_c} is searched in the region of probability mass
 \code{1-eps} for \eqn{y}.
+
+When \code{family} is specified, the sampling standard deviation
+becomes a function of the parameter value \eqn{\theta} via
+\deqn{\sigma(\theta) = \sqrt{\phi \, V(\mu)} / |g'(\mu)|}
+where \eqn{V} is the variance function, \eqn{g} the link function
+of the family, and \eqn{\phi} the dispersion parameter. For the
+Gaussian family \eqn{\phi = \sigma^2} (so \code{sigma} must be
+supplied); for all other families \eqn{\phi = 1} and \code{sigma}
+must \emph{not} be given. Specifying
+\code{family = gaussian("identity")} with \code{sigma} is
+equivalent to the standard fixed-\eqn{\sigma} path.
 
 \item \code{oc1S(gammaMix)}: Applies for the Poisson model with a gamma
 mixture prior for the rate parameter.  The function
@@ -159,9 +185,9 @@ designIntermediate_nL(theta_eval)
 
 }
 \seealso{
-Other design1S: 
-\code{\link{decision1S}()},
-\code{\link{decision1S_boundary}()},
-\code{\link{pos1S}()}
+Other design1S:
+\code{\link[=decision1S]{decision1S()}},
+\code{\link[=decision1S_boundary]{decision1S_boundary()}},
+\code{\link[=pos1S]{pos1S()}}
 }
 \concept{design1S}

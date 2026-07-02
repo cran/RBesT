@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "dim": [21, 1],
+    "dimnames": [
+      ["w", "m[theta[1]]", "m[theta[2]]", "m[theta[3]]", "m[theta[4]]", "m[theta_pred]", "s[theta[1]]", "s[theta[2]]", "s[theta[3]]", "s[theta[4]]", "s[theta_pred]", "rho[theta[2],theta[1]]", "rho[theta[3],theta[1]]", "rho[theta[4],theta[1]]", "rho[theta_pred,theta[1]]", "rho[theta[3],theta[2]]", "rho[theta[4],theta[2]]", "rho[theta_pred,theta[2]]", "rho[theta[4],theta[3]]", "rho[theta_pred,theta[3]]", "rho[theta_pred,theta[4]]"],
+      ["comp1"]
+    ],
+    "link": ["identity"],
+    "class": ["mvnormMix", "mix"],
+    "likelihood": ["mvnormal"]
+  },
+  "comp": [
+    [1],
+    [-4.4799],
+    [-4.4799],
+    [-4.4799],
+    [-4.4799],
+    [-2.3628],
+    [1.8339],
+    [1.8339],
+    [1.8339],
+    [1.8339],
+    [2.9832],
+    [1],
+    [1],
+    [1],
+    [0.0885],
+    [1],
+    [1],
+    [0.0885],
+    [1],
+    [0.0885],
+    [0.0885]
+  ]
+}

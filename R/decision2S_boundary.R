@@ -330,44 +330,98 @@ solve_boundary2S_normMix <- function(
   n2,
   lim1,
   lim2,
-  delta2
+  delta2,
+  sigma_fun1 = NULL,
+  sigma_fun2 = NULL
 ) {
   assert_class(decision, "decision2S_atomic")
 
   grid <- seq(lim2[1], lim2[2], length = diff(lim2) / delta2)
 
-  sigma1 <- sigma(mix1)
   sigma2 <- sigma(mix2)
 
-  sem1 <- sigma1 / sqrt(n1)
-  scale1 <- sigma1 / (n1^0.25)
+  if (is.null(sigma_fun1)) {
+    ## sigma is known and fixed
+    sigma1 <- sigma(mix1)
+    sem1 <- sigma1 / sqrt(n1)
+    scale1 <- sigma1 / (n1^0.25)
 
-  cond_decisionStep <- function(post2) {
-    fn <- function(m1) {
-      decision(postmix(mix1, m = m1, se = sem1), post2) - 0.75
+    cond_decisionStep <-
+      function(post2) {
+        fn <- function(m1) {
+          decision(postmix(mix1, m = m1, se = sem1), post2) - 0.75
+        }
+        Vectorize(fn)
+      }
+  } else {
+    sigma1 <- sigma_fun1(summary(mix1)["mean"])
+    scale1 <- sigma1 / (n1^0.25)
+
+    cond_decisionStep <- function(post2) {
+      fn <- function(m1) {
+        se_m1 <- sigma_fun1(m1) / sqrt(n1)
+        decision(postmix(mix1, m = m1, se = se_m1), post2) - 0.75
+      }
+      Vectorize(fn)
     }
-    Vectorize(fn)
   }
 
   Neval <- length(grid)
-  # cat("Calculating boundary from", lim2[1], "to", lim2[2], "with", Neval, "points\n")
   tol <- min(delta2 / 100, .Machine$double.eps^0.25)
-  ## cat("Using tolerance", tol, "\n")
   crit <- rep(NA, times = Neval)
+
+  ## When sigma depends on the parameter (family path), the data
+  ## becomes uninformative once sigma_fun1(m1)/sqrt(n1) exceeds the
+  ## prior component SD -- the posterior then reverts to the prior and
+  ## expanding the search further is pointless. Compute a maximum
+  ## half-width for lim1 so that the while-loop below for lim1
+  ## expansion does not diverge.
+  if (!is.null(sigma_fun1)) {
+    ## Use the reference data sigma (sigma_fun evaluated at the prior
+    ## mean) to set the search domain.  The boundary can only exist
+    ## where the data is informative, i.e. where sigma_fun1(m1) is of
+    ## similar magnitude to sigma1.  A factor of 8 is generous enough
+    ## to never clip a genuine boundary.
+    max_half_width <- max(8 * sigma1, diff(lim1))
+  } else {
+    max_half_width <- Inf
+  }
+
+  lim1_init <- lim1
+
   for (i in 1:Neval) {
     if (n2 == 0) {
       post2 <- mix2
     } else {
-      post2 <- postmix(mix2, m = grid[i], se = sigma2 / sqrt(n2))
+      se2 <- if (is.null(sigma_fun2)) {
+        sigma2 / sqrt(n2)
+      } else {
+        sigma_fun2(grid[i]) / sqrt(n2)
+      }
+      post2 <- postmix(mix2, m = grid[i], se = se2)
     }
     ind_fun <- cond_decisionStep(post2)
     dec_bounds <- ind_fun(lim1)
     ## if decision function is not different at boundaries, lim1
     ## is too narrow and we then enlarge
+    boundary_found <- TRUE
     while (prod(dec_bounds) > 0) {
       w <- diff(lim1)
       lim1 <- c(lim1[1] - w / 2, lim1[2] + w / 2)
+      if (diff(lim1) > 2 * max_half_width) {
+        boundary_found <- FALSE
+        break
+      }
       dec_bounds <- ind_fun(lim1)
+    }
+    if (!boundary_found) {
+      ## No sign change: the decision is constant at this grid point.
+      ## Leave crit[i] as NA; these will be dropped before building the
+      ## interpolation so that the spline is not distorted by sentinel
+      ## values far from the true boundary.
+      ## Reset lim1 to the initial range for the next grid point.
+      lim1 <- lim1_init
+      next
     }
     y1c <- uniroot(
       ind_fun,
@@ -382,7 +436,12 @@ solve_boundary2S_normMix <- function(
     lim1 <- c(mean(lim1[1], y1c - 2 * scale1), mean(y1c + 2 * scale1, lim1[2]))
   }
 
-  cbind(grid, crit)
+  ## Drop grid points where no boundary was found (crit is NA).
+  ## The spline / approxfun covers only the range with real boundaries;
+  ## extrapolation at the tails produces extreme values that give the
+  ## correct pnorm result (~ 0 or 1).
+  keep <- !is.na(crit)
+  cbind(grid[keep], crit[keep])
 }
 
 #' @templateVar fun decision2S_boundary
@@ -398,18 +457,31 @@ decision2S_boundary.normMix <- function(
   sigma2,
   eps = 1e-6,
   Ngrid = 10,
+  family = NULL,
+  offset1 = 0,
+  offset2 = offset1,
   ...
 ) {
-  ## distributions of the means of the data generating distributions
-  ## for now we assume that the underlying standard deviation
-  ## matches the respective reference scales
-  if (missing(sigma1)) {
+  # Determine data sigma for each arm
+  resolved1 <- resolve_sigma_family(family, missing(sigma1), sigma1, offset1)
+  resolved2 <- resolve_sigma_family(family, missing(sigma2), sigma2, offset2)
+  sigma_fun1 <- resolved1$sigma_fun
+  sigma_fun2 <- resolved2$sigma_fun
+  family <- resolved1$family
+
+  # Resolve sigma for the fixed-sigma path
+  if (is.null(sigma_fun1)) {
+    if (missing(sigma1)) {
+      sigma1 <- RBesT::sigma(prior1)
+      message("Using default prior 1 reference scale ", sigma1)
+    }
+    if (missing(sigma2)) {
+      sigma2 <- RBesT::sigma(prior2)
+      message("Using default prior 2 reference scale ", sigma2)
+    }
+  } else {
     sigma1 <- RBesT::sigma(prior1)
-    message("Using default prior 1 reference scale ", sigma1)
-  }
-  if (missing(sigma2)) {
     sigma2 <- RBesT::sigma(prior2)
-    message("Using default prior 2 reference scale ", sigma2)
   }
 
   if (is(decision, "decision2S_2sided")) {
@@ -423,6 +495,8 @@ decision2S_boundary.normMix <- function(
       sigma2,
       eps,
       Ngrid,
+      sigma_fun1 = sigma_fun1,
+      sigma_fun2 = sigma_fun2,
       ...
     )
   } else {
@@ -436,6 +510,8 @@ decision2S_boundary.normMix <- function(
       sigma2,
       eps,
       Ngrid,
+      sigma_fun1 = sigma_fun1,
+      sigma_fun2 = sigma_fun2,
       ...
     )
   }
@@ -451,6 +527,8 @@ decision2S_boundary_normMix_2sided <- function(
   sigma2,
   eps,
   Ngrid,
+  sigma_fun1 = NULL,
+  sigma_fun2 = NULL,
   ...
 ) {
   crit_lower <- decision2S_boundary_normMix_atomic(
@@ -463,6 +541,8 @@ decision2S_boundary_normMix_2sided <- function(
     sigma2,
     eps,
     Ngrid,
+    sigma_fun1 = sigma_fun1,
+    sigma_fun2 = sigma_fun2,
     ...
   )
   crit_upper <- decision2S_boundary_normMix_atomic(
@@ -475,6 +555,8 @@ decision2S_boundary_normMix_2sided <- function(
     sigma2,
     eps,
     Ngrid,
+    sigma_fun1 = sigma_fun1,
+    sigma_fun2 = sigma_fun2,
     ...
   )
   list(lower_or_equal_than = crit_lower, higher_than = crit_upper)
@@ -490,6 +572,8 @@ decision2S_boundary_normMix_1sided <- function(
   sigma2,
   eps,
   Ngrid,
+  sigma_fun1 = NULL,
+  sigma_fun2 = NULL,
   ...
 ) {
   decision <- if (has_lower(decision)) {
@@ -507,6 +591,8 @@ decision2S_boundary_normMix_1sided <- function(
     sigma2,
     eps,
     Ngrid,
+    sigma_fun1 = sigma_fun1,
+    sigma_fun2 = sigma_fun2,
     ...
   )
 }
@@ -521,6 +607,8 @@ decision2S_boundary_normMix_atomic <- function(
   sigma2,
   eps,
   Ngrid,
+  sigma_fun1 = NULL,
+  sigma_fun2 = NULL,
   ...
 ) {
   assert_class(decision, "decision2S_atomic")
@@ -546,8 +634,6 @@ decision2S_boundary_normMix_atomic <- function(
   ## represents the distribution of the respective means
   mean_prior1 <- prior1
   sigma(mean_prior1) <- sem1
-  ## mean_prior2 <- prior2
-  ## sigma(mean_prior2) <- sem2
 
   ## discretization step-size
   delta2 <- sem2 / Ngrid
@@ -556,9 +642,10 @@ decision2S_boundary_normMix_atomic <- function(
   ## can prove that the decision boundary is a linear function.
   ## Hence we only calculate a very rough grid and apply linear
   ## interpolation.
+  ## With family path, linearity no longer holds even for single-component priors.
 
   linear_boundary <- FALSE
-  if (ncol(prior1) == 1 && ncol(prior2) == 1) {
+  if (ncol(prior1) == 1 && ncol(prior2) == 1 && is.null(sigma_fun1)) {
     linear_boundary <- TRUE
     ## we could relax this even further
     delta2 <- sigma2 / Ngrid
@@ -594,7 +681,9 @@ decision2S_boundary_normMix_atomic <- function(
           n2,
           lim1,
           lim2,
-          delta2
+          delta2,
+          sigma_fun1 = sigma_fun1,
+          sigma_fun2 = sigma_fun2
         )
         new_lim2 <- lim2
       } else {
@@ -609,7 +698,9 @@ decision2S_boundary_normMix_atomic <- function(
             n2,
             lim1,
             c(new_left_lim2, clim2[1] - delta2),
-            delta2
+            delta2,
+            sigma_fun1 = sigma_fun1,
+            sigma_fun2 = sigma_fun2
           )
           new_lim2[1] <- new_left_lim2
           boundary_discrete <<- rbind(boundary_extra, boundary_discrete)
@@ -625,7 +716,9 @@ decision2S_boundary_normMix_atomic <- function(
             n2,
             lim1,
             c(clim2[2] + delta2, new_right_lim2),
-            delta2
+            delta2,
+            sigma_fun1 = sigma_fun1,
+            sigma_fun2 = sigma_fun2
           )
           new_lim2[2] <- new_right_lim2
           boundary_discrete <<- rbind(boundary_discrete, boundary_extra)
@@ -633,7 +726,14 @@ decision2S_boundary_normMix_atomic <- function(
       }
       ## only for debugging
       ## assert_that(all(order(boundary_discrete[,1]) == 1:nrow(boundary_discrete)), msg="x grid must stay ordered!")
-      if (linear_boundary) {
+      if (nrow(boundary_discrete) == 0) {
+        ## No boundary found at any grid point: the decision is
+        ## constant (never or always satisfied).  Return a function
+        ## that gives an extreme value so that pnorm returns ~ 0.
+        lower.tail <- attr(decision, "lower.tail")
+        const_val <- if (lower.tail) -1e100 else 1e100
+        boundary <<- function(y2) rep(const_val, length(y2))
+      } else if (linear_boundary) {
         boundary <<- approxfun(
           boundary_discrete[, 1],
           boundary_discrete[, 2],

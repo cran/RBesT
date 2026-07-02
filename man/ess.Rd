@@ -196,8 +196,8 @@ Morita S, Thall PF, Mueller P.  Determining the
 effective sample size of a parametric prior.  \emph{Biometrics}
 2008;64(2):595-602.
 
-Neuenschwander B., Weber S., Schmidli H., O’Hagan
+Neuenschwander B., Weber S., Schmidli H., O'Hagan
 A. (2020). Predictively consistent prior effective sample
 sizes. \emph{Biometrics}, 76(2),
-578–587. https://doi.org/10.1111/biom.13252
+578-587. https://doi.org/10.1111/biom.13252
 }

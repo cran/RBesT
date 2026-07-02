@@ -42,11 +42,18 @@ Option \tab Default \tab Description \cr
 \code{RBesT.MC.rescale} \tab \code{TRUE} \tab Automatic rescaling of raw parameters  \cr
 \code{RBesT.verbose} \tab \code{FALSE} \tab requests outputs to be more verbose\cr
 \code{RBesT.integrate_args} \tab \verb{list(lower=-Inf,} \tab arguments passed to \code{integrate} for\cr
-\tab \verb{upper=Inf,} \tab intergation of densities\cr
-\tab \verb{rel.tol=.Machine$double.eps^0.25,} \tab \cr
-\tab \verb{abs.tol=.Machine$double.eps^0.25,} \tab \cr
+\tab \verb{upper=Inf,} \tab adaptive integration of densities (used when\cr
+\tab \verb{rel.tol=.Machine$double.eps^0.25,} \tab \code{RBesT.integrate_method} is \code{"adaptive"}\cr
+\tab \verb{abs.tol=.Machine$double.eps^0.25,} \tab or for non-\code{normMix} densities)\cr
 \tab \verb{subdivisions=1E3)} \tab \cr
 \code{RBesT.integrate_prob_eps} \tab \code{1E-6} \tab probability mass left out from tails if integration needs to be restricted in range \cr
+\code{RBesT.integrate_method} \tab \code{"GQ"} \tab integration method for mixture densities: \code{"GQ"} (Gaussian quadrature, deterministic) or \code{"adaptive"} (adaptive Gauss-Kronrod). GQ uses Gauss-Hermite for \code{normMix}, Gauss-Jacobi for \code{betaMix}, and Gauss-Laguerre for \code{gammaMix}. \cr
+\code{RBesT.GQ_nodes} \tab \code{20} \tab starting number of Gaussian quadrature nodes (only used when \code{RBesT.integrate_method} is \code{"GQ"}) \cr
+\code{RBesT.GQ_rel_tol} \tab \code{1E-4} \tab relative tolerance target for GQ refinement; the node count is increased until successive estimates agree within \verb{max(RBesT.GQ_abs_tol, RBesT.GQ_rel_tol * |I|)}. Set to a non-finite or non-positive value (e.g. \code{Inf}) to disable refinement (single evaluation at \code{RBesT.GQ_nodes}). \cr
+\code{RBesT.GQ_abs_tol} \tab \code{1E-6} \tab absolute tolerance floor for GQ refinement \cr
+\code{RBesT.GQ_max_nodes} \tab \code{240} \tab upper cap on the GQ node count during refinement \cr
+\code{RBesT.GQ_node_growth} \tab \code{2} \tab multiplicative growth factor for the GQ node count between refinement steps \cr
+\code{RBesT.GQ_on_nonconvergence} \tab \code{"adaptive"} \tab behaviour when GQ refinement reaches \code{RBesT.GQ_max_nodes} without meeting tolerance: \code{"adaptive"} (fall through to adaptive integration), \code{"warn"} (warn and return best estimate), \code{"error"}, or \code{"silent"} \cr
 }
 }
 
@@ -69,6 +76,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Sebastian Weber \email{sebastian.weber@novartis.com}
+
+Authors:
+\itemize{
+  \item Sebastian Weber \email{sebastian.weber@novartis.com}
+}
 
 Other contributors:
 \itemize{

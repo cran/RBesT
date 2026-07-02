@@ -162,25 +162,50 @@ decision1S_boundary_betaMix_atomic <- function(prior, n, decision) {
 ## the function finds at a regular grid between llim1 and ulim1 the
 ## roots of the decision function and returns an interpolation
 ## function object
-solve_boundary1S_normMix <- function(decision, mix, n, lim) {
+solve_boundary1S_normMix <- function(
+  decision,
+  mix,
+  n,
+  lim,
+  sigma_fun = NULL
+) {
   assert_class(decision, "decision1S_atomic")
 
-  sigma <- sigma(mix)
+  if (is.null(sigma_fun)) {
+    sigma <- sigma(mix)
 
-  cond_decisionStep <- function() {
-    fn <- function(m) {
+    cond_decisionStep <- Vectorize(function(m) {
       decision(postmix(mix, m = m, se = sigma / sqrt(n))) - 0.75
-    }
-    Vectorize(fn)
+    })
+  } else {
+    cond_decisionStep <- Vectorize(function(m) {
+      se_m <- sigma_fun(m) / sqrt(n)
+      decision(postmix(mix, m = m, se = se_m)) - 0.75
+    })
   }
 
   ## ensure that at the limiting boundaries the decision function
   ## has a different sign (which must be true)
-  ind_fun <- cond_decisionStep()
+  ind_fun <- cond_decisionStep
   dec_bounds <- ind_fun(lim)
+
+  ## Cap expansion for family path (see solve_boundary2S_normMix).
+  if (!is.null(sigma_fun)) {
+    sigma_ref <- sigma_fun(summary(mix)["mean"])
+    max_half_width <- max(8 * sigma_ref, diff(lim))
+  } else {
+    max_half_width <- Inf
+  }
+
   while (prod(dec_bounds) > 0) {
     w <- diff(lim)
     lim <- c(lim[1] - w / 2, lim[2] + w / 2)
+    if (diff(lim) > 2 * max_half_width) {
+      stop(
+        "No decision boundary found: the decision function does not ",
+        "change sign within the informative data range."
+      )
+    }
     dec_bounds <- ind_fun(lim)
   }
 
@@ -201,21 +226,35 @@ decision1S_boundary.normMix <- function(
   decision,
   sigma,
   eps = 1e-6,
+  family = NULL,
+  offset = 0,
   ...
 ) {
-  # Get the default sigma if not provided already here to only message once.
-  if (missing(sigma)) {
+  # Determine data sigma
+  resolved <- resolve_sigma_family(family, missing(sigma), sigma, offset)
+  sigma_fun <- resolved$sigma_fun
+  family <- resolved$family
+
+  # Resolve sigma for the fixed-sigma path
+  if (is.null(sigma_fun)) {
+    if (missing(sigma)) {
+      sigma <- RBesT::sigma(prior)
+      message("Using default prior reference scale ", sigma)
+    }
+  } else {
+    # family path: use prior's existing sigma for search limits
     sigma <- RBesT::sigma(prior)
-    message("Using default prior reference scale ", sigma)
   }
 
+  # Calculate critical value
   if (is(decision, "decision1S_2sided")) {
     decision1S_boundary_normMix_2sided(
       prior,
       n,
       decision,
       sigma,
-      eps
+      eps,
+      sigma_fun
     )
   } else {
     decision1S_boundary_normMix_1sided(
@@ -223,7 +262,8 @@ decision1S_boundary.normMix <- function(
       n,
       decision,
       sigma,
-      eps
+      eps,
+      sigma_fun
     )
   }
 }
@@ -234,7 +274,8 @@ decision1S_boundary_normMix_2sided <- function(
   n,
   decision,
   sigma,
-  eps
+  eps,
+  sigma_fun
 ) {
   assert_class(decision, "decision1S_2sided")
   crit_lower <- decision1S_boundary_normMix_atomic(
@@ -242,14 +283,16 @@ decision1S_boundary_normMix_2sided <- function(
     n,
     lower(decision),
     sigma,
-    eps
+    eps,
+    sigma_fun
   )
   crit_upper <- decision1S_boundary_normMix_atomic(
     prior,
     n,
     upper(decision),
     sigma,
-    eps
+    eps,
+    sigma_fun
   )
   c(lower_or_equal_than = crit_lower, higher_than = crit_upper)
 }
@@ -260,7 +303,8 @@ decision1S_boundary_normMix_1sided <- function(
   n,
   decision,
   sigma,
-  eps
+  eps,
+  sigma_fun
 ) {
   assert_class(decision, "decision1S_1sided")
   decision <- if (has_lower(decision)) {
@@ -273,7 +317,8 @@ decision1S_boundary_normMix_1sided <- function(
     n,
     decision,
     sigma,
-    eps
+    eps,
+    sigma_fun
   )
 }
 
@@ -283,16 +328,13 @@ decision1S_boundary_normMix_atomic <- function(
   n,
   decision,
   sigma,
-  eps
+  eps,
+  sigma_fun
 ) {
   assert_class(decision, "decision1S_atomic")
 
   ## distributions of the means of the data generating distributions
-  ## for now we assume that the underlying standard deviation
-  ## matches the respective reference scales
   assert_number(sigma, lower = 0)
-
-  sd_samp <- sigma / sqrt(n)
 
   sigma(prior) <- sigma
 
@@ -300,10 +342,12 @@ decision1S_boundary_normMix_atomic <- function(
   ## represents the distribution of the respective means
   m <- summary(prior, probs = c())["mean"]
 
+  sd_samp <- if (is.null(sigma_fun)) sigma / sqrt(n) else sigma_fun(m) / sqrt(n)
+
   lim <- qnorm(p = c(eps / 2, 1 - eps / 2), mean = m, sd = sd_samp)
 
   ## find the boundary of the decision function within the domain we integrate
-  crit <- solve_boundary1S_normMix(decision, prior, n, lim)
+  crit <- solve_boundary1S_normMix(decision, prior, n, lim, sigma_fun)
 
   crit
 }

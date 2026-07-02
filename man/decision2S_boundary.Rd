@@ -21,6 +21,9 @@ decision2S_boundary(prior1, prior2, n1, n2, decision, ...)
   sigma2,
   eps = 1e-06,
   Ngrid = 10,
+  family = NULL,
+  offset1 = 0,
+  offset2 = offset1,
   ...
 )
 
@@ -50,6 +53,25 @@ unspecified, the default reference scale of the prior 2 is assumed.}
 
 \item{Ngrid}{Determines density of discretization grid on which
 decision function is evaluated (see below for more details).}
+
+\item{family}{Optional \code{\link{family}} object specifying a
+GLM family and link function (e.g.\ \code{binomial()},
+\code{MASS::negative.binomial(theta)}). When provided, the
+sampling standard deviation of each sample varies with the
+respective parameter value via the family's variance function and
+link. For the Gaussian family \code{sigma1}/\code{sigma2} act as
+the dispersion parameters and must be supplied; for all other
+families they must \emph{not} be given (they are determined by the
+family). Default is \code{NULL} (constant \code{sigma1} and
+\code{sigma2}).}
+
+\item{offset1}{Numeric scalar added to the linear predictor of
+sample 1 before evaluating the family's variance function.
+Relevant for Poisson/negative-binomial models with log link where
+\code{offset1 = log(exposure)}. Default is \code{0}.}
+
+\item{offset2}{Numeric scalar added to the linear predictor of
+sample 2; see \code{offset1}. Defaults to \code{offset1}.}
 }
 \value{
 For one-sided decision functions, returns a function with a
@@ -150,9 +172,9 @@ futilityCrit(postmix(priorP, m = y1c - 1E-3, n = 10), postmix(priorT, m = -10, n
 
 }
 \seealso{
-Other design2S: 
-\code{\link{decision2S}()},
-\code{\link{oc2S}()},
-\code{\link{pos2S}()}
+Other design2S:
+\code{\link[=decision2S]{decision2S()}},
+\code{\link[=oc2S]{oc2S()}},
+\code{\link[=pos2S]{pos2S()}}
 }
 \concept{design2S}

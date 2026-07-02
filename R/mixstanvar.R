@@ -217,11 +217,13 @@ real {{mixdens}}_cdf(real y, vector w, vector {{arg1}}, vector {{arg2}}) {
 mix2brms <- function(mix, name, verbose = FALSE) UseMethod("mix2brms")
 
 #' @keywords internal
+#' @exportS3Method
 mix2brms.default <- function(mix, name, verbose = FALSE) {
   stop("Mixture density not supported in mixstanvar.")
 }
 
 #' @keywords internal
+#' @exportS3Method
 mix2brms.mvnormMix <- function(mix, name, verbose = FALSE) {
   Nc <- ncol(mix)
   p <- mvnormdim(mix[-1, 1])
@@ -288,16 +290,19 @@ for(i in 1:{{prefix}}Nc) {
 }
 
 #' @keywords internal
+#' @exportS3Method
 mix2brms.normMix <- function(mix, name, verbose = FALSE) {
   .declare_scalar_mixture_components(mix, c("w", "m", "s"), name, verbose)
 }
 
 #' @keywords internal
+#' @exportS3Method
 mix2brms.betaMix <- function(mix, name, verbose = FALSE) {
   .declare_scalar_mixture_components(mix, c("w", "a", "b"), name, verbose)
 }
 
 #' @keywords internal
+#' @exportS3Method
 mix2brms.gammaMix <- function(mix, name, verbose = FALSE) {
   .declare_scalar_mixture_components(mix, c("w", "a", "b"), name, verbose)
 }

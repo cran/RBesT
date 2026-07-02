@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "dim": [6, 2],
+    "dimnames": [
+      ["w", "m[theta[1]]", "m[theta_pred]", "s[theta[1]]", "s[theta_pred]", "rho[theta_pred,theta[1]]"],
+      ["comp1", "comp2"]
+    ],
+    "link": ["identity"],
+    "class": ["mvnormMix", "mix"],
+    "likelihood": ["mvnormal"]
+  },
+  "comp": [
+    [0.5447, 0.4553],
+    [-1.9621, -1.8702],
+    [-1.2691, -1.8151],
+    [0.395, 0.3645],
+    [0.9942, 0.4277],
+    [0.2, 0.8567]
+  ]
+}

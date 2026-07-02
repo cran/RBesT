@@ -1,101 +1,114 @@
 ## test the analytical OC function via brute force simulation
-set.seed(12354)
 
 ## expect results to be 1% exact
-eps <- 1e-2
+oc1S_tolerance <- function() 1e-2
 
 ## here we test against the reference Neuenschwander et al.,
 ## Statist. Med. 2011, 30, 1618 (*the* double criterion paper)
 
-## Example for Figure 3
-s <- 2
-theta_ni <- 0.4
+oc1S_reference_scenario <- function() {
+  s <- 2
+  theta_ni <- 0.4
+  theta_a <- 0
+  alpha <- 0.05
+  beta <- 0.2
+  n1 <- 155
+  c1 <- theta_ni - qnorm(1 - alpha) * s / sqrt(n1)
 
-theta_a <- 0
-alpha <- 0.05
-beta <- 0.2
+  ## standard NI design, tests only statistical significance to be
+  ## smaller than theta_ni with 1-alpha certainty
+  decA <- decision1S(1 - alpha, theta_ni, lower.tail = TRUE)
+  prior <- mixnorm(c(1, 0, 100), sigma = s)
 
-za <- qnorm(1 - alpha)
-n1 <- 155
-c1 <- theta_ni - za * s / sqrt(n1)
+  ## double criterion with indecision point equal to the classical boundary
+  theta_c <- c1
+  dec1 <- decision1S(1 - alpha, theta_ni, lower.tail = TRUE)
+  dec2 <- decision1S(0.5, theta_c, lower.tail = TRUE)
+  decComb <- decision1S(
+    c(1 - alpha, 0.5),
+    c(theta_ni, theta_c),
+    lower.tail = TRUE
+  )
 
-thetaA <- c(theta_a, theta_ni)
-
-## standard NI design, tests only statistical significance to be
-## smaller than theta_ni with 1-alpha certainty
-decA <- decision1S(1 - alpha, theta_ni, lower.tail = TRUE)
-
-prior <- mixnorm(c(1, 0, 100), sigma = s)
+  list(
+    alpha = alpha,
+    beta = beta,
+    c1 = c1,
+    dec1 = dec1,
+    dec1b = decision1S(1 - alpha, theta_ni, lower.tail = FALSE),
+    dec2 = dec2,
+    decA = decA,
+    decComb = decComb,
+    n1 = n1,
+    prior = prior,
+    thetaA = c(theta_a, theta_ni),
+    thetaD = c(theta_c, theta_ni),
+    theta_ni = theta_ni
+  )
+}
 
 test_scenario <- function(oc_res, ref) {
   resA <- oc_res - ref
-  expect_true(all(abs(resA) < eps))
+  expect_true(all(abs(resA) < oc1S_tolerance()))
 }
 
 test_that("Classical NI design critical value", {
-  expect_true(abs(decision1S_boundary(prior, 155, decA) - c1) < eps)
+  sc <- oc1S_reference_scenario()
+  expect_true(
+    abs(decision1S_boundary(sc$prior, sc$n1, sc$decA) - sc$c1) <
+      oc1S_tolerance()
+  )
 })
 
 ## n set to give power 80% to detect 0 and type I error 5% for no
 ## better than theta_ni
 test_that("Classical NI design at target    sample size for OCs", {
-  test_scenario(oc1S(prior, 155, decA)(thetaA), c(1 - beta, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, sc$n1, sc$decA)(sc$thetaA), c(1 - sc$beta, sc$alpha))
 })
 test_that("Classical NI design at increased sample size for OCs", {
-  test_scenario(oc1S(prior, 233, decA)(thetaA), c(1 - 0.08, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, 233, sc$decA)(sc$thetaA), c(1 - 0.08, sc$alpha))
 })
 test_that("Classical NI design at decreased sample size for OCs", {
-  test_scenario(oc1S(prior, 77, decA)(thetaA), c(1 - 0.45, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, 77, sc$decA)(sc$thetaA), c(1 - 0.45, sc$alpha))
 })
-
-## now double criterion with indecision point (mean estimate must be
-## lower than this)
-theta_c <- c1
-
-## statistical significance
-dec1 <- decision1S(1 - alpha, theta_ni, lower.tail = TRUE)
-## require mean to be at least as good as theta_c
-dec2 <- decision1S(0.5, theta_c, lower.tail = TRUE)
-## combination
-decComb <- decision1S(
-  c(1 - alpha, 0.5),
-  c(theta_ni, theta_c),
-  lower.tail = TRUE
-)
-
-thetaD <- c(theta_c, theta_ni)
 
 ## since theta_c == c1, both decision criteria are the same for n =
 ## 155
 test_that("Double criterion NI design at target    sample size for OCs, combined      ", {
-  test_scenario(oc1S(prior, 155, decComb)(thetaD), c(0.50, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, sc$n1, sc$decComb)(sc$thetaD), c(0.50, sc$alpha))
 })
 test_that("Double criterion NI design at target    sample size for OCs, stat criterion", {
-  test_scenario(oc1S(prior, 155, dec1)(thetaD), c(0.50, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, sc$n1, sc$dec1)(sc$thetaD), c(0.50, sc$alpha))
 })
 test_that("Double criterion NI design at target    sample size for OCs, mean criterion", {
-  test_scenario(oc1S(prior, 155, dec2)(thetaD), c(0.50, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, sc$n1, sc$dec2)(sc$thetaD), c(0.50, sc$alpha))
 })
 
 ## at an increased sample size only the mean criterion is active
 test_that("Double criterion NI design at increased sample size for OCs, combined      ", {
-  test_scenario(oc1S(prior, 233, decComb)(thetaD), c(0.50, 0.02))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, 233, sc$decComb)(sc$thetaD), c(0.50, 0.02))
 })
 test_that("Double criterion NI design at increased sample size for OCs, mean criterion", {
-  test_scenario(oc1S(prior, 233, dec2)(thetaD), c(0.50, 0.02))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, 233, sc$dec2)(sc$thetaD), c(0.50, 0.02))
 })
 
 ## at a  decreased sample size only the stat criterion is active
 test_that("Double criterion NI design at decreased sample size for OCs, combined      ", {
-  test_scenario(oc1S(prior, 78, decComb)(thetaD), c(1 - 0.68, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, 78, sc$decComb)(sc$thetaD), c(1 - 0.68, sc$alpha))
 })
 test_that("Double criterion NI design at decreased sample size for OCs, stat criterion", {
-  test_scenario(oc1S(prior, 78, dec1)(thetaD), c(1 - 0.68, alpha))
+  sc <- oc1S_reference_scenario()
+  test_scenario(oc1S(sc$prior, 78, sc$dec1)(sc$thetaD), c(1 - 0.68, sc$alpha))
 })
-
-## test type 1 error and correctness of critical values wrt to
-## lower.tail=TRUE/FALSE
-dec1b <- decision1S(1 - alpha, theta_ni, lower.tail = FALSE)
 
 ## design object, decision function, posterior function must return
 ## posterior after updatding the prior with the given value
@@ -112,26 +125,39 @@ test_critical_discrete <- function(crit, decision, posterior) {
   }
 }
 
-## binary case
-beta_prior <- mixbeta(c(1, 1, 1))
-design_binary <- oc1S(beta_prior, 1000, dec1)
-design_binaryB <- oc1S(beta_prior, 1000, dec1b)
-crit1 <- decision1S_boundary(beta_prior, 1000, dec1)
-crit1B <- decision1S_boundary(beta_prior, 1000, dec1b)
-posterior_binary <- function(r) postmix(beta_prior, r = r, n = 1000)
+oc1S_binary_scenario <- function() {
+  sc <- oc1S_reference_scenario()
+  beta_prior <- mixbeta(c(1, 1, 1))
+  list(
+    alpha = sc$alpha,
+    crit_lower = decision1S_boundary(beta_prior, 1000, sc$dec1),
+    crit_upper = decision1S_boundary(beta_prior, 1000, sc$dec1b),
+    dec_lower = sc$dec1,
+    dec_upper = sc$dec1b,
+    design_lower = oc1S(beta_prior, 1000, sc$dec1),
+    design_upper = oc1S(beta_prior, 1000, sc$dec1b),
+    posterior = function(r) postmix(beta_prior, r = r, n = 1000),
+    theta_ni = sc$theta_ni
+  )
+}
+
 test_that("Binary type I error rate", {
-  test_scenario(design_binary(theta_ni), alpha)
+  sc <- oc1S_binary_scenario()
+  test_scenario(sc$design_lower(sc$theta_ni), sc$alpha)
 })
 test_that("Binary crticial value, lower.tail=TRUE", {
-  test_critical_discrete(crit1, dec1, posterior_binary)
+  sc <- oc1S_binary_scenario()
+  test_critical_discrete(sc$crit_lower, sc$dec_lower, sc$posterior)
 })
 test_that("Binary crticial value, lower.tail=FALSE", {
-  test_critical_discrete(crit1B, dec1b, posterior_binary)
+  sc <- oc1S_binary_scenario()
+  test_critical_discrete(sc$crit_upper, sc$dec_upper, sc$posterior)
 })
 
 test_that("Binary boundary case, lower.tail=TRUE", {
+  sc <- oc1S_binary_scenario()
   expect_numeric(
-    design_binary(1),
+    sc$design_lower(1),
     lower = 0,
     upper = 1,
     finite = TRUE,
@@ -139,8 +165,9 @@ test_that("Binary boundary case, lower.tail=TRUE", {
   )
 })
 test_that("Binary boundary case, lower.tail=FALSE", {
+  sc <- oc1S_binary_scenario()
   expect_numeric(
-    design_binaryB(0),
+    sc$design_upper(0),
     lower = 0,
     upper = 1,
     finite = TRUE,
@@ -148,23 +175,33 @@ test_that("Binary boundary case, lower.tail=FALSE", {
   )
 })
 
-## poisson case
-gamma_prior <- mixgamma(c(1, 2, 2))
-dec_count <- decision1S(1 - alpha, 1, lower.tail = TRUE)
-dec_countB <- decision1S(1 - alpha, 1, lower.tail = FALSE)
-design_poisson <- oc1S(gamma_prior, 1000, dec_count)
-design_poissonB <- oc1S(gamma_prior, 1000, dec_countB)
-pcrit1 <- decision1S_boundary(gamma_prior, 1000, dec_count)
-pcrit1B <- decision1S_boundary(gamma_prior, 1000, dec_countB)
-posterior_poisson <- function(m) postmix(gamma_prior, m = m / 1000, n = 1000)
+oc1S_poisson_scenario <- function() {
+  sc <- oc1S_reference_scenario()
+  gamma_prior <- mixgamma(c(1, 2, 2))
+  dec_count <- decision1S(1 - sc$alpha, 1, lower.tail = TRUE)
+  dec_countB <- decision1S(1 - sc$alpha, 1, lower.tail = FALSE)
+  list(
+    alpha = sc$alpha,
+    crit_lower = decision1S_boundary(gamma_prior, 1000, dec_count),
+    crit_upper = decision1S_boundary(gamma_prior, 1000, dec_countB),
+    dec_lower = dec_count,
+    dec_upper = dec_countB,
+    design_lower = oc1S(gamma_prior, 1000, dec_count),
+    posterior = function(m) postmix(gamma_prior, m = m / 1000, n = 1000)
+  )
+}
+
 test_that("Poisson type I error rate", {
-  test_scenario(design_poisson(1), alpha)
+  sc <- oc1S_poisson_scenario()
+  test_scenario(sc$design_lower(1), sc$alpha)
 })
 test_that("Poisson critical value, lower.tail=TRUE", {
-  test_critical_discrete(pcrit1, dec_count, posterior_poisson)
+  sc <- oc1S_poisson_scenario()
+  test_critical_discrete(sc$crit_lower, sc$dec_lower, sc$posterior)
 })
 test_that("Poisson critical value, lower.tail=FALSE", {
-  test_critical_discrete(pcrit1B, dec_countB, posterior_poisson)
+  sc <- oc1S_poisson_scenario()
+  test_critical_discrete(sc$crit_upper, sc$dec_upper, sc$posterior)
 })
 
 test_that("Mixed lower.tail usage works for normal OC calculation", {

@@ -1,39 +1,40 @@
 ## check that predictive distributions hold what they promise,
 ## i.e. that they describe the sum of n new data points.
 
-set.seed(42343)
+preddist_tolerance <- function() 1e-2
 
-## precision at which reference and tested must match
-eps <- 1e-2
+preddist_quantiles <- function() seq(0.1, 0.9, by = 0.1)
 
-## percentiles to test for
-p_quants <- seq(0.1, 0.9, by = 0.1)
+preddist_sample_size <- function() 1e5
 
-## number of samples used for sampling method
-Nsamp <- 1e5
+preddist_trial_count <- function() 25
 
-## define the different test cases
-beta <- mixbeta(c(1, 11, 4))
-betaMix <- mixbeta(c(0.8, 11, 4), c(0.2, 1, 1))
-
-gamma <- mixgamma(c(1, 65, 50))
-gammaMix <- mixgamma(rob = c(0.5, 8, 0.5), inf = c(0.5, 9, 2), param = "ms")
-
-norm <- mixnorm(c(1, 0, 0.5), sigma = 1)
-normMix <- mixnorm(c(0.2, 0, 2), c(0.8, 2, 1), sigma = 1)
-
-n <- 25
+preddist_mixes <- function() {
+  list(
+    beta = mixbeta(c(1, 11, 4)),
+    betaMix = mixbeta(c(0.8, 11, 4), c(0.2, 1, 1)),
+    gamma = mixgamma(c(1, 65, 50)),
+    gammaMix = mixgamma(
+      rob = c(0.5, 8, 0.5),
+      inf = c(0.5, 9, 2),
+      param = "ms"
+    ),
+    norm = mixnorm(c(1, 0, 0.5), sigma = 1),
+    normMix = mixnorm(c(0.2, 0, 2), c(0.8, 2, 1), sigma = 1)
+  )
+}
 
 preddist_cmp <- function(
   mix,
   n,
   n_rng,
-  N = Nsamp,
-  qntls = p_quants,
+  N = preddist_sample_size(),
+  qntls = preddist_quantiles(),
   stat = c("sum", "mean"),
-  Teps = eps
+  Teps = preddist_tolerance()
 ) {
   skip_on_cran()
+  withr::local_seed(42343)
 
   ## sample for each draw a single hyper-parameter which is then
   ## used n times in the rng function to return n samples from the
@@ -86,27 +87,39 @@ preddist_cmp <- function(
 
 
 test_that("Predictive for a beta evaluates correctly (binary)", {
-  preddist_cmp(beta, n, Curry(rbinom, n = n, size = 1))
+  n <- preddist_trial_count()
+  mix <- preddist_mixes()$beta
+  preddist_cmp(mix, n, Curry(rbinom, n = n, size = 1))
 })
 test_that("Predictive for a beta mixture evaluates correctly (binary)", {
-  preddist_cmp(betaMix, n, Curry(rbinom, n = n, size = 1))
+  n <- preddist_trial_count()
+  mix <- preddist_mixes()$betaMix
+  preddist_cmp(mix, n, Curry(rbinom, n = n, size = 1))
 })
 
 test_that("Predictive for a gamma evaluates correctly (poisson)", {
-  preddist_cmp(gamma, n, Curry(rpois, n = n))
+  n <- preddist_trial_count()
+  mix <- preddist_mixes()$gamma
+  preddist_cmp(mix, n, Curry(rpois, n = n))
 })
 test_that("Predictive for a gamma mixture evaluates correctly (poisson)", {
-  preddist_cmp(gammaMix, n, Curry(rpois, n = n), Teps = 1E-1)
+  n <- preddist_trial_count()
+  mix <- preddist_mixes()$gammaMix
+  preddist_cmp(mix, n, Curry(rpois, n = n), Teps = 1E-1)
 })
 
 test_that("Predictive for a normal evaluates correctly (normal)", {
-  preddist_cmp(norm, n, Curry(rnorm, n = n, sd = sigma(norm)), stat = "mean")
+  n <- preddist_trial_count()
+  mix <- preddist_mixes()$norm
+  preddist_cmp(mix, n, Curry(rnorm, n = n, sd = sigma(mix)), stat = "mean")
 })
 test_that("Predictive for a normal mixture evaluates correctly (normal)", {
+  n <- preddist_trial_count()
+  mix <- preddist_mixes()$normMix
   preddist_cmp(
-    normMix,
+    mix,
     n,
-    Curry(rnorm, n = n, sd = sigma(normMix)),
+    Curry(rnorm, n = n, sd = sigma(mix)),
     stat = "mean",
     Teps = 1E-1
   )

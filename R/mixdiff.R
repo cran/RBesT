@@ -116,16 +116,16 @@ dmixdiff <- function(mix1, mix2, x) {
   if (Nc2 == 1) {
     .dens <- function(sx) {
       integrate_density_log(
-        function(x) lscale + dmix(mix1, x + sx, log = TRUE),
-        mix2
+        mix2,
+        function(x) lscale + dmix(mix1, x + sx, log = TRUE)
       ) /
         scale
     }
   } else {
     .dens <- function(sx) {
       integrate_density_log(
-        function(x) lscale + dmix(mix2, x - sx, log = TRUE),
-        mix1
+        mix1,
+        function(x) lscale + dmix(mix2, x - sx, log = TRUE)
       ) /
         scale
     }
@@ -158,17 +158,17 @@ pmixdiff <- function(mix1, mix2, q, lower.tail = TRUE) {
   if (Nc2 == 1) {
     .prob <- function(sx) {
       integrate_density_log(
-        function(x) pmix(mix1, sx + x, lower.tail = TRUE, log.p = TRUE),
-        mix2
+        mix2,
+        function(x) pmix(mix1, sx + x, lower.tail = TRUE, log.p = TRUE)
       )
     }
   } else {
     .prob <- function(sx) {
-      ## integrate_density_log(function(x) pmix(mix2, x-sx, lower.tail=FALSE, log.p=TRUE), mix1)
+      ## integrate_density_log(mix1, function(x) pmix(mix2, x-sx, lower.tail=FALSE, log.p=TRUE))
       1 -
         integrate_density_log(
-          function(x) pmix(mix2, x - sx, lower.tail = TRUE, log.p = TRUE),
-          mix1
+          mix1,
+          function(x) pmix(mix2, x - sx, lower.tail = TRUE, log.p = TRUE)
         )
     }
   }

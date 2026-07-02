@@ -225,38 +225,80 @@ pos2S.normMix <- function(
   sigma2,
   eps = 1e-6,
   Ngrid = 10,
+  family = NULL,
+  offset1 = 0,
+  offset2 = offset1,
   ...
 ) {
-  ## distributions of the means of the data generating distributions
-  ## for now we assume that the underlying standard deviation
-  ## matches the respective reference scales
+  # Determine data sigma for each arm
+  resolved1 <- resolve_sigma_family(family, missing(sigma1), sigma1, offset1)
+  resolved2 <- resolve_sigma_family(family, missing(sigma2), sigma2, offset2)
+  sigma_fun1 <- resolved1$sigma_fun
+  sigma_fun2 <- resolved2$sigma_fun
+  family <- resolved1$family
 
-  if (missing(sigma1)) {
+  # Resolve sigma for the fixed-sigma path
+  if (is.null(sigma_fun1)) {
+    if (missing(sigma1)) {
+      sigma1 <- RBesT::sigma(prior1)
+      message("Using default prior 1 reference scale ", sigma1)
+    }
+    if (missing(sigma2)) {
+      sigma2 <- RBesT::sigma(prior2)
+      message("Using default prior 2 reference scale ", sigma2)
+    }
+  } else {
     sigma1 <- RBesT::sigma(prior1)
-    message("Using default prior 1 reference scale ", sigma1)
+    sigma2 <- RBesT::sigma(prior2)
   }
   assert_number(sigma1, lower = 0)
-  sigma(prior1) <- sigma1
-
-  if (missing(sigma2)) {
-    sigma2 <- RBesT::sigma(prior2)
-    message("Using default prior 2 reference scale ", sigma2)
-  }
   assert_number(sigma2, lower = 0)
+  sigma(prior1) <- sigma1
   sigma(prior2) <- sigma2
 
-  crit_y1 <- decision2S_boundary(
-    prior1,
-    prior2,
-    n1,
-    n2,
-    decision,
-    sigma1,
-    sigma2,
-    eps,
-    Ngrid
-  )
+  # Calculate critical boundary
+  if (is.null(sigma_fun1)) {
+    crit_y1 <- decision2S_boundary(
+      prior1, prior2, n1, n2, decision, sigma1, sigma2, eps, Ngrid
+    )
+  } else {
+    crit_y1 <- decision2S_boundary(
+      prior1, prior2, n1, n2, decision,
+      family = family, offset1 = offset1, offset2 = offset2, eps = eps, Ngrid = Ngrid
+    )
+  }
 
+  # Family path: PoS via numerical integration over both priors using oc2S
+  if (!is.null(sigma_fun1)) {
+    # Build OC function (reuses the same boundary)
+    oc_fn <- oc2S(prior1, prior2, n1, n2, decision,
+         family = family, offset1 = offset1, offset2 = offset2, eps = eps, Ngrid = Ngrid)
+
+    design_fun <- function(mix1, mix2) {
+      # Integrate oc_fn(theta1, theta2) over theta1 ~ mix1, theta2 ~ mix2
+      # Inner: for a SCALAR theta2, integrate over theta1 ~ mix1
+      inner_for_theta2 <- function(theta2_scalar) {
+        inner_log_integrand <- function(theta1) {
+          # theta1 can be a vector from integrate
+          log(pmax(vapply(theta1, function(t1) oc_fn(t1, theta2_scalar), numeric(1)),
+                   .Machine$double.xmin))
+        }
+        integrate_density_log(mix1, inner_log_integrand, logit(eps / 2), logit(1 - eps / 2))
+      }
+      # Outer: integrate inner result over theta2 ~ mix2
+      outer_log_integrand <- function(theta2) {
+        # theta2 can be a vector from integrate
+        log(pmax(vapply(theta2, inner_for_theta2, numeric(1)), .Machine$double.xmin))
+      }
+      integrate_density_log(
+        mix2, outer_log_integrand,
+        logit(eps / 2), logit(1 - eps / 2)
+      )
+    }
+    return(design_fun)
+  }
+
+  # Fixed-sigma path: use preddist shortcut
   design_fun <- if (is(decision, "decision2S_1sided")) {
     # Simple case of one-sided boundary.
     assert_function(crit_y1)
@@ -288,6 +330,7 @@ pos2S.normMix <- function(
         )
       } else {
         integrate_density_log(
+          pred_mix2_mean,
           function(x) {
             pmix(
               pred_mix1_mean,
@@ -296,7 +339,6 @@ pos2S.normMix <- function(
               log.p = TRUE
             )
           },
-          pred_mix2_mean,
           logit(eps / 2),
           logit(1 - eps / 2)
         )
@@ -359,8 +401,8 @@ pos2S.normMix <- function(
           )
         }
         integrate_density_log(
-          integrand,
           pred_mix2_mean,
+          integrand,
           logit(eps / 2),
           logit(1 - eps / 2)
         )

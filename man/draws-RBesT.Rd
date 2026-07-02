@@ -45,8 +45,6 @@ one of the regular expressions will be selected. Defaults to
 \item{...}{Arguments passed to individual methods (if applicable).}
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-
 Transform a \code{gMAP} object to a format supported by the
 \pkg{posterior} package.
 }
@@ -54,9 +52,6 @@ Transform a \code{gMAP} object to a format supported by the
 To subset iterations, chains, or draws, use the
 \code{\link[posterior:subset_draws]{posterior::subset_draws()}} method after
 transforming the input object to a \code{draws} object.
-
-The function is experimental as the set of exported posterior
-variables are subject to updates.
 }
 \examples{
 ## Setting up dummy sampling for fast execution of example

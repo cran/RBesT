@@ -127,7 +127,7 @@ Likelihood from Incomplete Data via the EM Algorithm. \emph{Journal
 of the Royal Statistical Society, Series B} 1977; 39 (1): 1-38.
 }
 \seealso{
-Other EM: 
-\code{\link{plot.EM}()}
+Other EM:
+\code{\link[=plot.EM]{plot.EM()}}
 }
 \concept{EM}

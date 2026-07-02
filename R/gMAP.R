@@ -50,6 +50,11 @@
 #'
 #' @details
 #'
+#' Setting `chains = 0` runs the model setup without Stan sampling and returns
+#' a `gMAP` skeleton without posterior draws. This mode is intended for
+#' advanced workflows such as fixture construction where draws are injected
+#' later.
+#'
 #' The meta-analytic-predictive (MAP) approach derives a prior from
 #' historical data using a hierarchical model.  The statistical model is
 #' formulated as a generalized linear mixed model for binary, normal
@@ -402,6 +407,8 @@ gMAP <- function(
     print(family)
     stop("'family' not recognized")
   }
+
+  assert_integerish(chains, lower = 0, any.missing = FALSE, len = 1)
 
   if (missing(data)) {
     data <- environment(formula)
@@ -923,6 +930,101 @@ gMAP <- function(
     exclude_pars <- c()
   }
 
+  save_warmup <- getOption("RBesT.MC.save_warmup", FALSE)
+  thin_input <- thin
+
+  build_gmap_output <- function(
+    draws,
+    draws_warmup,
+    draws_diag,
+    draws_warmup_diag,
+    metadata_mcmc,
+    beta,
+    tau,
+    Rhat.max,
+    thin,
+    backend
+  ) {
+    Out <- list(
+      theta.strat = theta.strat,
+      theta_resp.strat = theta_resp.strat,
+      theta.pooled = theta.pooled,
+      theta_resp.pooled = theta_resp.pooled,
+      n.tau.strata = n.tau.strata,
+      sigma_ref = sigma_ref,
+      tau.strata.pred = tau.strata.pred,
+      has_intercept = has_intercept,
+      tau = tau,
+      beta = beta,
+      REdist = REdist,
+      t.df = t.df,
+      X = X,
+      Rhat.max = Rhat.max,
+      thin = thin,
+      call = call,
+      family = family,
+      formula = f,
+      model = mf,
+      terms = mt,
+      xlevels = .getXlevels(mt, mf),
+      group.factor = group.factor,
+      tau.strata.factor = tau.strata.factor,
+      data = data,
+      log_offset = log_offset,
+      est_strat = est_strat,
+      draws = draws,
+      draws_warmup = draws_warmup,
+      draws_diag = draws_diag,
+      draws_warmup_diag = draws_warmup_diag,
+      metadata_mcmc = metadata_mcmc,
+      backend = backend,
+      ## keep the name present so `$fit` does not partially match `fit.data`;
+      ## use the stored posterior draws via the `as_draws*()` accessors instead
+      fit = NULL,
+      fit.data = dataL
+    )
+
+    structure(Out, class = c("gMAP"))
+  }
+
+  if (chains == 0) {
+    beta <- rep(NA_real_, ncol(X))
+    tau <- rep(NA_real_, n.tau.strata)
+
+    names(beta) <- colnames(X)
+    names(tau) <- paste0("tau", seq_len(n.tau.strata))
+
+    metadata_mcmc <- list(
+      iter = as.integer(iter),
+      warmup = as.integer(warmup),
+      warmup_saved = 0L,
+      chains = 0L,
+      n_save_per_chain = 0L,
+      post_warmup_saved = 0L,
+      thin_input = as.integer(thin_input),
+      thin_post = 1L,
+      save_warmup = FALSE
+    )
+
+    return(build_gmap_output(
+      draws = .gmap_empty_draws_array(
+        n_theta = nrow(theta_resp.strat),
+        n_beta = ncol(X),
+        n_tau = n.tau.strata,
+        has_intercept = has_intercept
+      ),
+      draws_warmup = NULL,
+      draws_diag = .gmap_empty_diag_draws_array(),
+      draws_warmup_diag = NULL,
+      metadata_mcmc = metadata_mcmc,
+      beta = beta,
+      tau = tau,
+      Rhat.max = NA_real_,
+      thin = 1L,
+      backend = "none"
+    ))
+  }
+
   ## MODEL RUN
   stan_msg <- capture.output(
     fit <- rstan::sampling(
@@ -941,7 +1043,7 @@ gMAP <- function(
       open_progress = FALSE,
       pars = exclude_pars,
       include = FALSE,
-      save_warmup = getOption("RBesT.MC.save_warmup", FALSE)
+      save_warmup = save_warmup
     )
   )
 
@@ -955,21 +1057,61 @@ gMAP <- function(
   }
 
   ## MODEL FINISHED
-  fit_sum <- rstan::summary(fit)$summary
+  draws <- .gmap_extract_draws_array(fit, inc_warmup = FALSE)
+  draws_diag <- .gmap_extract_diag_draws_array(fit, inc_warmup = FALSE)
+  draws_warmup <- NULL
+  draws_warmup_diag <- NULL
+  if (save_warmup) {
+    draws_all <- .gmap_extract_draws_array(fit, inc_warmup = TRUE)
+    n_warmup <- fit@sim$warmup2[[1]]
+    if (n_warmup > 0) {
+      draws_warmup <- posterior::subset_draws(
+        draws_all,
+        iteration = seq_len(n_warmup)
+      )
+    }
+    draws_warmup_diag <- .gmap_extract_diag_draws_array(fit, inc_warmup = TRUE)
+    if (!is.null(draws_warmup_diag) && n_warmup > 0) {
+      draws_warmup_diag <- posterior::subset_draws(
+        draws_warmup_diag,
+        iteration = seq_len(n_warmup)
+      )
+    }
+  }
+  metadata_mcmc <- .gmap_mcmc_metadata(
+    fit,
+    thin_input = thin_input,
+    save_warmup = save_warmup
+  )
 
-  vars <- rownames(fit_sum)
+  beta_summary <- .gmap_summary(
+    list(draws = draws),
+    variables = posterior::variables(
+      posterior::subset_draws(draws, variable = "beta")
+    )
+  )
+  tau_summary <- .gmap_summary(
+    list(draws = draws),
+    variables = posterior::variables(
+      posterior::subset_draws(draws, variable = "tau")
+    )
+  )
 
-  beta_ind <- grep("^beta\\[", vars)
-  tau_ind <- grep("^tau\\[", vars)
-  lp_ind <- grep("^lp__", vars)
-
-  beta <- fit_sum[beta_ind, "mean"]
-  tau <- fit_sum[tau_ind, "mean"]
+  beta <- beta_summary[, "mean"]
+  tau <- tau_summary[, "mean"]
 
   names(beta) <- colnames(X)
   names(tau) <- paste0("tau", seq(n.tau.strata))
 
-  Rhat.max <- max(fit_sum[, "Rhat"], na.rm = TRUE)
+  sampler_summary <- .gmap_sampler_summary(
+    list(draws = draws),
+    variables = c(
+      posterior::variables(posterior::subset_draws(draws, variable = "beta")),
+      posterior::variables(posterior::subset_draws(draws, variable = "tau")),
+      "lp__"
+    )
+  )
+  Rhat.max <- max(sampler_summary$rhat, na.rm = TRUE)
 
   if (Rhat.max > 1.1) {
     warning(
@@ -977,7 +1119,7 @@ gMAP <- function(
     )
   }
 
-  Neff.min <- min(fit_sum[c(beta_ind, tau_ind, lp_ind), "n_eff"], na.rm = TRUE)
+  Neff.min <- min(sampler_summary$ess_bulk, na.rm = TRUE)
 
   if (Neff.min < 1e3) {
     message(
@@ -991,11 +1133,7 @@ gMAP <- function(
   ## finally include a check if the Stan NuTS sample had any
   ## divergence in the sampling phase, these are not supposed to
   ## happen and can often be avoided by increasing adapt_delta
-  sampler_params <- get_sampler_params(fit, inc_warmup = FALSE)
-  n_divergent <- sum(sapply(
-    sampler_params,
-    function(x) sum(x[, "divergent__"])
-  ))
+  n_divergent <- .gmap_divergence_count(list(draws_diag = draws_diag))
   if (n_divergent > 0) {
     warning(paste(
       "In total",
@@ -1004,44 +1142,26 @@ gMAP <- function(
     ))
   }
 
-  Out <- list(
-    theta.strat = theta.strat,
-    theta_resp.strat = theta_resp.strat,
-    theta.pooled = theta.pooled,
-    theta_resp.pooled = theta_resp.pooled,
-    n.tau.strata = n.tau.strata,
-    sigma_ref = sigma_ref,
-    tau.strata.pred = tau.strata.pred,
-    has_intercept = has_intercept,
-    tau = tau,
+  build_gmap_output(
+    draws = draws,
+    draws_warmup = draws_warmup,
+    draws_diag = draws_diag,
+    draws_warmup_diag = draws_warmup_diag,
+    metadata_mcmc = metadata_mcmc,
     beta = beta,
-    REdist = REdist,
-    t.df = t.df,
-    X = X,
+    tau = tau,
     Rhat.max = Rhat.max,
     thin = thin,
-    call = call,
-    family = family,
-    formula = f,
-    model = mf,
-    terms = mt,
-    xlevels = .getXlevels(mt, mf),
-    group.factor = group.factor,
-    tau.strata.factor = tau.strata.factor,
-    data = data,
-    log_offset = log_offset,
-    est_strat = est_strat,
-    fit = fit,
-    fit.data = dataL
+    backend = "rstan"
   )
-
-  structure(Out, class = c("gMAP"))
 }
 
 
 #' @describeIn gMAP displays a summary of the gMAP analysis.
 #' @export
 print.gMAP <- function(x, digits = 3, probs = c(0.025, 0.5, 0.975), ...) {
+  .gmap_warn_no_samples(x, object_name = deparse(substitute(x)))
+
   cat("Generalized Meta Analytic Predictive Prior Analysis\n")
   cat(
     "\nCall:  ",
@@ -1061,33 +1181,27 @@ print.gMAP <- function(x, digits = 3, probs = c(0.025, 0.5, 0.975), ...) {
     )
   }
 
-  csum_tau <- rstan::summary(
-    x$fit,
-    probs = probs,
-    pars = paste0("tau[", x$tau.strata.pred, "]")
-  )$summary
-
-  f <- colnames(csum_tau)[
-    -match(c("se_mean", "n_eff", "Rhat"), colnames(csum_tau))
-  ]
-  csum_tau <- csum_tau[, f]
+  csum_tau <- .gmap_summary(
+    x,
+    variables = paste0("tau[", x$tau.strata.pred, "]"),
+    probs = probs
+  )
 
   cat("\nBetween-trial heterogeneity of tau prediction stratum\n")
   print(signif(csum_tau, digits = digits))
 
   if (x$has_intercept) {
-    csum_map <- rstan::summary(
-      x$fit,
-      probs = probs,
-      pars = "theta_resp_pred"
-    )$summary
-    csum_map <- csum_map[, f]
+    csum_map <- .gmap_summary(
+      x,
+      variables = "theta_resp_pred",
+      probs = probs
+    )
     cat("\nMAP Prior MCMC sample\n")
     print(signif(csum_map, digits = digits))
   }
 
-  div_trans <- sum(rstan::get_divergent_iterations(x$fit))
-  num_sim <- length(rstan::get_divergent_iterations(x$fit))
+  div_trans <- .gmap_divergence_count(x)
+  num_sim <- posterior::ndraws(x$draws_diag)
   if (div_trans > 0) {
     warning(
       "The sampler detected ",
@@ -1100,7 +1214,7 @@ print.gMAP <- function(x, digits = 3, probs = c(0.025, 0.5, 0.975), ...) {
       call. = FALSE
     )
   }
-  Rhats <- bayesplot::rhat(x$fit)
+  Rhats <- .gmap_sampler_summary(x)$rhat
   if (any(Rhats > 1.1, na.rm = TRUE)) {
     warning(
       "Parts of the model have not converged (some Rhats are > 1.1).\n",
@@ -1123,10 +1237,16 @@ fitted.gMAP <- function(
   probs = c(0.025, 0.5, 0.975),
   ...
 ) {
+  .gmap_warn_no_samples(object, object_name = deparse(substitute(object)))
+
   type <- match.arg(type)
-  trans <- if (type == "response") object$family$linkinv else identity
-  sim <- rstan::extract(object$fit, pars = "theta")$theta
-  res <- SimSum(trans(sim), probs = probs, margin = 2)
+  res <- .gmap_summary(
+    object,
+    variables = "theta",
+    probs = probs,
+    transform = if (type == "response") object$family$linkinv else NULL,
+    row_names = rownames(object$theta_resp.strat)
+  )
   dimnames(res) <- list(rownames(object$theta_resp.strat), colnames(res))
   res
 }
@@ -1136,18 +1256,35 @@ fitted.gMAP <- function(
 #' the response or the link scale.
 #' @export
 coef.gMAP <- function(object, probs = c(0.025, 0.5, 0.975), ...) {
-  csum <- rstan::summary(object$fit, probs = probs, pars = "beta")$summary
-  f <- colnames(csum)[-match(c("se_mean", "n_eff", "Rhat"), colnames(csum))]
-  csum <- subset(csum, select = f)
-  rownames(csum) <- colnames(object$X)
-  csum
+  .gmap_warn_no_samples(object, object_name = deparse(substitute(object)))
+
+  .gmap_summary(
+    object,
+    variables = "beta",
+    probs = probs,
+    row_names = colnames(object$X)
+  )
 }
 
-#' @describeIn gMAP extracts the posterior sample of the model.
+#' @describeIn gMAP `r lifecycle::badge("deprecated")`
+#' extracts the posterior sample of the model. Use
+#' [posterior::as_draws_matrix()] instead.
 #' @method as.matrix gMAP
 #' @export
 as.matrix.gMAP <- function(x, ...) {
-  as.matrix(x$fit, pars = c("lp__"), include = FALSE)
+  lifecycle::deprecate_warn(
+    "1.10.0",
+    "as.matrix.gMAP()",
+    "posterior::as_draws_matrix()"
+  )
+  .gmap_warn_no_samples(x, object_name = deparse(substitute(x)))
+
+  draws <- posterior::subset_draws(
+    .gmap_draws_array(x),
+    variable = "lp__",
+    exclude = TRUE
+  )
+  unclass(posterior::as_draws_matrix(draws))
 }
 
 #' @method model.matrix gMAP
@@ -1177,59 +1314,62 @@ summary.gMAP <- function(
   probs = c(0.025, 0.5, 0.975),
   ...
 ) {
+  .gmap_warn_no_samples(object, object_name = deparse(substitute(object)))
+
   call <- match.call()
   type <- match.arg(type)
-  csum_beta <- rstan::summary(
-    object$fit,
+  csum_beta <- .gmap_summary(
+    object,
+    variables = "beta",
     probs = probs,
-    pars = c("beta")
-  )$summary
-  csum_tau <- rstan::summary(object$fit, probs = probs, pars = c("tau"))$summary
+    row_names = colnames(object$X)
+  )
+  csum_tau <- .gmap_summary(
+    object,
+    variables = "tau",
+    probs = probs
+  )
   if (object$has_intercept) {
     if (type == "response") {
-      csum_pred <- rstan::summary(
-        object$fit,
-        probs = probs,
-        pars = c("theta_resp_pred")
-      )$summary
-      csum_mean <- SimSum(
-        object$family$linkinv(rstan::extract(object$fit, pars = c("beta[1]"))[[
-          1
-        ]]),
+      csum_pred <- .gmap_summary(
+        object,
+        variables = "theta_resp_pred",
         probs = probs
       )
-      rownames(csum_mean) <- "theta_resp"
+      csum_mean <- .gmap_summary(
+        object,
+        variables = "beta[1]",
+        probs = probs,
+        transform = object$family$linkinv,
+        row_names = "theta_resp"
+      )
     } else {
-      csum_pred <- rstan::summary(
-        object$fit,
+      csum_pred <- .gmap_summary(
+        object,
+        variables = "theta_pred",
+        probs = probs
+      )
+      csum_mean <- .gmap_summary(
+        object,
+        variables = "beta[1]",
         probs = probs,
-        pars = c("theta_pred")
-      )$summary
-      csum_mean <- rstan::summary(
-        object$fit,
-        probs = probs,
-        pars = c("beta[1]")
-      )$summary
-      rownames(csum_mean) <- "theta"
+        row_names = "theta"
+      )
     }
   } else {
     csum_pred <- NULL
     csum_mean <- NULL
   }
-  f <- colnames(csum_beta)[
-    -match(c("se_mean", "n_eff", "Rhat"), colnames(csum_beta))
-  ]
-  rownames(csum_beta) <- colnames(object$X)
   Out <- list(
-    tau = subset(csum_tau, select = f),
-    beta = subset(csum_beta, select = f)
+    tau = csum_tau,
+    beta = csum_beta
   )
   if (object$has_intercept) {
     Out <- c(
       Out,
       list(
-        theta.pred = subset(csum_pred, select = f),
-        theta = subset(csum_mean, select = f)
+        theta.pred = csum_pred,
+        theta = csum_mean
       )
     )
   }

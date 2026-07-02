@@ -250,18 +250,31 @@ oc2S.normMix <- function(
   sigma2,
   eps = 1e-6,
   Ngrid = 10,
+  family = NULL,
+  offset1 = 0,
+  offset2 = offset1,
   ...
 ) {
-  ## distributions of the means of the data generating distributions
-  ## for now we assume that the underlying standard deviation
-  ## matches the respective reference scales
-  if (missing(sigma1)) {
+  # Determine data sigma for each arm
+  resolved1 <- resolve_sigma_family(family, missing(sigma1), sigma1, offset1)
+  resolved2 <- resolve_sigma_family(family, missing(sigma2), sigma2, offset2)
+  sigma_fun1 <- resolved1$sigma_fun
+  sigma_fun2 <- resolved2$sigma_fun
+  family <- resolved1$family
+
+  # Resolve sigma for the fixed-sigma path
+  if (is.null(sigma_fun1)) {
+    if (missing(sigma1)) {
+      sigma1 <- RBesT::sigma(prior1)
+      message("Using default prior 1 reference scale ", sigma1)
+    }
+    if (missing(sigma2)) {
+      sigma2 <- RBesT::sigma(prior2)
+      message("Using default prior 2 reference scale ", sigma2)
+    }
+  } else {
     sigma1 <- RBesT::sigma(prior1)
-    message("Using default prior 1 reference scale ", sigma1)
-  }
-  if (missing(sigma2)) {
     sigma2 <- RBesT::sigma(prior2)
-    message("Using default prior 2 reference scale ", sigma2)
   }
   assert_number(sigma1, lower = 0)
   assert_number(sigma2, lower = 0)
@@ -269,17 +282,17 @@ oc2S.normMix <- function(
   sigma(prior1) <- sigma1
   sigma(prior2) <- sigma2
 
-  crit_y1 <- decision2S_boundary(
-    prior1,
-    prior2,
-    n1,
-    n2,
-    decision,
-    sigma1,
-    sigma2,
-    eps,
-    Ngrid
-  )
+  # Calculate critical boundary
+  if (is.null(sigma_fun1)) {
+    crit_y1 <- decision2S_boundary(
+      prior1, prior2, n1, n2, decision, sigma1, sigma2, eps, Ngrid
+    )
+  } else {
+    crit_y1 <- decision2S_boundary(
+      prior1, prior2, n1, n2, decision,
+      family = family, offset1 = offset1, offset2 = offset2, eps = eps, Ngrid = Ngrid
+    )
+  }
 
   sem1 <- sigma1 / sqrt(n1)
   sem2 <- sigma2 / sqrt(n2)
@@ -292,29 +305,29 @@ oc2S.normMix <- function(
   ## represents the distribution of the respective means
   mean_prior1 <- prior1
   sigma(mean_prior1) <- sem1
-  ## mean_prior2 <- prior2
-  ## sigma(mean_prior2) <- sem2
 
   freq <- if (is(decision, "decision2S_1sided")) {
     # Simple case of one-sided boundary.
     assert_function(crit_y1)
     lower.tail <- attr(decision, "lower.tail")
     function(theta1, theta2) {
-      lim1 <- qnorm(c(eps / 2, 1 - eps / 2), theta1, sem1)
+      sem1_t <- if (is.null(sigma_fun1)) sem1 else sigma_fun1(theta1) / sqrt(n1)
+      sem2_t <- if (is.null(sigma_fun2)) sem2 else sigma_fun2(theta2) / sqrt(n2)
+      lim1 <- qnorm(c(eps / 2, 1 - eps / 2), theta1, sem1_t)
       if (n2 == 0) {
-        pnorm(crit_y1(theta2), theta1, sem1, lower.tail = lower.tail)
+        pnorm(crit_y1(theta2), theta1, sem1_t, lower.tail = lower.tail)
       } else {
         integrate_density_log(
+          mixnorm(c(1, theta2, sem2_t), sigma = sem2_t),
           function(x) {
             pnorm(
               crit_y1(x, lim1 = lim1),
               theta1,
-              sem1,
+              sem1_t,
               lower.tail = lower.tail,
               log.p = TRUE
             )
           },
-          mixnorm(c(1, theta2, sem2), sigma = sem2),
           logit(eps / 2),
           logit(1 - eps / 2)
         )
@@ -328,15 +341,17 @@ oc2S.normMix <- function(
     function(theta1, theta2) {
       assert_scalar(theta1)
       assert_scalar(theta2)
-      lim1 <- qnorm(c(eps / 2, 1 - eps / 2), theta1, sem1)
+      sem1_t <- if (is.null(sigma_fun1)) sem1 else sigma_fun1(theta1) / sqrt(n1)
+      sem2_t <- if (is.null(sigma_fun2)) sem2 else sigma_fun2(theta2) / sqrt(n2)
+      lim1 <- qnorm(c(eps / 2, 1 - eps / 2), theta1, sem1_t)
       if (n2 == 0) {
         bound_lower_or_equal_than <- crit_y1_lower_or_equal_than(theta2)
         bound_higher_than <- crit_y1_higher_than(theta2)
         if (bound_lower_or_equal_than <= bound_higher_than) {
           0
         } else {
-          pnorm(bound_lower_or_equal_than, theta1, sem1, lower.tail = TRUE) -
-            pnorm(bound_higher_than, theta1, sem1, lower.tail = TRUE)
+          pnorm(bound_lower_or_equal_than, theta1, sem1_t, lower.tail = TRUE) -
+            pnorm(bound_higher_than, theta1, sem1_t, lower.tail = TRUE)
         }
       } else {
         integrand <- function(x) {
@@ -353,16 +368,16 @@ oc2S.normMix <- function(
               pnorm(
                 bound_lower_or_equal_than,
                 theta1,
-                sem1,
+                sem1_t,
                 lower.tail = TRUE
               ) -
-                pnorm(bound_higher_than, theta1, sem1, lower.tail = TRUE)
+                pnorm(bound_higher_than, theta1, sem1_t, lower.tail = TRUE)
             )
           )
         }
         integrate_density_log(
+          mixnorm(c(1, theta2, sem2_t), sigma = sem2_t),
           integrand,
-          mixnorm(c(1, theta2, sem2), sigma = sem2),
           logit(eps / 2),
           logit(1 - eps / 2)
         )
@@ -382,20 +397,24 @@ oc2S.normMix <- function(
       theta2 <- theta1
     }
 
+    ## Use reference sem for precomputing boundary range
+    sem1_ref <- sem1
+    sem2_ref <- sem2
+
     lim2 <- c(
-      qnorm(p = eps / 2, mean = min(theta2), sd = sem2),
-      qnorm(p = 1 - eps / 2, mean = max(theta2), sd = sem2)
+      qnorm(p = eps / 2, mean = min(theta2), sd = sem2_ref),
+      qnorm(p = 1 - eps / 2, mean = max(theta2), sd = sem2_ref)
     )
 
     ## ensure that boundary is calculated for the full range
     ## needed
     lim1 <- c(
-      qnorm(eps / 2, min(theta1), sem1),
-      qnorm(1 - eps / 2, max(theta1), sem1)
+      qnorm(eps / 2, min(theta1), sem1_ref),
+      qnorm(1 - eps / 2, max(theta1), sem1_ref)
     )
     lim2 <- c(
-      qnorm(eps / 2, min(theta2), sem2),
-      qnorm(1 - eps / 2, max(theta2), sem2)
+      qnorm(eps / 2, min(theta2), sem2_ref),
+      qnorm(1 - eps / 2, max(theta2), sem2_ref)
     )
 
     ## Call boundary function(s) to cache all results for all

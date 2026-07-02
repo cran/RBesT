@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "dim": [15, 1],
+    "dimnames": [
+      ["w", "m[theta[1]]", "m[theta[2]]", "m[theta[3]]", "m[theta_pred]", "s[theta[1]]", "s[theta[2]]", "s[theta[3]]", "s[theta_pred]", "rho[theta[2],theta[1]]", "rho[theta[3],theta[1]]", "rho[theta_pred,theta[1]]", "rho[theta[3],theta[2]]", "rho[theta_pred,theta[2]]", "rho[theta_pred,theta[3]]"],
+      ["comp1"]
+    ],
+    "link": ["identity"],
+    "class": ["mvnormMix", "mix"],
+    "likelihood": ["mvnormal"]
+  },
+  "comp": [
+    [1],
+    [-0.8427],
+    [-0.8368],
+    [-0.9243],
+    [-0.8216],
+    [0.4919],
+    [0.4938],
+    [0.7043],
+    [0.5567],
+    [0.7768],
+    [0.0867],
+    [0.795],
+    [0.102],
+    [0.7882],
+    [0.0862]
+  ]
+}

@@ -1,8 +1,10 @@
 source_example <- function(
   example,
-  env = parent.frame(),
+  env,
   disable_plots = TRUE
 ) {
+  stopifnot(is.environment(env))
+
   ex_source <- readLines(system.file(
     "examples",
     example,
@@ -21,4 +23,14 @@ source_example <- function(
     )
   )
   invisible(ex)
+}
+
+run_example_fixture <- function(example, disable_plots = TRUE) {
+  env <- new.env(parent = globalenv())
+  source_example(
+    example = example,
+    env = env,
+    disable_plots = disable_plots
+  )
+  as.list(env, all.names = TRUE)
 }

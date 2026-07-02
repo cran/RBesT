@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "dim": [10, 1],
+    "dimnames": [
+      ["w", "m[beta[1]]", "m[tau[1]]", "m[lp__]", "s[beta[1]]", "s[tau[1]]", "s[lp__]", "rho[tau[1],beta[1]]", "rho[lp__,beta[1]]", "rho[lp__,tau[1]]"],
+      ["comp1"]
+    ],
+    "link": ["identity"],
+    "class": ["mvnormMix", "mix"],
+    "likelihood": ["mvnormal"]
+  },
+  "comp": [
+    [1],
+    [2.927],
+    [0.1257],
+    [-1.9483],
+    [1.4887],
+    [1.1212],
+    [1.5878],
+    [-0.2889],
+    [-0.2545],
+    [0.5423]
+  ]
+}

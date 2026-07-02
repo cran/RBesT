@@ -115,50 +115,93 @@ pos1S.betaMix <- function(prior, n, decision, ...) {
 #' @templateVar fun pos1S
 #' @template design1S-normal
 #' @export
-pos1S.normMix <- function(prior, n, decision, sigma, eps = 1e-6, ...) {
-  ## distributions of the means of the data generating distributions
-  ## for now we assume that the underlying standard deviation
-  ## matches the respective reference scales
-  if (missing(sigma)) {
-    sigma <- RBesT::sigma(prior)
-    message("Using default prior reference scale ", sigma)
-  }
-  assert_number(sigma, lower = 0)
+pos1S.normMix <- function(prior, n, decision, sigma, eps = 1e-6, family = NULL, offset = 0, ...) {
+  # Determine data sigma
+  resolved <- resolve_sigma_family(family, missing(sigma), sigma, offset)
+  sigma_fun <- resolved$sigma_fun
+  family <- resolved$family
 
-  sigma(prior) <- sigma
-
-  crit <- decision1S_boundary(prior, n, decision, sigma, eps)
-
-  design_fun <- if (is(decision, "decision1S_1sided")) {
-    ## check where the decision is 1, i.e. left or right
-    lower.tail <- attr(decision, "lower.tail")
-
-    function(mix) {
-      pred_dtheta_mean <- preddist(mix, n = n, sigma = sigma)
-      pmix(pred_dtheta_mean, crit, lower.tail = lower.tail)
+  # Calculate critical value
+  if (is.null(sigma_fun)) {
+    if (missing(sigma)) {
+      sigma <- RBesT::sigma(prior)
+      message("Using default prior reference scale ", sigma)
     }
-  } else {
-    crit_lower_or_equal <- crit["lower_or_equal_than"]
-    crit_upper <- crit["higher_than"]
-    if (crit_lower_or_equal <= crit_upper) {
-      function(mix) 0
-    } else {
+    assert_number(sigma, lower = 0)
+
+    sigma(prior) <- sigma
+
+    crit <- decision1S_boundary(prior, n, decision, sigma, eps)
+
+    design_fun <- if (is(decision, "decision1S_1sided")) {
+      lower.tail <- attr(decision, "lower.tail")
+
       function(mix) {
         pred_dtheta_mean <- preddist(mix, n = n, sigma = sigma)
-        # P(X <= crit_lower_or_equal):
-        prob_lower_or_equal <- pmix(
-          pred_dtheta_mean,
-          crit_lower_or_equal,
-          lower.tail = TRUE
+        pmix(pred_dtheta_mean, crit, lower.tail = lower.tail)
+      }
+    } else {
+      crit_lower_or_equal <- crit["lower_or_equal_than"]
+      crit_upper <- crit["higher_than"]
+      if (crit_lower_or_equal <= crit_upper) {
+        function(mix) 0
+      } else {
+        function(mix) {
+          pred_dtheta_mean <- preddist(mix, n = n, sigma = sigma)
+          prob_lower_or_equal <- pmix(
+            pred_dtheta_mean, crit_lower_or_equal, lower.tail = TRUE
+          )
+          prob_upper <- pmix(
+            pred_dtheta_mean, crit_upper, lower.tail = TRUE
+          )
+          prob_lower_or_equal - prob_upper
+        }
+      }
+    }
+  } else {
+    ## family path: use numerical integration
+    if (family$family == "gaussian") {
+      crit <- decision1S_boundary(prior, n, decision,
+                                  family = family, offset = offset,
+                                  sigma = sigma, eps = eps)
+    } else {
+      crit <- decision1S_boundary(prior, n, decision,
+                                  family = family, offset = offset, eps = eps)
+    }
+
+    design_fun <- if (is(decision, "decision1S_1sided")) {
+      lower.tail <- attr(decision, "lower.tail")
+
+      function(mix) {
+        integrate_density_log(
+          mix,
+          function(theta) {
+            se_theta <- sigma_fun(theta) / sqrt(n)
+            pnorm(crit, theta, se_theta, lower.tail = lower.tail, log.p = TRUE)
+          }
         )
-        # P(X <= crit_upper):
-        prob_upper <- pmix(
-          pred_dtheta_mean,
-          crit_upper,
-          lower.tail = TRUE
-        )
-        # P(crit_upper < X <= crit_lower_or_equal):
-        prob_lower_or_equal - prob_upper
+      }
+    } else {
+      crit_lower_or_equal <- crit["lower_or_equal_than"]
+      crit_upper <- crit["higher_than"]
+      if (crit_lower_or_equal <= crit_upper) {
+        function(mix) 0
+      } else {
+        function(mix) {
+          integrate_density_log(
+            mix,
+            function(theta) {
+              se_theta <- sigma_fun(theta) / sqrt(n)
+              p_lower <- pnorm(
+                crit_lower_or_equal, theta, se_theta, lower.tail = TRUE
+              )
+              p_upper <- pnorm(
+                crit_upper, theta, se_theta, lower.tail = TRUE
+              )
+              log(pmax(p_lower - p_upper, .Machine$double.eps))
+            }
+          )
+        }
       }
     }
   }

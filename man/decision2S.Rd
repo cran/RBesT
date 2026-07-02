@@ -166,9 +166,9 @@ Vandemeulebroecke M, Schmidli H.A practical guide to Bayesian group
 sequential designs. \emph{Pharm. Stat.}. 2014; 13: 71-80
 }
 \seealso{
-Other design2S: 
-\code{\link{decision2S_boundary}()},
-\code{\link{oc2S}()},
-\code{\link{pos2S}()}
+Other design2S:
+\code{\link[=decision2S_boundary]{decision2S_boundary()}},
+\code{\link[=oc2S]{oc2S()}},
+\code{\link[=pos2S]{pos2S()}}
 }
 \concept{design2S}
