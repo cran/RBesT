@@ -10,7 +10,5 @@
 #'   \item{n}{study size}
 #'   \item{r}{number of events}
 #' }
-#' @references Neuenschwander B, Capkun-Niggli G, Branson M,
-#' Spiegelhalter DJ. Summarizing historical information on controls in
-#' clinical trials. *Clin Trials*. 2010; 7(1):5-18
+#' @references \insertRef{neuenschwander2010}{RBesT}
 "colitis"

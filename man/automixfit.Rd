@@ -63,7 +63,5 @@ sapply(bmFitAll, AIC, k = 6)
 
 }
 \references{
-Collet D.
-\emph{Modeling Survival Data in Medical Research}.
-2003; Chapman and Hall/CRC.
+\insertRef{collet2003}{RBesT}
 }

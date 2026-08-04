@@ -122,9 +122,7 @@ AIC(bfit)
 
 }
 \references{
-Dempster A.P., Laird N.M., Rubin D.B. Maximum
-Likelihood from Incomplete Data via the EM Algorithm. \emph{Journal
-of the Royal Statistical Society, Series B} 1977; 39 (1): 1-38.
+\insertRef{dempster1977}{RBesT}
 }
 \seealso{
 Other EM:

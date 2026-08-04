@@ -67,9 +67,7 @@
 #' as calculated by the decision function is returned as a list with
 #' components `lower` and `upper`.
 #'
-#' @references Gsponer T, Gerber F, Bornkamp B, Ohlssen D,
-#' Vandemeulebroecke M, Schmidli H.A practical guide to Bayesian group
-#' sequential designs. *Pharm. Stat.*. 2014; 13: 71-80
+#' @references \insertRef{gsponer2014}{RBesT}
 #'
 #' @family design2S
 #'

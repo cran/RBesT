@@ -35,6 +35,5 @@ BinaryExactCI(3, 20, 0.05)
 
 }
 \references{
-Clopper, C. J. & Pearson, E. S. The use of confidence or
-fiducial limits illustrated in the case of the binomial. Biometrika 1934.
+\insertRef{clopper1934}{RBesT}
 }

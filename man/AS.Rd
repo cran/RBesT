@@ -40,6 +40,6 @@ options(.user_mc_options)
 
 }
 \references{
-Baeten D. et. al, \emph{The Lancet}, 2013, (382), 9906, p 1705
+\insertRef{baeten2013}{RBesT}
 }
 \keyword{datasets}

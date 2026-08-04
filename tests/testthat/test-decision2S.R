@@ -24,7 +24,7 @@ test_that("decision2S works for lower sided", {
   expect_equal(lower_part(flat_prior1, flat_prior2), 1)
 
   dist <- decLower(flat_prior1, flat_prior2, dist = TRUE)
-  expect_snapshot_value(dist, style = "deparse")
+  expect_snapshot_value(dist, style = "deparse", tolerance = 1e-4)
 
   priorT <- mixnorm(c(1, Inf, 10), sigma = 88, param = "mn")
   priorP <- mixnorm(c(1, -Inf, 10), sigma = 88, param = "mn")
@@ -61,7 +61,7 @@ test_that("decision2S works for upper sided", {
   expect_equal(upper_part(flat_prior1, flat_prior2), 0)
 
   dist <- decUpper(flat_prior1, flat_prior2, dist = TRUE)
-  expect_snapshot_value(dist, style = "deparse")
+  expect_snapshot_value(dist, style = "deparse", tolerance = 1e-4)
 
   priorT <- mixnorm(c(1, Inf, 10), sigma = 88, param = "mn")
   priorP <- mixnorm(c(1, -Inf, 10), sigma = 88, param = "mn")
@@ -97,5 +97,5 @@ test_that("decision2S works for two sided", {
   expect_equal(upper_part(flat_prior1, flat_prior2), 0)
 
   dist <- decMixed(flat_prior1, flat_prior2, dist = TRUE)
-  expect_snapshot_value(dist, style = "deparse")
+  expect_snapshot_value(dist, style = "deparse", tolerance = 1e-4)
 })

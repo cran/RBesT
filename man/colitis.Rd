@@ -21,8 +21,6 @@ phase II proof-of-concept trial for the treatment of ulcerative
 colitis. The primary outcome is remission at week 8 (binary).
 }
 \references{
-Neuenschwander B, Capkun-Niggli G, Branson M,
-Spiegelhalter DJ. Summarizing historical information on controls in
-clinical trials. \emph{Clin Trials}. 2010; 7(1):5-18
+\insertRef{neuenschwander2010}{RBesT}
 }
 \keyword{datasets}

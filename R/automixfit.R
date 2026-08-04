@@ -32,9 +32,7 @@
 #' attribute `models`.
 #'
 #' @references
-#' Collet D.
-#' *Modeling Survival Data in Medical Research*.
-#' 2003; Chapman and Hall/CRC.
+#' \insertRef{collet2003}{RBesT}
 #'
 #' @examples
 #' # random sample of size 1000 from a mixture of 2 beta components

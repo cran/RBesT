@@ -149,7 +149,5 @@ print(posterior.sum)
 
 }
 \references{
-Schmidli H, Gsteiger S, Roychoudhury S, O'Hagan A, Spiegelhalter D, Neuenschwander B.
-Robust meta-analytic-predictive priors in clinical trials with historical control information.
-\emph{Biometrics} 2014;70(4):1023-1032.
+\insertRef{schmidli2014}{RBesT}
 }

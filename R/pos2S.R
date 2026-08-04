@@ -224,7 +224,7 @@ pos2S.normMix <- function(
   sigma1,
   sigma2,
   eps = 1e-6,
-  Ngrid = 10,
+  Ngrid = 5,
   family = NULL,
   offset1 = 0,
   offset2 = offset1,

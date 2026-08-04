@@ -20,7 +20,7 @@ oc2S(prior1, prior2, n1, n2, decision, ...)
   sigma1,
   sigma2,
   eps = 1e-06,
-  Ngrid = 10,
+  Ngrid = 5,
   family = NULL,
   offset1 = 0,
   offset2 = offset1,
@@ -168,9 +168,7 @@ curve(design_rob(0.2 + x, 0.2), lty = 3, add = TRUE)
 
 }
 \references{
-Schmidli H, Gsteiger S, Roychoudhury S, O'Hagan A, Spiegelhalter D, Neuenschwander B.
-Robust meta-analytic-predictive priors in clinical trials with historical control information.
-\emph{Biometrics} 2014;70(4):1023-1032.
+\insertRef{schmidli2014}{RBesT}
 }
 \seealso{
 Other design2S:

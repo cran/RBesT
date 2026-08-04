@@ -21,8 +21,6 @@ for a phase IV trial in de novo transplant patients. The primary
 outcome is treament failure (binary).
 }
 \references{
-Neuenschwander B, Capkun-Niggli G, Branson M,
-Spiegelhalter DJ. Summarizing historical information on controls in
-clinical trials. \emph{Clin Trials}. 2010; 7(1):5-18
+\insertRef{neuenschwander2010}{RBesT}
 }
 \keyword{datasets}

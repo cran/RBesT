@@ -41,6 +41,6 @@ options(.user_mc_options)
 
 }
 \references{
-Hueber W. et. al, \emph{Gut}, 2012, 61(12):1693-1700
+\insertRef{hueber2012}{RBesT}
 }
 \keyword{datasets}

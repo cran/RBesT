@@ -51,6 +51,6 @@ options(.user_mc_options)
 
 }
 \references{
-Holzhauer B., Wang C. and Schmidli H. \emph{Statistics in Medicine}, 2018, 37(10):1640-1657
+\insertRef{holzhauer2018asthma}{RBesT}
 }
 \keyword{datasets}

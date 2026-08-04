@@ -52,9 +52,7 @@
 #'
 #' @family EM
 #'
-#' @references Dempster A.P., Laird N.M., Rubin D.B. Maximum
-#' Likelihood from Incomplete Data via the EM Algorithm. *Journal
-#' of the Royal Statistical Society, Series B* 1977; 39 (1): 1-38.
+#' @references \insertRef{dempster1977}{RBesT}
 #'
 #' @examples
 #' bmix <- mixbeta(rob = c(0.2, 1, 1), inf = c(0.8, 10, 2))

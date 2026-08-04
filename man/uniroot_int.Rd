@@ -10,11 +10,19 @@ uniroot_int(
   ...,
   f.lower = f(interval[1], ...),
   f.upper = f(interval[2], ...),
+  extendInt = c("no", "upX", "downX"),
+  clamp = interval,
   maxIter = 1000
 )
 }
 \description{
 Uses a bisectioning algorithm to search the give interval for a
-change of sign and returns the integer which is closest to 0.
+change of sign and returns the integer which is closest to 0. When
+\code{extendInt} is \code{"upX"} (f increasing through the root) or \code{"downX"}
+(f decreasing), a bracket that does not enclose a sign change is
+widened outward (doubling), bounded by \code{clamp}, until it brackets a
+root. If no sign change exists within \code{clamp}, the constant sign is
+reported as \code{-Inf} (f < 0) or \code{Inf} (f > 0); with \code{extendInt = "no"}
+the legacy empty \code{numeric()} is returned instead.
 }
 \keyword{internal}

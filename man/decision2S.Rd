@@ -161,9 +161,7 @@ decL3(post2, post1)
 
 }
 \references{
-Gsponer T, Gerber F, Bornkamp B, Ohlssen D,
-Vandemeulebroecke M, Schmidli H.A practical guide to Bayesian group
-sequential designs. \emph{Pharm. Stat.}. 2014; 13: 71-80
+\insertRef{gsponer2014}{RBesT}
 }
 \seealso{
 Other design2S:

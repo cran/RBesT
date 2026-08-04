@@ -59,9 +59,7 @@
 #' as calculated by the decision function is returned as a list with
 #' components `lower` and `upper`.
 #'
-#' @references Neuenschwander B, Rouyrre N, Hollaender H, Zuber E,
-#' Branson M. A proof of concept phase II non-inferiority
-#' criterion. *Stat. in Med.*. 2011, 30:1618-1627
+#' @references \insertRef{neuenschwander2011}{RBesT}
 #'
 #' @examples
 #'

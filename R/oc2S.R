@@ -34,9 +34,7 @@
 #' distributed according to the known parameter values in each
 #' sample. Note that the returned function takes vector arguments.
 #'
-#' @references Schmidli H, Gsteiger S, Roychoudhury S, O'Hagan A, Spiegelhalter D, Neuenschwander B.
-#' Robust meta-analytic-predictive priors in clinical trials with historical control information.
-#' *Biometrics* 2014;70(4):1023-1032.
+#' @references \insertRef{schmidli2014}{RBesT}
 #'
 #' @family design2S
 #'
@@ -249,7 +247,7 @@ oc2S.normMix <- function(
   sigma1,
   sigma2,
   eps = 1e-6,
-  Ngrid = 10,
+  Ngrid = 5,
   family = NULL,
   offset1 = 0,
   offset2 = offset1,

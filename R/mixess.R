@@ -65,14 +65,9 @@
 #'
 #' @template conjugate_pairs
 #'
-#' @references Morita S, Thall PF, Mueller P.  Determining the
-#'     effective sample size of a parametric prior.  *Biometrics*
-#'     2008;64(2):595-602.
+#' @references \insertRef{morita2008}{RBesT}
 #'
-#' @references Neuenschwander B., Weber S., Schmidli H., O'Hagan
-#'     A. (2020). Predictively consistent prior effective sample
-#'     sizes. *Biometrics*, 76(2),
-#'     578-587. https://doi.org/10.1111/biom.13252
+#' @references \insertRef{neuenschwander2020}{RBesT}
 #'
 #' @example inst/examples/ess.R
 #'

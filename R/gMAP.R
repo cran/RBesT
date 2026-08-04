@@ -263,18 +263,12 @@
 #' the methods section below for applicable functions to query the
 #' object.
 #'
-#' @references Neuenschwander B, Capkun-Niggli G, Branson M,
-#' Spiegelhalter DJ. Summarizing historical information on controls in
-#' clinical trials. *Clin Trials*. 2010; 7(1):5-18
+#' @references
+#' \insertRef{neuenschwander2010}{RBesT}
 #'
-#' Schmidli H, Gsteiger S, Roychoudhury S, O'Hagan A, Spiegelhalter D,
-#' Neuenschwander B.  Robust meta-analytic-predictive priors in
-#' clinical trials with historical control information.
-#' *Biometrics* 2014;70(4):1023-1032.
+#' \insertRef{schmidli2014}{RBesT}
 #'
-#' Weber S, Li Y, Seaman III J.W., Kakizume T, Schmidli H. Applying
-#' Meta-Analytic Predictive Priors with the {R} {B}ayesian evidence
-#' synthesis tools. *JSS* 2021; 100(19):1-32
+#' \insertRef{weber2021}{RBesT}
 #'
 #' @seealso [plot.gMAP()], [forest_plot()], [automixfit()], [predict.gMAP()]
 #'

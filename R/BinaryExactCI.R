@@ -18,8 +18,7 @@
 #' @return 100 (1-\eqn{\alpha})\% exact confidence interval for given
 #' response rate
 #'
-#' @references Clopper, C. J. & Pearson, E. S. The use of confidence or
-#' fiducial limits illustrated in the case of the binomial. Biometrika 1934.
+#' @references \insertRef{clopper1934}{RBesT}
 #'
 #' @examples
 #' BinaryExactCI(3, 20, 0.05)

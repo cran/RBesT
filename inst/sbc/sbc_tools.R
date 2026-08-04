@@ -140,23 +140,33 @@ fit_rbest <- function(
   params <- c("beta[1]", "tau[1]")
   params_group <- paste0("theta[", 1:Ng, "]")
 
-  sampler_params <- rstan::get_sampler_params(fit$fit, inc_warmup = FALSE)
-  n_divergent <- sum(sapply(sampler_params, function(x) {
-    sum(x[, "divergent__"])
-  }))
+  ## gMAP no longer stores an rstan stanfit; diagnostics and posterior
+  ## draws are read from the stored posterior draws arrays instead.
+  n_divergent <- sum(as.array(posterior::subset_draws(
+    fit$draws_diag,
+    variable = "divergent__"
+  )))
 
-  fit_sum <- rstan::summary(fit$fit)$summary
-  samp_diags <- fit_sum[params, c("n_eff", "Rhat")]
-  min_Neff <- ceiling(min(samp_diags[, "n_eff"], na.rm = TRUE))
-  max_Rhat <- max(samp_diags[, "Rhat"], na.rm = TRUE)
+  samp_diags <- posterior::summarise_draws(
+    posterior::as_draws_array(fit, variable = params),
+    ess_bulk = posterior::ess_bulk,
+    rhat = posterior::rhat
+  )
+  min_Neff <- ceiling(min(samp_diags$ess_bulk, na.rm = TRUE))
+  max_Rhat <- max(samp_diags$rhat, na.rm = TRUE)
 
-  lp_ess <- as.numeric(rstan::monitor(
-    as.array(fit$fit, pars = "lp__"),
-    print = FALSE
-  )[1, c("Bulk_ESS", "Tail_ESS")])
+  lp_diags <- posterior::summarise_draws(
+    posterior::as_draws_array(fit, variable = "lp__"),
+    ess_bulk = posterior::ess_bulk,
+    ess_tail = posterior::ess_tail
+  )
+  lp_ess <- as.numeric(lp_diags[1, c("ess_bulk", "ess_tail")])
 
-  post <- as.matrix(fit)[, params]
-  post_group <- as.matrix(fit)[, params_group]
+  post <- as.matrix(unclass(posterior::as_draws_matrix(fit, variable = params)))
+  post_group <- as.matrix(unclass(posterior::as_draws_matrix(
+    fit,
+    variable = params_group
+  )))
   S <- nrow(post)
   ## thin down to 1023 draws so that we get 1024 bins
   idx <- round(seq(1, S, length = 1024 - 1))

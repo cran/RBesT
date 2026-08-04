@@ -1,0 +1,255 @@
+% RBesT central bibliography.
+%
+% This file is the single source of truth for references used across the
+% package. It is consumed from three places:
+%
+%   * Roxygen / Rd documentation via the Rdpack macros
+%     \insertRef{key}{RBesT} (see DESCRIPTION field RdMacros: Rdpack).
+%   * Vignettes and pkgdown articles via the R Markdown YAML field
+%     `bibliography:` pointing at this file, cited with the pandoc
+%     bracketed at-key syntax.
+%
+% Keys follow a lowercase `authorYEAR` scheme. DOIs are only included where
+% they are documented within the package sources (DESCRIPTION, CITATION,
+% roxygen, or existing vignette text) to avoid introducing unverified data.
+
+@Article{weber2021,
+  author  = {Sebastian Weber and Yue Li and John W. Seaman and Tomoyuki Kakizume and Heinz Schmidli},
+  title   = {Applying Meta-Analytic-Predictive Priors with the {R} {B}ayesian Evidence Synthesis Tools},
+  journal = {Journal of Statistical Software},
+  year    = {2021},
+  volume  = {100},
+  number  = {19},
+  pages   = {1--32},
+  doi     = {10.18637/jss.v100.i19},
+}
+
+@Article{neuenschwander2010,
+  author  = {Beat Neuenschwander and Gorana Capkun-Niggli and Michael Branson and David J. Spiegelhalter},
+  title   = {Summarizing historical information on controls in clinical trials},
+  journal = {Clinical Trials},
+  year    = {2010},
+  volume  = {7},
+  number  = {1},
+  pages   = {5--18},
+  doi     = {10.1177/1740774509356002},
+}
+
+@Article{schmidli2014,
+  author  = {Heinz Schmidli and Sandro Gsteiger and Satrajit Roychoudhury and Anthony O'Hagan and David Spiegelhalter and Beat Neuenschwander},
+  title   = {Robust meta-analytic-predictive priors in clinical trials with historical control information},
+  journal = {Biometrics},
+  year    = {2014},
+  volume  = {70},
+  number  = {4},
+  pages   = {1023--1032},
+  doi     = {10.1111/biom.12242},
+}
+
+@Article{neuenschwander2020,
+  author  = {Beat Neuenschwander and Sebastian Weber and Heinz Schmidli and Anthony O'Hagan},
+  title   = {Predictively consistent prior effective sample sizes},
+  journal = {Biometrics},
+  year    = {2020},
+  volume  = {76},
+  number  = {2},
+  pages   = {578--587},
+  doi     = {10.1111/biom.13252},
+}
+
+@Article{morita2008,
+  author  = {Satoshi Morita and Peter F. Thall and Peter Mueller},
+  title   = {Determining the effective sample size of a parametric prior},
+  journal = {Biometrics},
+  year    = {2008},
+  volume  = {64},
+  number  = {2},
+  pages   = {595--602},
+}
+
+@Article{neuenschwander2011,
+  author  = {Beat Neuenschwander and Nicolas Rouyrre and Hans Hollaender and Emmanuel Zuber and Michael Branson},
+  title   = {A proof of concept phase {II} non-inferiority criterion},
+  journal = {Statistics in Medicine},
+  year    = {2011},
+  volume  = {30},
+  number  = {13},
+  pages   = {1618--1627},
+}
+
+@Article{neuenschwander2016,
+  author  = {Beat Neuenschwander and Satrajit Roychoudhury and Heinz Schmidli},
+  title   = {On the Use of Co-Data in Clinical Trials},
+  journal = {Statistics in Biopharmaceutical Research},
+  year    = {2016},
+  volume  = {8},
+  number  = {3},
+  pages   = {345--354},
+  doi     = {10.1080/19466315.2016.1174149},
+}
+
+@Article{gsponer2014,
+  author  = {Thomas Gsponer and Florian Gerber and Bjoern Bornkamp and David Ohlssen and Marc Vandemeulebroecke and Heinz Schmidli},
+  title   = {A practical guide to Bayesian group sequential designs},
+  journal = {Pharmaceutical Statistics},
+  year    = {2014},
+  volume  = {13},
+  number  = {1},
+  pages   = {71--80},
+  doi     = {10.1002/pst.1593},
+}
+
+@Article{gerber2016,
+  author  = {Florian Gerber and Thomas Gsponer},
+  title   = {{gsbDesign}: An {R} Package for Evaluating the Operating Characteristics of a Group Sequential Bayesian Design},
+  journal = {Journal of Statistical Software},
+  year    = {2016},
+  volume  = {69},
+  number  = {11},
+  pages   = {1--23},
+  doi     = {10.18637/jss.v069.i11},
+}
+
+@Article{gallo2014,
+  author  = {Paul Gallo and Lu Mao and Vivian H. Shih},
+  title   = {Alternative Views on Setting Clinical Trial Futility Criteria},
+  journal = {Journal of Biopharmaceutical Statistics},
+  year    = {2014},
+  volume  = {24},
+  number  = {5},
+  pages   = {976--993},
+  doi     = {10.1080/10543406.2014.932285},
+}
+
+@Article{holzhauer2018,
+  author  = {Bjoern Holzhauer and Chunyan Wang and Heinz Schmidli},
+  title   = {Evidence synthesis from aggregate recurrent event data for clinical trial design and analysis},
+  journal = {Statistics in Medicine},
+  year    = {2018},
+  volume  = {37},
+  number  = {6},
+  pages   = {867--882},
+}
+
+@Article{hueber2012,
+  author  = {Wolfgang Hueber and Bruce E. Sands and Steve Lewitzky and Marc Vandemeulebroecke and others},
+  title   = {Secukinumab, a human anti-{IL}-17{A} monoclonal antibody, for moderate to severe {C}rohn's disease},
+  journal = {Gut},
+  year    = {2012},
+  volume  = {61},
+  number  = {12},
+  pages   = {1693--1700},
+}
+
+@Article{baeten2013,
+  author  = {Dominique Baeten and others},
+  title   = {Anti-interleukin-17{A} monoclonal antibody secukinumab in treatment of ankylosing spondylitis: a randomised, double-blind, placebo-controlled trial},
+  journal = {The Lancet},
+  year    = {2013},
+  volume  = {382},
+  number  = {9906},
+  pages   = {1705--1713},
+}
+
+@Article{holzhauer2018asthma,
+  author  = {Bjoern Holzhauer and Chunyan Wang and Heinz Schmidli},
+  title   = {Historical control information for clinical trials with a recurrent event endpoint},
+  journal = {Statistics in Medicine},
+  year    = {2018},
+  volume  = {37},
+  number  = {10},
+  pages   = {1640--1657},
+}
+
+@Article{dempster1977,
+  author  = {A. P. Dempster and N. M. Laird and D. B. Rubin},
+  title   = {Maximum Likelihood from Incomplete Data via the {EM} Algorithm},
+  journal = {Journal of the Royal Statistical Society, Series B},
+  year    = {1977},
+  volume  = {39},
+  number  = {1},
+  pages   = {1--38},
+}
+
+@Article{clopper1934,
+  author  = {C. J. Clopper and E. S. Pearson},
+  title   = {The use of confidence or fiducial limits illustrated in the case of the binomial},
+  journal = {Biometrika},
+  year    = {1934},
+  volume  = {26},
+  number  = {4},
+  pages   = {404--413},
+}
+
+@Article{kass1995,
+  author  = {Robert E. Kass and Larry Wasserman},
+  title   = {A Reference Bayesian Test for Nested Hypotheses and its Relationship to the Schwarz Criterion},
+  journal = {Journal of the American Statistical Association},
+  year    = {1995},
+  volume  = {90},
+  number  = {431},
+  pages   = {928--934},
+}
+
+@Article{schmidli2017,
+  author  = {Heinz Schmidli and Beat Neuenschwander and Tim Friede},
+  title   = {Meta-analytic-predictive use of historical variance data for the design and analysis of clinical trials},
+  journal = {Computational Statistics and Data Analysis},
+  year    = {2017},
+  volume  = {113},
+  pages   = {100--110},
+}
+
+@Book{collet2003,
+  author    = {David Collett},
+  title     = {Modelling Survival Data in Medical Research},
+  year      = {2003},
+  edition   = {2nd},
+  publisher = {Chapman and Hall/CRC},
+}
+
+@Book{gelman2014,
+  author    = {Andrew Gelman and John B. Carlin and Hal S. Stern and David B. Dunson and Aki Vehtari and Donald B. Rubin},
+  title     = {Bayesian Data Analysis},
+  year      = {2014},
+  edition   = {3rd},
+  publisher = {Chapman and Hall/CRC},
+}
+
+@Manual{rstan,
+  title  = {{RStan}: the {R} interface to {Stan}},
+  author = {{Stan Development Team}},
+  year   = {2020},
+  note   = {R package version 2.19.3},
+  url    = {https://mc-stan.org},
+}
+
+@Article{Scharfstein1997,
+  author    = {Scharfstein, Daniel O. and Tsiatis, Anastasios A. and Robins, James M.},
+  journal   = {Journal of the American Statistical Association},
+  title     = {Semiparametric Efficiency and its Implication on the Design and Analysis of Group-Sequential Studies},
+  year      = {1997},
+  issn      = {1537-274X},
+  month     = Dec,
+  number    = {440},
+  pages     = {1342--1350},
+  volume    = {92},
+  doi       = {10.1080/01621459.1997.10473655},
+  publisher = {Informa UK Limited},
+}
+
+@Article{Muetze2018,
+  author    = {Mütze, Tobias and Glimm, Ekkehard and Schmidli, Heinz and Friede, Tim},
+  journal   = {Statistical Methods in Medical Research},
+  title     = {Group sequential designs for negative binomial outcomes},
+  year      = {2018},
+  issn      = {1477-0334},
+  month     = May,
+  number    = {8},
+  pages     = {2326--2347},
+  volume    = {28},
+  doi       = {10.1177/0962280218773115},
+  publisher = {SAGE Publications},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}

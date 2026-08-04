@@ -47,6 +47,7 @@
 #' `RBesT.GQ_max_nodes` \tab `240` \tab upper cap on the GQ node count during refinement \cr
 #' `RBesT.GQ_node_growth` \tab `2` \tab multiplicative growth factor for the GQ node count between refinement steps \cr
 #' `RBesT.GQ_on_nonconvergence` \tab `"adaptive"` \tab behaviour when GQ refinement reaches `RBesT.GQ_max_nodes` without meeting tolerance: `"adaptive"` (fall through to adaptive integration), `"warn"` (warn and return best estimate), `"error"`, or `"silent"` \cr
+#' `RBesT.decision2S_boundary` \tab `"adaptive"` \tab tracing scheme for the decision boundary in [decision2S_boundary()] (and hence `oc2S`/`pos2S`): `"adaptive"` (recursive subdivision of the `y2` range with early stop where the boundary is linear for the normal case, and monotone constant-run filling for the binomial/Poisson cases) or `"grid"` (legacy exhaustive/uniform sweep). Boundary values are unchanged (identical for the discrete families, within solver tolerance for the normal case); `"adaptive"` needs far fewer root solves. \cr
 #' }
 #'
 #' @section Version History:
@@ -54,7 +55,7 @@
 #' See `NEWS.md` file.
 #'
 #' @references
-#' Stan Development Team (2020). RStan: the R interface to Stan. R package version 2.19.3. https://mc-stan.org
+#' \insertRef{rstan}{RBesT}
 #'
 #' @useDynLib RBesT, .registration = TRUE
 #'
@@ -78,6 +79,7 @@
 #' @importFrom rlang .data
 #' @importFrom rstan sampling extract get_sampler_params summary
 #' @importFrom posterior as_draws_array as_draws_rvars as_draws_matrix as_draws_list as_draws_df subset_draws
+#' @importFrom Rdpack reprompt
 #' @importFrom utils capture.output modifyList
 #' @export nsamples
 ## usethis namespace: end
