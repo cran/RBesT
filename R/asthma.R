@@ -23,7 +23,7 @@
 #'   \item{phase}{development phase of the trial}
 #' }
 #'
-#' @references \insertRef{holzhauer2018asthma}{RBesT}
+#' @references \insertRef{holzhauer2018}{RBesT}
 #'
 #' @template example-start
 #' @examples

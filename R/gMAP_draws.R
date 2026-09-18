@@ -46,10 +46,12 @@
 #'
 #' @keywords internal
 .gmap_empty_draws_array <- function(n_theta, n_beta, n_tau, has_intercept) {
+  ## the order follows the Stan output: `beta` is a generated quantity, since
+  ## the sum-to-zero parametrization recovers its intercept with an RNG draw
   variables <- c(
     paste0("theta[", seq_len(n_theta), "]"),
-    paste0("beta[", seq_len(n_beta), "]"),
     paste0("tau[", seq_len(n_tau), "]"),
+    paste0("beta[", seq_len(n_beta), "]"),
     if (isTRUE(has_intercept)) c("theta_pred", "theta_resp_pred"),
     "lp__"
   )

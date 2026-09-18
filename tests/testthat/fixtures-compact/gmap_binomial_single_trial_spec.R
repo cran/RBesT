@@ -2,7 +2,7 @@ gmap_binomial_single_trial_compact_spec <-
 structure(list(name = "gmap_binomial_single_trial", seed = 873461L, nc = 2L, 
     has_intercept = TRUE, tau_fixed = FALSE, tau_values = NULL, 
     variables_model = c("beta[1]", "tau[1]", "lp__"), variables_theta = c("theta[1]", 
-    "theta_pred"), variables = c("theta[1]", "beta[1]", "tau[1]", 
+    "theta_pred"), variables = c("theta[1]", "tau[1]", "beta[1]", 
     "theta_pred", "theta_resp_pred", "lp__"), draws_dim = c(1000L, 
     4L, 6L), diag_variables = c("accept_stat__", "stepsize__", 
     "treedepth__", "n_leapfrog__", "divergent__", "energy__"), 

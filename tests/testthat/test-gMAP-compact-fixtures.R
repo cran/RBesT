@@ -32,8 +32,8 @@ test_that("gMAP can return a draw-free chains=0 skeleton", {
       "theta[6]",
       "theta[7]",
       "theta[8]",
-      "beta[1]",
       "tau[1]",
+      "beta[1]",
       "theta_pred",
       "theta_resp_pred",
       "lp__"
@@ -173,8 +173,8 @@ test_that("compact gMAP fixture rehydrates fixed-tau draws", {
       "theta[6]",
       "theta[7]",
       "theta[8]",
-      "beta[1]",
       "tau[1]",
+      "beta[1]",
       "theta_pred",
       "theta_resp_pred",
       "lp__"

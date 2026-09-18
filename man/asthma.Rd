@@ -51,6 +51,6 @@ options(.user_mc_options)
 
 }
 \references{
-\insertRef{holzhauer2018asthma}{RBesT}
+\insertRef{holzhauer2018}{RBesT}
 }
 \keyword{datasets}

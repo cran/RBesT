@@ -16,7 +16,7 @@ structure(list(name = "gmap_binomial_covariate", seed = 873461L, nc = 1L,
     "theta[9]", "theta[10]", "theta[11]", "theta_pred"), variables = c("theta[1]", 
     "theta[2]", "theta[3]", "theta[4]", "theta[5]", "theta[6]", 
     "theta[7]", "theta[8]", "theta[9]", "theta[10]", "theta[11]", 
-    "beta[1]", "beta[2]", "beta[3]", "tau[1]", "theta_pred", 
+    "tau[1]", "beta[1]", "beta[2]", "beta[3]", "theta_pred", 
     "theta_resp_pred", "lp__"), draws_dim = c(1000L, 4L, 18L), 
     diag_variables = c("accept_stat__", "stepsize__", "treedepth__", 
     "n_leapfrog__", "divergent__", "energy__"), metadata_mcmc = list(

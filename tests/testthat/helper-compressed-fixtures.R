@@ -217,10 +217,12 @@ rehydrate_compact_gmap_draws <- function(spec, skeleton) {
     )
   }
 
+  ## the column order mirrors the Stan output, where `beta` is a generated
+  ## quantity and therefore follows `tau`
   draw_matrix <- cbind(
     theta_draws[, startsWith(colnames(theta_draws), "theta["), drop = FALSE],
-    model_draws[, startsWith(colnames(model_draws), "beta["), drop = FALSE],
     tau_draws,
+    model_draws[, startsWith(colnames(model_draws), "beta["), drop = FALSE],
     predictive_draws,
     model_draws[, "lp__", drop = FALSE]
   )
@@ -260,8 +262,8 @@ compact_gmap_draw_variables <- function(draws_model, draws_theta, x, tau_variabl
   beta_vars <- colnames(draws_model)[startsWith(colnames(draws_model), "beta[")]
   c(
     theta_vars,
-    beta_vars,
     tau_variables,
+    beta_vars,
     if (x$has_intercept) c("theta_pred", "theta_resp_pred"),
     "lp__"
   )

@@ -37,6 +37,15 @@
 #' function. This is a consequence of the limited precision of the
 #' textual representation as defined by the `digits` argument.
 #'
+#' Whenever the requested precision is so low that a mixture weight is
+#'   written as zero, then `write_mix_json` issues a warning, but
+#'   still writes the mixture. Such a mixture can be read back
+#'   without problems, since `read_mix_json` rescales the weights
+#'   by default and zero weighted components are maintained. However,
+#'   in case all mixture weights are written as zero, then
+#'   `write_mix_json` aborts with an error as the mixture cannot be
+#'   recovered any more from such a representation.
+#'
 #' @return The `write_mix_json` function does not return a value while
 #'   the `read_mix_json` returns the mixture object stored in the
 #'   connection specified.
@@ -74,8 +83,49 @@ write_mix_json <- function(mix, con, ...) {
   umix <- unclass(mix)
   amix <- attributes(mix)
   amix$link <- amix$link$name
+  check_json_weights(umix, dot_args$digits)
   json <- jsonlite::toJSON(list(meta = amix, comp = umix), ...)
   writeLines(json, con, useBytes = TRUE)
+}
+
+## determines the mixture weights as they are written to JSON by
+## jsonlite and warns (errors) whenever some (all) weights become zero
+check_json_weights <- function(umix, digits) {
+  if (is.null(digits)) {
+    digits <- formals(jsonlite::toJSON)$digits
+  }
+  weights <- umix[1, ]
+  ## round-trip the weights through jsonlite in order to obtain the
+  ## weights exactly as these are represented in the JSON output
+  written <- jsonlite::fromJSON(jsonlite::toJSON(
+    unname(weights),
+    digits = digits
+  ))
+  is_zero <- written == 0
+  if (!any(is_zero)) {
+    return(invisible(TRUE))
+  }
+  if (all(is_zero)) {
+    stop(
+      "All mixture weights are written as zero with the requested precision (digits = ",
+      digits,
+      ").\nPlease increase the precision used for the JSON representation."
+    )
+  }
+  labels <- colnames(umix)
+  if (is.null(labels)) {
+    labels <- which(is_zero)
+  } else {
+    labels <- labels[is_zero]
+  }
+  warning(
+    "Mixture weight of component(s) ",
+    paste0("'", labels, "'", collapse = ", "),
+    " written as zero with the requested precision (digits = ",
+    digits,
+    ").\nThe stored mixture differs from the mixture given."
+  )
+  invisible(TRUE)
 }
 
 #' @rdname mixjson
@@ -84,10 +134,22 @@ write_mix_json <- function(mix, con, ...) {
 #' @export
 read_mix_json <- function(con, ..., rescale = TRUE) {
   json <- readLines(con)
-  mix_list <- jsonlite::fromJSON(json, ...)
-  mix <- mix_list$comp
-  attributes(mix) <- mix_list$meta
+  dot_args <- list(...)
+  dot_args$simplifyMatrix <- FALSE
+  mix_list <- do.call(jsonlite::fromJSON, c(list(txt = json), dot_args))
+  mix <- do.call(
+    rbind,
+    lapply(mix_list$comp, function(component) unlist(component, use.names = FALSE))
+  )
+  meta <- mix_list$meta
+  attributes(mix) <- meta
   attr(mix, "link") <- link_map[[mix_list$meta$link]]
+  if (all(mix[1, ] == 0)) {
+    stop(
+      "All mixture weights are zero such that the mixture is not defined.\n",
+      "Please increase the precision used when writing the mixture as JSON."
+    )
+  }
   if (rescale) {
     mix[1, ] <- mix[1, ] / sum(mix[1, ])
   }

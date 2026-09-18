@@ -5,7 +5,7 @@ structure(list(name = "gmap_binomial_noncontinuous_studies", seed = 873461L,
     "theta[2]", "theta[3]", "theta[4]", "theta[5]", "theta[6]", 
     "theta[7]", "theta_pred"), variables = c("theta[1]", "theta[2]", 
     "theta[3]", "theta[4]", "theta[5]", "theta[6]", "theta[7]", 
-    "beta[1]", "tau[1]", "theta_pred", "theta_resp_pred", "lp__"
+    "tau[1]", "beta[1]", "theta_pred", "theta_resp_pred", "lp__"
     ), draws_dim = c(1000L, 4L, 12L), diag_variables = c("accept_stat__", 
     "stepsize__", "treedepth__", "n_leapfrog__", "divergent__", 
     "energy__"), metadata_mcmc = list(iter = 2000, warmup = 1000, 

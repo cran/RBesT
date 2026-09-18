@@ -9,7 +9,7 @@ structure(list(name = "gmap_binomial_covariate_rows", seed = 873461L, nc = 1L,
     has_intercept = TRUE, tau_fixed = TRUE, tau_values = c(`tau[1]` = 0.25), 
     variables_model = c("beta[1]", "beta[2]", "lp__"), variables_theta = c("theta[1]", 
     "theta[2]", "theta[3]", "theta_pred"), variables = c("theta[1]", 
-    "theta[2]", "theta[3]", "beta[1]", "beta[2]", "tau[1]", "theta_pred", 
+    "theta[2]", "theta[3]", "tau[1]", "beta[1]", "beta[2]", "theta_pred", 
     "theta_resp_pred", "lp__"), draws_dim = c(1000L, 4L, 9L), 
     diag_variables = c("accept_stat__", "stepsize__", "treedepth__", 
     "n_leapfrog__", "divergent__", "energy__"), metadata_mcmc = list(

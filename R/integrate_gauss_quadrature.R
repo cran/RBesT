@@ -133,15 +133,15 @@ NULL
 
 # --- GH node/weight cache ---------------------------------------------------
 
-.GH_cache <- new.env(parent = emptyenv())
+.GQ_cache <- new.env(parent = emptyenv())
 
-.get_GH_rule <- function(n) {
-  key <- as.character(n)
-  if (!exists(key, envir = .GH_cache)) {
-    rule <- statmod::gauss.quad(n, kind = "hermite")
-    assign(key, rule, envir = .GH_cache)
+.get_GQ_rule <- function(n, kind = "hermite") {
+  key <- paste(kind, n, sep = "-")
+  if (!exists(key, envir = .GQ_cache)) {
+    rule <- statmod::gauss.quad(n, kind = kind)
+    assign(key, rule, envir = .GQ_cache)
   }
-  get(key, envir = .GH_cache)
+  get(key, envir = .GQ_cache)
 }
 
 # --- normMix methods ---------------------------------------------------------
@@ -156,7 +156,7 @@ integrate_density.normMix <- function(mix, integrand, ...) {
   }
 
   eval_at_n <- function(n) {
-    gh <- .get_GH_rule(n)
+    gh <- .get_GQ_rule(n)
     t_nodes <- gh$nodes
     weights <- gh$weights
     Nc <- ncol(mix)

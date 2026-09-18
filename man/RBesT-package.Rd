@@ -34,10 +34,15 @@ Option \tab Default \tab Description \cr
 \code{RBesT.MC.chains} \tab 4 \tab MCMC chains\cr
 \code{RBesT.MC.thin} \tab 4 \tab MCMC thinning \cr
 \code{RBesT.MC.save_warmup} \tab \code{FALSE} \tab MCMC warmup samples saving \cr
-\code{RBesT.MC.control} \tab \verb{list(adapt_delta=0.99,} \tab sets \code{control} argument for Stan call\cr
-\tab \verb{stepsize=0.01,} \tab \cr
-\tab \verb{max_treedepth=20)} \tab \cr
-\code{RBesT.MC.ncp} \tab 1 \tab parametrization: 0=CP, 1=NCP, 2=Automatic  \cr
+\code{RBesT.MC.control} \tab \verb{list(adapt_delta=0.95,} \tab sets \code{control} argument for Stan call.\cr
+\tab \verb{stepsize=0.01,} \tab \code{adapt_delta} defaults to \code{0.99} whenever\cr
+\tab \verb{max_treedepth=20)} \tab \code{RBesT.MC.s2z} is \code{FALSE}\cr
+\code{RBesT.MC.s2z} \tab \code{TRUE} \tab sum-to-zero parametrization of the group\cr
+\tab \tab random effects; \code{FALSE} uses the conventional representation;\cr
+\tab \tab see the references\cr
+\code{RBesT.MC.ncp} \tab 3 \tab group-effect parametrization: 0=CP, 1=NCP,\cr
+\tab \tab 2=automatic CP/NCP endpoint from quadrature-derived\cr
+\tab \tab per-group fractions, 3=automatic partial centering\cr
 \code{RBesT.MC.init} \tab 1 \tab range of initial uniform \eqn{[-1,1]} is the default  \cr
 \code{RBesT.MC.rescale} \tab \code{TRUE} \tab Automatic rescaling of raw parameters  \cr
 \code{RBesT.verbose} \tab \code{FALSE} \tab requests outputs to be more verbose\cr
@@ -66,6 +71,8 @@ See \code{NEWS.md} file.
 
 \references{
 \insertRef{rstan}{RBesT}
+
+\insertRef{pinkney2026}{RBesT}
 }
 \seealso{
 Useful links:
