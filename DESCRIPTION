@@ -8,7 +8,7 @@ Description: Tool-set to support Bayesian evidence synthesis.  This
     for details on applying this package while Neuenschwander et al. (2010)
     <doi:10.1177/1740774509356002> and Schmidli et al. (2014)
     <doi:10.1111/biom.12242> explain details on the methodology.
-Version: 1.12-0
+Version: 1.12-1
 Authors@R: c(person("Novartis", "Pharma AG", role = "cph")
             ,person("Sebastian", "Weber", email="sebastian.weber@novartis.com", role=c("aut", "cre"))
             ,person("Beat", "Neuenschwander", email="beat.neuenschwander@novartis.com", role="ctb")
@@ -43,9 +43,9 @@ VignetteBuilder: knitr
 SystemRequirements: GNU make, pandoc (>= 1.12.3), pngquant, C++17
 Encoding: UTF-8
 Config/testthat/edition: 3
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1
 RdMacros: Rdpack
-Packaged: 2026-09-18 08:02:55 UTC; runner
+Packaged: 2026-11-23 13:38:52 UTC; runner
 Author: Novartis Pharma AG [cph],
   Sebastian Weber [aut, cre],
   Beat Neuenschwander [ctb],
@@ -60,4 +60,4 @@ Author: Novartis Pharma AG [cph],
     configure.win)
 Maintainer: Sebastian Weber <sebastian.weber@novartis.com>
 Repository: CRAN
-Date/Publication: 2026-09-18 09:32:04 UTC
+Date/Publication: 2026-11-23 16:50:02 UTC
